@@ -10,3 +10,11 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class OptimaModel(BaseModel):
+    optima_id = models.IntegerField(null=True, blank=True)
+    exported = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
