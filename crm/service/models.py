@@ -1,5 +1,3 @@
-from enum import Enum
-
 from django.db import models
 
 from crm.contractors.models import Contractor
@@ -40,14 +38,16 @@ class Device(OptimaModel):
 class ServiceOrder(OptimaModel):
     # Optima table - CDN.SrsZlecenia
     class States(models.IntegerChoices):
-        ACCEPTED = 0, 'Accepted'
-        IN_REALIZATION = 1, 'In realization'
-        REALIZED = 2, 'Realized'
+        ACCEPTED = 0, "Accepted"
+        IN_REALIZATION = 1, "In realization"
+        REALIZED = 2, "Realized"
 
-    document_type = models.ForeignKey(DocumentType, null=False, blank=False, related_name='service_order',
-                                      on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, null=True, blank=True, related_name='service_order',
-                                 on_delete=models.CASCADE)
+    document_type = models.ForeignKey(
+        DocumentType, null=False, blank=False, related_name="service_order", on_delete=models.CASCADE
+    )
+    category = models.ForeignKey(
+        Category, null=True, blank=True, related_name="service_order", on_delete=models.CASCADE
+    )
     number_scheme = models.CharField(max_length=255)
     number = models.IntegerField()
     status = models.BooleanField(default=False)
