@@ -1,5 +1,8 @@
 import json
 
+import pyodbc
+from django.conf import settings
+
 from crm.core.exceptions import IsValidException
 
 
@@ -55,17 +58,32 @@ class BaseOptimaSerializer:
 
 
 class OptimaConnection:
-    pass
+    def __init__(self):
+        try:
+            self.cnxn = pyodbc.connect(
+                "Driver={ODBC Driver 17 for SQL Server};"
+                f"Server={settings.OPTIMA_DB['SERVER']};"
+                f"Database={settings.OPTIMA_DB['DATABASE']};"
+                f"uid={settings.OPTIMA_DB['UID']};"
+                f"pwd={settings.OPTIMA_DB['PASSWORD']}",
+                autocommit=False,
+            )
+        except pyodbc.OperationalError:
+            self.cnxn = None
+            self.cursor = None
+        else:
+            self.cursor = self.cnxn.cursor()
 
 
 class OptimaObject:
-    query = None
+    get_queryset = None
+    post_queryset = None
 
     def __init__(self):
-        self.connection = OptimaConnection()
+        self.connection = OptimaConnection().cursor
 
     def get(self):
-        pass
+        return self.connection.execute(self.get_queryset).fetchall()
 
     def post(self):
         pass
