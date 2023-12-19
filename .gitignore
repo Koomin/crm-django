@@ -183,8 +183,7 @@ typings/
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
-.idea/crm.iml
-.idea/runConfigurations/*
+
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
