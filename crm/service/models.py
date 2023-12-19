@@ -8,6 +8,7 @@ from crm.warehouses.models import Warehouse
 
 
 class Category(OptimaModel):
+    # Optima table - CDN.Kategorie
     code = models.CharField(max_length=255)
     code_detailed = models.CharField(max_length=255)
     description = models.CharField(max_length=1024)
