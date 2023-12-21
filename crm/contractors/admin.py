@@ -1,3 +1,9 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 
-# Register your models here.
+from crm.contractors.models import Contractor
+
+
+@admin.register(Contractor)
+class ContractorAdmin(ModelAdmin):
+    pass

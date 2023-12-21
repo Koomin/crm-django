@@ -1,3 +1,9 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 
-# Register your models here.
+from crm.warehouses.models import Warehouse
+
+
+@admin.register(Warehouse)
+class WarehouseAdmin(ModelAdmin):
+    pass

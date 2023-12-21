@@ -1,3 +1,9 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 
-# Register your models here.
+from crm.documents.models import DocumentType
+
+
+@admin.register(DocumentType)
+class DocumentTypeAdmin(ModelAdmin):
+    pass
