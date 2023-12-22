@@ -36,7 +36,14 @@ WORKDIR ${APP_HOME}
 
 # devcontainer dependencies and utils
 RUN apt-get update && apt-get install --no-install-recommends -y \
-  sudo git bash-completion nano ssh unixodbc
+  sudo git bash-completion nano ssh unixodbc curl netcat
+
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get -y install msodbcsql17
+
 
 # Create devcontainer user and add it to sudoers
 RUN groupadd --gid 1000 dev-user \
