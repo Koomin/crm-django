@@ -36,7 +36,8 @@ WORKDIR ${APP_HOME}
 
 # devcontainer dependencies and utils
 RUN apt-get update && apt-get install --no-install-recommends -y \
-  sudo git bash-completion nano ssh unixodbc curl netcat g++ apt-transport-https gcc
+  sudo git bash-completion nano ssh unixodbc curl netcat g++ \
+  apt-transport-https gcc gnupg
 
 
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
