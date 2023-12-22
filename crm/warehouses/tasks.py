@@ -1,6 +1,7 @@
 from config import celery_app
 from crm.warehouses.models import Warehouse
-
+from crm.warehouses.optima_api.serializers import WarehouseSerializer
+from crm.warehouses.optima_api.views import WarehouseObject
 
 @celery_app.task()
 def import_warehouses():
