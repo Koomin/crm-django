@@ -341,8 +341,8 @@ SPECTACULAR_SETTINGS = {
 # Your stuff...
 # ------------------------------------------------------------------------------
 OPTIMA_DB = {
-    'SERVER': env('OPTIMA_SERVER'),
-    'DATABASE': env('OPTIMA_DB'),
-    'UID': env('OPTIMA_USER'),
-    'PASSWORD': env('OPTIMA_PASSWORD')
+    "SERVER": env("OPTIMA_SERVER"),
+    "DATABASE": env("OPTIMA_DB"),
+    "UID": env("OPTIMA_USER"),
+    "PASSWORD": env("OPTIMA_PASSWORD"),
 }
