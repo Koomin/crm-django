@@ -9,7 +9,12 @@ class ContractorSerializer(BaseOptimaSerializer):
         return (self.obj[12] + " " + self.obj[13] + " " + self.obj[14]).strip()
 
     def _get_home_number(self):
-        return self.obj[9] if self.obj[9] else None
+        try:
+            _home_number = int(self.obj[9])
+        except ValueError:
+            return None
+        else:
+            return _home_number
 
     def _deserialize(self) -> dict:
         return {
