@@ -13,7 +13,7 @@ class BaseModel(models.Model):
 
 
 class OptimaModel(BaseModel):
-    optima_id = models.IntegerField(null=True, blank=True)
+    optima_id = models.IntegerField(null=True, blank=True, unique=True)
     exported = models.BooleanField(default=False)
 
     class Meta:
