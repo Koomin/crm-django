@@ -10,7 +10,7 @@ class WarehouseSerializer(BaseOptimaSerializer):
             "optima_id": self.obj[0],
             "type": self.obj[1],
             "symbol": self.obj[2],
-            "is_active": self.obj[3],
+            "active": self.obj[3],
             "name": self.obj[4],
             "description": self.obj[5],
             "register": self.obj[6],

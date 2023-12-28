@@ -17,6 +17,10 @@ services:
       - mailpit
     volumes:
       - .:/app:z
+    extra_hosts:
+      - sql-host:192.168.0.239
+    environment:
+      - OPTIMA_SERVER=tcp:sql-host
     env_file:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
