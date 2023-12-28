@@ -8,6 +8,9 @@ class ContractorSerializer(BaseOptimaSerializer):
     def _get_name(self):
         return (self.obj[12] + " " + self.obj[13] + " " + self.obj[14]).strip()
 
+    def _get_home_number(self):
+        return self.obj[9] if self.obj[9] else None
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -19,7 +22,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "city": self.obj[6],
             "street": self.obj[7],
             "street_number": self.obj[8],
-            "home_number": self.obj[9],
+            "home_number": self._get_home_number(),
             "post": self.obj[10],
             "state": self.obj[11],
             "name": self._get_name(),
