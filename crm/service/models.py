@@ -54,7 +54,7 @@ class ServiceOrder(OptimaModel):
     status = models.BooleanField(default=False)
     state = models.IntegerField(choices=States.choices, default=States.ACCEPTED)
     contractor = models.ForeignKey(Contractor, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     document_date = models.DateTimeField()
     acceptance_date = models.DateTimeField()
     realization_date = models.DateTimeField()
