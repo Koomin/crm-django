@@ -26,7 +26,9 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 
 class DeviceSerializer(serializers.ModelSerializer):
-    device_type_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=DeviceType.objects.all())
+    device_type_uuid = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=DeviceType.objects.all(), allow_null=True
+    )
 
     class Meta:
         model = Device
@@ -34,13 +36,17 @@ class DeviceSerializer(serializers.ModelSerializer):
 
 
 class ServiceOrderSerializer(serializers.ModelSerializer):
-    document_type_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=DocumentType.objects.all())
-    category_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Category.objects.all())
-    contractor_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all())
-    user_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all())
-    warehouse_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all())
-    stage_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Stage.objects.all())
-    device_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=DeviceType.objects.all())
+    document_type_uuid = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=DocumentType.objects.all(), allow_null=True
+    )
+    category_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Category.objects.all(), allow_null=True)
+    contractor_uuid = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=Contractor.objects.all(), allow_null=True
+    )
+    user_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all(), allow_null=True)
+    warehouse_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), allow_null=True)
+    stage_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Stage.objects.all(), allow_null=True)
+    device_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=DeviceType.objects.all(), allow_null=True)
 
     class Meta:
         model = ServiceOrder
