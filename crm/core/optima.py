@@ -13,8 +13,8 @@ class BaseOptimaSerializer:
     def __init__(self, obj):
         self._data = None
         self._valid = False
+        self.obj = obj
         if isinstance(obj, self.model):
-            self.obj = obj
             self._deserialization = False
         else:
             self._deserialization = True
