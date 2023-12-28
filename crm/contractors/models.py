@@ -5,7 +5,7 @@ from crm.core.models import OptimaModel
 
 class Contractor(OptimaModel):
     code = models.CharField(max_length=120, null=False)
-    postal_code = models.CharField(max_length=6)
+    postal_code = models.CharField(max_length=20)
     tax_number = models.CharField(max_length=30)
     phone_number = models.CharField(max_length=30)
     country = models.CharField(max_length=50)
