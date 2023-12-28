@@ -60,7 +60,7 @@ class ServiceOrder(OptimaModel):
     realization_date = models.DateTimeField()
     closing_date = models.DateTimeField()
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
-    stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
+    stage = models.ForeignKey(Stage, on_delete=models.CASCADE, null=True)
     net_value = models.DecimalField(decimal_places=2, max_digits=12)
     gross_value = models.DecimalField(decimal_places=2, max_digits=12)
     description = models.TextField()
