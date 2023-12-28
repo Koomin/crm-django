@@ -58,4 +58,4 @@ def import_service_orders():
     objects = service_order_object.get()
     for obj in objects:
         serializer = ServiceOrderSerializer(obj)
-        ServiceOrder.objects.create(**serializer.data)
+        ServiceOrder.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
