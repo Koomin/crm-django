@@ -1,10 +1,6 @@
 from rest_framework import serializers
 
-from crm.contractors.models import Contractor
-from crm.documents.models import DocumentType
 from crm.service.models import Category, Device, DeviceType, ServiceOrder, Stage
-from crm.users.models import User
-from crm.warehouses.models import Warehouse
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -26,46 +22,40 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 
 class DeviceSerializer(serializers.ModelSerializer):
-    device_type_uuid = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=DeviceType.objects.all(), allow_null=True
-    )
+    device_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
 
     class Meta:
         model = Device
-        fields = ["uuid", "code", "name", "description", "device_type_uuid"]
+        fields = ["uuid", "code", "name", "description", "device_type"]
 
 
 class ServiceOrderSerializer(serializers.ModelSerializer):
-    document_type_uuid = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=DocumentType.objects.all(), allow_null=True
-    )
-    category_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Category.objects.all(), allow_null=True)
-    contractor_uuid = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=Contractor.objects.all(), allow_null=True
-    )
-    user_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all(), allow_null=True)
-    warehouse_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), allow_null=True)
-    stage_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Stage.objects.all(), allow_null=True)
+    document_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    category = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    contractor = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    user = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    warehouse = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    stage = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
     device = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
 
     class Meta:
         model = ServiceOrder
         fields = [
             "uuid",
-            "document_type_uuid",
-            "category_uuid",
+            "document_type",
+            "category",
             "number_scheme",
             "number",
             "status",
             "state",
-            "contractor_uuid",
-            "user_uuid",
+            "contractor",
+            "user",
             "document_date",
             "acceptance_date",
             "realization_date",
             "closing_date",
-            "warehouse_uuid",
-            "stage_uuid",
+            "warehouse",
+            "stage",
             "net_value",
             "gross_value",
             "description",
