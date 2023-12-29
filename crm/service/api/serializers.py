@@ -69,5 +69,5 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "net_value",
             "gross_value",
             "description",
-            "device_uuid",
+            "device",
         ]
