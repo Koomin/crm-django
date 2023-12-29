@@ -46,7 +46,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     user_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all(), allow_null=True)
     warehouse_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), allow_null=True)
     stage_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=Stage.objects.all(), allow_null=True)
-    device_uuid = serializers.SlugRelatedField(slug_field="uuid", queryset=DeviceType.objects.all(), allow_null=True)
+    device = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
 
     class Meta:
         model = ServiceOrder
