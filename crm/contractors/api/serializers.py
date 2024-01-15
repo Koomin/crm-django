@@ -20,4 +20,5 @@ class ContractorSerializer(serializers.ModelSerializer):
             "post",
             "state",
             "name",
+            "confirmed",
         ]

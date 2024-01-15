@@ -122,4 +122,5 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "gross_value": self.obj[16],
             "description": self.obj[17],
             "device": self._get_device(),
+            "full_number": self.obj[19],
         }

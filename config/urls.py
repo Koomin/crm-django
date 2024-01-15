@@ -8,6 +8,8 @@ from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 
+from crm.users.api.views import TokenWithUserObtainPairView, TokenWithUserRefreshView
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
@@ -28,6 +30,8 @@ urlpatterns += [
     path("api/v1/", include("config.api_router")),
     # DRF auth token
     path("auth-token/", obtain_auth_token),
+    path("api/v1/token/", TokenWithUserObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/v1/token/refresh/", TokenWithUserRefreshView.as_view(), name="token_refresh"),
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(
         "api/v1/docs/",
