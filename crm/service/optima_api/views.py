@@ -29,6 +29,6 @@ class ServiceOrderObject(OptimaObject):
         "SELECT SRS.SrZ_SrZId, SRS.SrZ_DDfId, SRS.SrZ_KatID, SRS.SrZ_NumerString, SRS.SrZ_NumerNr, "
         "SRS.SrZ_Bufor, SRS.SrZ_Stan, SRS.SrZ_PodmiotId, SRS.SrZ_OpeZalId, SRS.SrZ_DataDok, "
         "SRS.SrZ_DataPrzyjecia, SRS.SrZ_DataRealizacji, SRS.SrZ_DataZamkniecia, SRS.SrZ_MagId, "
-        "SRS.SrZ_EtapId, SRS.SrZ_WartoscNetto, SRS.SrZ_WartoscBrutto, SRS.SrZ_Opis, SRS.SrZ_SrUId "
+        "SRS.SrZ_EtapId, SRS.SrZ_WartoscNetto, SRS.SrZ_WartoscBrutto, SRS.SrZ_Opis, SRS.SrZ_SrUId, SRS.SrZ_NumerPelny "
         "FROM CDN.SrsZlecenia as SRS"
     )

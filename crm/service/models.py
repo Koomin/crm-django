@@ -51,6 +51,7 @@ class ServiceOrder(OptimaModel):
     )
     number_scheme = models.CharField(max_length=255)
     number = models.IntegerField()
+    full_number = models.CharField(max_length=255, null=True)
     status = models.BooleanField(default=False)
     state = models.IntegerField(choices=States.choices, default=States.ACCEPTED)
     contractor = models.ForeignKey(Contractor, on_delete=models.CASCADE, null=True)

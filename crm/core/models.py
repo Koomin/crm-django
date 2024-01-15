@@ -18,3 +18,9 @@ class OptimaModel(BaseModel):
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        try:
+            return self.name
+        except AttributeError:
+            return super().__str__()

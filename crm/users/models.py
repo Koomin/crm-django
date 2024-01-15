@@ -1,4 +1,7 @@
+import uuid as uuid_lib
+
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.db.models import CharField, IntegerField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -12,10 +15,10 @@ class User(AbstractUser):
     """
 
     # First and last name do not cover name patterns around the globe
-    name = CharField(_("Name of User"), blank=True, max_length=255)
+    uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
+    first_name = CharField(_("Name of User"), blank=True, max_length=255)
+    last_name = CharField(_("Last Name of User"), blank=True, max_length=255)
     optima_id = IntegerField(null=True, blank=True)
-    first_name = None  # type: ignore
-    last_name = None  # type: ignore
 
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.
