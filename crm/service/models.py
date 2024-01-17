@@ -39,9 +39,11 @@ class Device(OptimaModel):
 class ServiceOrder(OptimaModel):
     # Optima table - CDN.SrsZlecenia
     class States(models.IntegerChoices):
-        ACCEPTED = 0, "Accepted"
+        ACCEPTED = 0, "Accepted"  # przyjęte Optima
         IN_REALIZATION = 1, "In realization"
         REALIZED = 2, "Realized"
+        CANCELED = 3, "Canceled"
+        NEW = 99, "New"
 
     document_type = models.ForeignKey(
         DocumentType, null=False, blank=False, related_name="service_order", on_delete=models.CASCADE
@@ -55,6 +57,19 @@ class ServiceOrder(OptimaModel):
     status = models.BooleanField(default=False)
     state = models.IntegerField(choices=States.choices, default=States.ACCEPTED)
     contractor = models.ForeignKey(Contractor, on_delete=models.CASCADE, null=True)
+    contractor_type = models.IntegerField(null=True)
+    contractor_name = models.CharField(max_length=1024)
+    contractor_name1 = models.CharField(max_length=1024)
+    contractor_name2 = models.CharField(max_length=1024)
+    contractor_name3 = models.CharField(max_length=1024)
+    contractor_city = models.CharField(max_length=120)
+    contractor_country = models.CharField(max_length=50)
+    contractor_street = models.CharField(max_length=200)
+    contractor_street_number = models.CharField(max_length=12)
+    contractor_home_number = models.IntegerField(null=True)
+    contractor_state = models.CharField(max_length=40)
+    contractor_post = models.CharField(max_length=120)
+    contractor_postal_code = models.CharField(max_length=120)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     document_date = models.DateTimeField(null=True)
     acceptance_date = models.DateTimeField(null=True)
@@ -66,3 +81,14 @@ class ServiceOrder(OptimaModel):
     gross_value = models.DecimalField(decimal_places=2, max_digits=12)
     description = models.TextField()
     device = models.ForeignKey(Device, on_delete=models.CASCADE, null=True)
+    email = models.CharField(max_length=255, null=True)
+    phone_number = models.CharField(max_length=255, null=True)
+
+
+class Note(OptimaModel):
+    # Optima table - CDN.SrsNotatki
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
+    number = models.IntegerField()
+    date = models.DateTimeField()
+    description = models.TextField(max_length=1024)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)

@@ -16,4 +16,7 @@ class Contractor(OptimaModel):
     post = models.CharField(max_length=120)
     state = models.CharField(max_length=40)
     name = models.CharField(max_length=1024)
+    name1 = models.CharField(max_length=1024)
+    name2 = models.CharField(max_length=1024)
+    name3 = models.CharField(max_length=1024)
     confirmed = models.BooleanField(default=False)

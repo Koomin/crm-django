@@ -58,12 +58,12 @@ class BaseOptimaSerializer:
 
 
 class OptimaConnection:
-    def __init__(self):
+    def __init__(self, database=None):
         try:
             self.cnxn = pyodbc.connect(
                 "Driver={ODBC Driver 17 for SQL Server};"
                 f"Server={settings.OPTIMA_DB['SERVER']};"
-                f"Database={settings.OPTIMA_DB['DATABASE']};"
+                f"Database={settings.OPTIMA_DB['DATABASE'] if not database else database};"
                 f"uid={settings.OPTIMA_DB['UID']};"
                 f"pwd={settings.OPTIMA_DB['PASSWORD']}",
                 autocommit=False,
@@ -79,8 +79,8 @@ class OptimaObject:
     get_queryset = None
     post_queryset = None
 
-    def __init__(self):
-        self.connection = OptimaConnection().cursor
+    def __init__(self, database=None):
+        self.connection = OptimaConnection(database).cursor
 
     def get(self):
         return self.connection.execute(self.get_queryset).fetchall()

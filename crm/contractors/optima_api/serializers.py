@@ -31,4 +31,8 @@ class ContractorSerializer(BaseOptimaSerializer):
             "post": self.obj[10],
             "state": self.obj[11],
             "name": self._get_name(),
+            "name1": self.obj[12],
+            "name2": self.obj[13],
+            "name3": self.obj[14],
+            "confirmed": True,
         }

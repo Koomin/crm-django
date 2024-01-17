@@ -2,9 +2,16 @@ import uuid as uuid_lib
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import CharField, IntegerField
+from django.db.models import CharField, OneToOneField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+from crm.core.models import OptimaModel
+
+
+class OptimaUser(OptimaModel):
+    name = models.CharField(_("Name"), max_length=1024)
+    code = models.CharField(_("Code"), max_length=10)
 
 
 class User(AbstractUser):
@@ -18,7 +25,7 @@ class User(AbstractUser):
     uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
     first_name = CharField(_("Name of User"), blank=True, max_length=255)
     last_name = CharField(_("Last Name of User"), blank=True, max_length=255)
-    optima_id = IntegerField(null=True, blank=True)
+    optima_user = OneToOneField(OptimaUser, on_delete=models.CASCADE, null=True, related_name="user")
 
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.

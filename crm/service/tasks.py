@@ -1,9 +1,10 @@
 from config import celery_app
-from crm.service.models import Category, Device, DeviceType, ServiceOrder, Stage
+from crm.service.models import Category, Device, DeviceType, Note, ServiceOrder, Stage
 from crm.service.optima_api.serializers import (
     CategorySerializer,
     DeviceSerializer,
     DeviceTypeSerializer,
+    NoteSerializer,
     ServiceOrderSerializer,
     StageSerializer,
 )
@@ -11,6 +12,7 @@ from crm.service.optima_api.views import (
     CategoryObject,
     DeviceObject,
     DeviceTypeObject,
+    NoteObject,
     ServiceOrderObject,
     StageObject,
 )
@@ -59,3 +61,12 @@ def import_service_orders():
     for obj in objects:
         serializer = ServiceOrderSerializer(obj)
         ServiceOrder.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
+
+
+@celery_app.task()
+def import_notes():
+    note_object = NoteObject()
+    objects = note_object.get()
+    for obj in objects:
+        serializer = NoteSerializer(obj)
+        Note.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
