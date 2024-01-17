@@ -66,6 +66,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "category_code",
             "number_scheme",
             "number",
+            "full_number",
             "status",
             "state",
             "contractor",

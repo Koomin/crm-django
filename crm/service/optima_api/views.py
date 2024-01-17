@@ -29,6 +29,18 @@ class ServiceOrderObject(OptimaObject):
         "SELECT SRS.SrZ_SrZId, SRS.SrZ_DDfId, SRS.SrZ_KatID, SRS.SrZ_NumerString, SRS.SrZ_NumerNr, "
         "SRS.SrZ_Bufor, SRS.SrZ_Stan, SRS.SrZ_PodmiotId, SRS.SrZ_OpeZalId, SRS.SrZ_DataDok, "
         "SRS.SrZ_DataPrzyjecia, SRS.SrZ_DataRealizacji, SRS.SrZ_DataZamkniecia, SRS.SrZ_MagId, "
-        "SRS.SrZ_EtapId, SRS.SrZ_WartoscNetto, SRS.SrZ_WartoscBrutto, SRS.SrZ_Opis, SRS.SrZ_SrUId, SRS.SrZ_NumerPelny "
+        "SRS.SrZ_EtapId, SRS.SrZ_WartoscNetto, SRS.SrZ_WartoscBrutto, SRS.SrZ_Opis, SRS.SrZ_SrUId, "
+        "SRS.SrZ_NumerPelny, SRS.SrZ_Email, SRS.SrZ_Telefon, SRS.SrZ_PodKraj, SRS.SrZ_PodMiasto, "
+        "SRS.SrZ_PodNazwa1, SRS.SrZ_PodNazwa2, SRS.SrZ_PodNazwa3, SRS.SrZ_PodNrDomu, SRS.SrZ_PodNrLokalu, "
+        "SRS.SrZ_PodPoczta, SRS.SrZ_PodUlica, SRS.SrZ_PodWojewodztwo, SRS.SrZ_PodmiotTyp, "
+        "SRS.SrZ_PodKodPocztowy "
         "FROM CDN.SrsZlecenia as SRS"
+    )
+
+
+class NoteObject(OptimaObject):
+    get_queryset = (
+        "SELECT SRS.SrN_SrNId, SRS.SrN_Lp, SRS.SrN_SerwisantTyp, SRS.SrN_SerwisantId, SRS.SrN_DataDok, SRS.SrN_Tresc, "
+        "SRS.SrN_SrZId "
+        "FROM CDN.SrsNotatki as SRS"
     )
