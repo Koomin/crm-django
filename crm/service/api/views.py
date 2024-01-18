@@ -7,10 +7,11 @@ from crm.service.api.serializers import (
     CategorySerializer,
     DeviceSerializer,
     DeviceTypeSerializer,
+    NoteSerializer,
     ServiceOrderSerializer,
     StageSerializer,
 )
-from crm.service.models import Category, Device, DeviceType, ServiceOrder, Stage
+from crm.service.models import Category, Device, DeviceType, Note, ServiceOrder, Stage
 
 
 class CategoryViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
@@ -31,6 +32,12 @@ class DeviceTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 class DeviceViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
+
+
+class NoteViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+    queryset = Note.objects.all().order_by("-date")
+    serializer_class = NoteSerializer
+    filterset_fields = ["uuid", "service_order"]
 
 
 class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseViewSet):
@@ -70,7 +77,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
     @action(detail=False)
     def rejected(self, request):
-        qs = self.queryset.filter(state=2)
+        qs = self.queryset.filter(state=3)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -80,7 +87,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
     @action(detail=False)
     def new(self, request):
-        qs = self.queryset.filter(optima_id__isnull=True)
+        qs = self.queryset.filter(optima_id__isnull=True, state=99)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

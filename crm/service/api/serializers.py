@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from crm.contractors.models import Contractor
 from crm.documents.models import DocumentType
-from crm.service.models import Category, Device, DeviceType, ServiceOrder, Stage
+from crm.service.models import Category, Device, DeviceType, Note, ServiceOrder, Stage
 from crm.warehouses.models import Warehouse
 
 
@@ -30,6 +30,12 @@ class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = ["uuid", "code", "name", "description", "device_type"]
+
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ["uuid", "service_order", "number", "date", "description", "user"]
 
 
 class ServiceOrderSerializer(serializers.ModelSerializer):
