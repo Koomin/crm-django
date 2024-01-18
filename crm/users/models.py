@@ -11,7 +11,10 @@ from crm.core.models import OptimaModel
 
 class OptimaUser(OptimaModel):
     name = models.CharField(_("Name"), max_length=1024)
-    code = models.CharField(_("Code"), max_length=10)
+    code = models.CharField(_("Code"), max_length=50)
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
 
 
 class User(AbstractUser):
