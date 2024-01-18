@@ -3,18 +3,16 @@ from crm.core.optima import OptimaObject
 
 class CategoryObject(OptimaObject):
     get_queryset = (
-        "SELECT Kat.Kat_KatID, Kat.Kat_KodOgolny, Kat.Kat_KodSzczegol, Kat.Kat_Opis " "FROM CDN.Kategorie as Kat"
+        "SELECT Kat.Kat_KatID, Kat.Kat_KodOgolny, Kat.Kat_KodSzczegol, Kat.Kat_Opis FROM CDN.Kategorie as Kat"
     )
 
 
 class StageObject(OptimaObject):
-    get_queryset = "SELECT DE.DEt_DEtId, DE.DEt_Typ, DE.DEt_Kod, DE.DEt_Opis " "FROM CDN.DefEtapy as DE"
+    get_queryset = "SELECT DE.DEt_DEtId, DE.DEt_Typ, DE.DEt_Kod, DE.DEt_Opis FROM CDN.DefEtapy as DE"
 
 
 class DeviceTypeObject(OptimaObject):
-    get_queryset = (
-        "SELECT SRS.SrR_SrRId, SRS.SrR_Kod, SRS.SrR_Nieaktywny, SRS.SrR_Nazwa " "FROM CDN.SrsRodzajeU as SRS"
-    )
+    get_queryset = "SELECT SRS.SrR_SrRId, SRS.SrR_Kod, SRS.SrR_Nieaktywny, SRS.SrR_Nazwa FROM CDN.SrsRodzajeU as SRS"
 
 
 class DeviceObject(OptimaObject):
