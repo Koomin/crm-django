@@ -15,7 +15,7 @@ def get_users_count():
 
 
 @celery_app.task()
-def import_contractors():
+def import_users():
     user_object = UserObject()
     users = user_object.get()
     for obj in users:
