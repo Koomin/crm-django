@@ -113,7 +113,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
 
     def _get_user(self):
         try:
-            optima_user = OptimaUser.objects.get(optima_id=self.obj[3])
+            optima_user = OptimaUser.objects.get(optima_id=self.obj[8])
         except ObjectDoesNotExist:
             return None
         else:
