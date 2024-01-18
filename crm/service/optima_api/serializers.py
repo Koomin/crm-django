@@ -4,7 +4,7 @@ from crm.contractors.models import Contractor
 from crm.core.optima import BaseOptimaSerializer
 from crm.documents.models import DocumentType
 from crm.service.models import Category, Device, DeviceType, Note, ServiceOrder, Stage
-from crm.users.models import OptimaUser, User
+from crm.users.models import OptimaUser
 from crm.warehouses.models import Warehouse
 
 
@@ -113,9 +113,15 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
 
     def _get_user(self):
         try:
-            return User.objects.get(optima_id=self.obj[8])
+            optima_user = OptimaUser.objects.get(optima_id=self.obj[3])
         except ObjectDoesNotExist:
             return None
+        else:
+            try:
+                user = optima_user.user
+                return user
+            except Exception:
+                return None
 
     def _get_warehouse(self):
         try:
