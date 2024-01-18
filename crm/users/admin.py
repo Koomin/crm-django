@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 from django.contrib.auth import admin as auth_admin
 from django.contrib.auth import decorators, get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from crm.users.forms import UserAdminChangeForm, UserAdminCreationForm
+from crm.users.models import OptimaUser
 
 User = get_user_model()
 
@@ -20,7 +22,7 @@ class UserAdmin(auth_admin.UserAdmin):
     add_form = UserAdminCreationForm
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", "email")}),
+        (_("Personal info"), {"fields": ("first_name", "last_name", "email", "optima_user")}),
         (
             _("Permissions"),
             {
@@ -37,3 +39,8 @@ class UserAdmin(auth_admin.UserAdmin):
     )
     list_display = ["username", "first_name", "last_name", "is_superuser"]
     search_fields = ["last_name"]
+
+
+@admin.register(OptimaUser)
+class OptimaUser(ModelAdmin):
+    pass
