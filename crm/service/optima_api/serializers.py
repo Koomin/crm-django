@@ -62,7 +62,11 @@ class NoteSerializer(BaseOptimaSerializer):
         except ObjectDoesNotExist:
             return None
         else:
-            return optima_user.user
+            try:
+                user = optima_user.user
+                return user
+            except optima_user.user.RelatedObjectDoesNotExist:
+                return None
 
     def _get_service_order(self):
         try:
