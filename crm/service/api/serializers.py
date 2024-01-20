@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from crm.contractors.models import Contractor
 from crm.documents.models import DocumentType
-from crm.service.models import Category, Device, DeviceType, ServiceOrder, Stage
+from crm.service.models import Category, Device, DeviceType, Note, OrderType, ServiceOrder, Stage
 from crm.warehouses.models import Warehouse
 
 
@@ -32,15 +32,27 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = ["uuid", "code", "name", "description", "device_type"]
 
 
+class NoteSerializer(serializers.ModelSerializer):
+    service_order = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
+    )
+
+    class Meta:
+        model = Note
+        fields = ["uuid", "service_order", "number", "date", "description", "user"]
+
+
 class ServiceOrderSerializer(serializers.ModelSerializer):
     document_type = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
     )
+    order_type = serializers.SlugRelatedField(slug_field="uuid", queryset=OrderType.objects.all(), read_only=False)
+    order_type_name = serializers.CharField(source="order_type.name", allow_null=True, required=False)
     document_type_name = serializers.CharField(source="document_type.symbol", allow_null=True, required=False)
     category = serializers.SlugRelatedField(slug_field="uuid", queryset=Category.objects.all(), read_only=False)
     category_code = serializers.CharField(source="category.code", allow_null=True, required=False)
     contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
-    contractor_name = serializers.CharField(source="contractor.name", allow_null=True, required=False)
+    # contractor_name = serializers.CharField(source="contractor.name", allow_null=True, required=False)
     user = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
     warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)
     warehouse_name = serializers.CharField(source="warehouse.name", allow_null=True, required=False)
@@ -71,6 +83,14 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "state",
             "contractor",
             "contractor_name",
+            "contractor_city",
+            "contractor_country",
+            "contractor_street",
+            "contractor_street_number",
+            "contractor_home_number",
+            "contractor_state",
+            "contractor_post",
+            "contractor_postal_code",
             "user",
             "document_date",
             "document_date_formatted",
@@ -90,4 +110,42 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "device",
             "device_name",
             "device_code",
+            "serial_number",
+            "purchase_document_number",
+            "purchase_date",
+            "order_type",
+            "order_type_name",
+            "email",
+            "phone_number",
+        ]
+
+
+class OrderTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderType
+        fields = ["uuid", "name"]
+
+
+class NewServiceOrderSerializer(serializers.ModelSerializer):
+    contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
+    order_type = serializers.SlugRelatedField(slug_field="uuid", queryset=OrderType.objects.all(), read_only=False)
+
+    class Meta:
+        model = ServiceOrder
+        fields = [
+            "contractor",
+            "contractor_name",
+            "contractor_city",
+            "contractor_country",
+            "contractor_street",
+            "contractor_postal_code",
+            "contractor_street_number",
+            "contractor_home_number",
+            "contractor_state",
+            "description",
+            "email",
+            "phone_number",
+            "purchase_document_number",
+            "serial_number",
+            "order_type",
         ]
