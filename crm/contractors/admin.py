@@ -6,4 +6,4 @@ from crm.contractors.models import Contractor
 
 @admin.register(Contractor)
 class ContractorAdmin(ModelAdmin):
-    pass
+    search_fields = ["name", "code"]

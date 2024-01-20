@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from crm.service.models import Category, Device, DeviceType, Note, ServiceOrder, Stage
+from crm.service.models import Category, Device, DeviceType, Note, OrderType, ServiceOrder, Stage
 
 
 @admin.register(Category)
@@ -31,4 +31,9 @@ class ServiceOrder(ModelAdmin):
 
 @admin.register(Note)
 class NoteAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(OrderType)
+class OrderTypeAdmin(ModelAdmin):
     pass
