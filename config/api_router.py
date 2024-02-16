@@ -10,6 +10,7 @@ from crm.service.api.views import (
     NewServiceOrderViewSet,
     NoteViewSet,
     OrderTypeViewSet,
+    PurchaseDocumentViewSet,
     ServiceOrderViewSet,
     StageViewSet,
 )
@@ -28,6 +29,7 @@ router.register("stages", StageViewSet)
 router.register("devices-types", DeviceTypeViewSet)
 router.register("devices", DeviceViewSet)
 router.register("service-orders", ServiceOrderViewSet)
+router.register("purchase-document", PurchaseDocumentViewSet)
 router.register("new-service-orders", NewServiceOrderViewSet)
 router.register("contractors", ContractorViewSet)
 router.register("document-types", DocumentTypeViewSet)

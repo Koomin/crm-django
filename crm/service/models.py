@@ -91,6 +91,7 @@ class ServiceOrder(OptimaModel):
     email = models.CharField(max_length=255, null=True)
     phone_number = models.CharField(max_length=255, null=True)
     order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True)
+    purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
 
 
 class Note(OptimaModel):
