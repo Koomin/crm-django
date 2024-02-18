@@ -14,6 +14,7 @@ from crm.service.api.serializers import (
     NewServiceOrderSerializer,
     NoteSerializer,
     OrderTypeSerializer,
+    PurchaseDocumentSerializer,
     ServiceOrderSerializer,
     StageSerializer,
 )
@@ -99,13 +100,19 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
     @action(detail=False)
     def new(self, request):
-        qs = self.queryset.filter(optima_id__isnull=True)
+        qs = self.queryset.filter(state=99)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(qs, many=True)
         return Response(data=serializer.data)
+
+
+class PurchaseDocumentViewSet(ListModelMixin, BaseViewSet):
+    queryset = ServiceOrder.objects.filter(purchase_document__isnull=False)
+    serializer_class = PurchaseDocumentSerializer
+    filterset_fields = ["uuid"]
 
 
 class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
@@ -131,7 +138,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
                 return Response("Nie znaleziono kontrahenta.", status=status.HTTP_404_NOT_FOUND)
             else:
                 data["contractor"] = contractor.uuid
-                data["contractor_name"] = data.pop("first_name") + " " + data.pop("last_name")
+                data["contractor_name"] = f'{data.pop("first_name")[0]} {data.pop("last_name")[0]}'
         try:
             OrderType.objects.get(uuid=data["order_type"])
         except ObjectDoesNotExist:

@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
+from crm.users.models import OptimaUser
 from crm.users.models import User as UserType
 
 User = get_user_model()
@@ -56,13 +57,19 @@ class TokenWithUserRefreshSerializer(TokenRefreshSerializer):
         return data
 
 
-class UserSerializer(
-    serializers.ModelSerializer[UserType],
-):
+class UserSerializer(serializers.ModelSerializer[UserType]):
+    optima_user = serializers.SlugRelatedField(slug_field="uuid", queryset=OptimaUser.objects.all(), read_only=False)
+
     class Meta:
         model = User
-        fields = ["uuid", "username", "first_name", "last_name", "url"]
+        fields = ["uuid", "username", "first_name", "last_name", "url", "optima_user"]
 
         extra_kwargs = {
             "url": {"view_name": "api:user-detail", "lookup_field": "uuid"},
         }
+
+
+class OptimaUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OptimaUser
+        fields = ["uuid", "name", "code"]
