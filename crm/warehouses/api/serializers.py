@@ -6,4 +6,4 @@ from crm.warehouses.models import Warehouse
 class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse
-        fields = ["uuid", "type", "name", "description", "symbol", "register", "active"]
+        fields = ["uuid", "type", "name", "description", "symbol", "register", "active", "document_type"]

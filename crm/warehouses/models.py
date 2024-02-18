@@ -1,6 +1,7 @@
 from django.db import models
 
 from crm.core.models import OptimaModel
+from crm.documents.models import DocumentType
 
 
 class Warehouse(OptimaModel):
@@ -16,3 +17,4 @@ class Warehouse(OptimaModel):
     symbol = models.CharField(max_length=55)
     register = models.CharField(max_length=20)
     active = models.BooleanField(default=True)
+    document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)

@@ -34,6 +34,7 @@ class Device(OptimaModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=1024)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
+    document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class OrderType(BaseModel):

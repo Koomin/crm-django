@@ -31,7 +31,7 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ["uuid", "code", "name", "description", "device_type"]
+        fields = ["uuid", "code", "name", "description", "device_type", "document_type"]
 
 
 class NoteSerializer(serializers.ModelSerializer):
