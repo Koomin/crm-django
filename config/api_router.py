@@ -14,7 +14,7 @@ from crm.service.api.views import (
     ServiceOrderViewSet,
     StageViewSet,
 )
-from crm.users.api.views import UserViewSet
+from crm.users.api.views import OptimaUserViewSet, UserViewSet
 from crm.warehouses.api.views import WarehouseViewSet
 
 if settings.DEBUG:
@@ -23,6 +23,7 @@ else:
     router = SimpleRouter()
 
 router.register("users", UserViewSet)
+router.register("optima-users", OptimaUserViewSet)
 router.register("warehouses", WarehouseViewSet)
 router.register("categories", CategoryViewSet)
 router.register("stages", StageViewSet)

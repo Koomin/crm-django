@@ -1,9 +1,10 @@
 from rest_framework import serializers
 
 from crm.contractors.models import Contractor
-from crm.core.api.fields import FileBase64Field
+from crm.core.api.fields import FileBase64Field, FileTypeField
 from crm.documents.models import DocumentType
 from crm.service.models import Category, Device, DeviceType, Note, OrderType, ServiceOrder, Stage
+from crm.users.models import User
 from crm.warehouses.models import Warehouse
 
 
@@ -54,7 +55,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     category_code = serializers.CharField(source="category.code", allow_null=True, required=False)
     contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
     # contractor_name = serializers.CharField(source="contractor.name", allow_null=True, required=False)
-    user = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    user = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all(), read_only=False)
     warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)
     warehouse_name = serializers.CharField(source="warehouse.name", allow_null=True, required=False)
     warehouse_symbol = serializers.CharField(source="warehouse.symbol", allow_null=True, required=False)
@@ -69,6 +70,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     device_name = serializers.CharField(source="device.name", allow_null=True, required=False)
     device_code = serializers.CharField(source="device.code", allow_null=True, required=False)
     purchase_document_base64 = FileBase64Field(source="purchase_document", required=False, read_only=True)
+    purchase_document_type = FileTypeField(source="purchase_document", required=False, read_only=True)
 
     class Meta:
         model = ServiceOrder
@@ -121,6 +123,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "email",
             "phone_number",
             "purchase_document_base64",
+            "purchase_document_type",
         ]
 
 

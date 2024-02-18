@@ -100,7 +100,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
     @action(detail=False)
     def new(self, request):
-        qs = self.queryset.filter(optima_id__isnull=True)
+        qs = self.queryset.filter(state=99)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
