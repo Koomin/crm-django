@@ -90,7 +90,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
 
     @action(detail=False)
     def rejected(self, request):
-        qs = self.queryset.filter(state=2)
+        qs = self.queryset.filter(state=3)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -116,7 +116,7 @@ class PurchaseDocumentViewSet(ListModelMixin, BaseViewSet):
 
 
 class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
-    queryset = ServiceOrder.objects.filter(state=99).order_by("-document_date")
+    queryset = ServiceOrder.objects.filter(state=99)
     serializer_class = NewServiceOrderSerializer
     permission_classes = [AllowAny]
 
@@ -139,6 +139,16 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             else:
                 data["contractor"] = contractor.uuid
                 data["contractor_name"] = f'{data.pop("first_name")[0]} {data.pop("last_name")[0]}'
+        description = data.get("description")
+        address = (
+            f'Adres: \n{data.get("contractor_street")} {data.get("contractor_home_number")}\n'
+            f'{data.get("contractor_city")} {data.get("contractor_state")}\n'
+            f'{data.get("contractor_postal_code")} {data.get("contractor_country")}\n'
+        )
+        additional_data = (
+            f'Numer dowodu zakupu: {data.get("purchase_document_number")}, Data zakupu: {data.get("purchase_date")}\n'
+        )
+        data["description"] = description + "\n" + address + additional_data
         try:
             OrderType.objects.get(uuid=data["order_type"])
         except ObjectDoesNotExist:

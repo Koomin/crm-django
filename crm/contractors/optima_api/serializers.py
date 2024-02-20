@@ -36,3 +36,21 @@ class ContractorSerializer(BaseOptimaSerializer):
             "name3": self.obj[14],
             "confirmed": True,
         }
+
+    def _serialize(self) -> dict:
+        return {
+            "Knt_KodPocztowy": self.obj.postal_code,
+            "Knt_Nip": self.obj.tax_number,
+            "Knt_Telefon1": self.obj.phone_number,
+            "Knt_Kraj": self.obj.country,
+            "Knt_Miasto": self.obj.city,
+            "Knt_Ulica": self.obj.street,
+            "Knt_NrDomu": self.obj.street_number,
+            "Knt_NrLokalu": self.obj.home_number,
+            "Knt_Poczta": self.obj.post,
+            "Knt_Wojewodztwo": self.obj.state,
+            "Knt_Nazwa1": self.obj.name1,
+            "Knt_Nazwa2": self.obj.name2,
+            "Knt_Nazwa3": self.obj.name3,
+            "Knt_Kod": self.obj.tax_number,
+        }

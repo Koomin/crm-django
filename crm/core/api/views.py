@@ -23,3 +23,6 @@ class BaseViewSet(viewsets.GenericViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(data=serializer.data)
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("-created")

@@ -78,12 +78,23 @@ class OptimaConnection:
 class OptimaObject:
     get_queryset = None
     post_queryset = None
+    fields = None
+    table_name = None
 
     def __init__(self, database=None):
         self.connection = OptimaConnection(database).cursor
 
+    def _prepare_insert_queryset(self, fields):
+        return f"INSERT INTO {self.table_name} " f"({fields}) VALUES " f"({','.join('?' * len(fields))})"
+
     def get(self):
         return self.connection.execute(self.get_queryset).fetchall()
 
-    def post(self):
-        pass
+    def _get_optima_id(self):
+        return self.connection.execute("SELECT @@Identity").fetchone()[0]
+
+    def post(self, obj):
+        fields = ",".join(field for field in obj.keys())
+        insert_queryset = self._prepare_insert_queryset(fields)
+        self.connection.execute(insert_queryset, obj.values())
+        return self._get_optima_id()

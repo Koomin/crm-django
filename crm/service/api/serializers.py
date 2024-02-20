@@ -28,6 +28,9 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 class DeviceSerializer(serializers.ModelSerializer):
     device_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    document_type = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Device
