@@ -32,7 +32,7 @@ class Contractor(OptimaModel):
 
             serializer = ContractorSerializer(self)
             if serializer.is_valid():
-                connection = ContractorObject(database="CDN_WAGNER_TESTY_WYDAJNOSCI")
+                connection = ContractorObject(database="CDN_WAGNER_TESTY_WYDAJNOSC")
                 optima_id = connection.post(serializer.data)
                 if optima_id:
                     self.optima_id = optima_id
