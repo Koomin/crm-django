@@ -95,5 +95,5 @@ class OptimaObject:
         fields = ",".join(field for field in obj.keys())
         values = ",".join("?" * len(obj.keys()))
         insert_queryset = self._prepare_insert_queryset(fields, values)
-        self.connection.execute(insert_queryset, obj.values())
+        self.connection.execute(insert_queryset, tuple(obj.values()))
         return self._get_optima_id()
