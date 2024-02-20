@@ -46,10 +46,17 @@ class BaseOptimaSerializer:
         return self._valid
 
     @property
+    def _default_db_values(self) -> dict:
+        return {}
+
+    @property
     def data(self):
         if not self._deserialization:
             if self._data and self._valid:
-                return self._data
+                if self._default_db_values:
+                    return {**self._data, **self._default_db_values}
+                else:
+                    return self._data
             else:
                 raise IsValidException("is_valid() method wasn't called")
         return self._data
