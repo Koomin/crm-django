@@ -71,7 +71,7 @@ class OptimaConnection:
                 f"Database={settings.OPTIMA_DB['DATABASE'] if not database else database};"
                 f"uid={settings.OPTIMA_DB['UID']};"
                 f"pwd={settings.OPTIMA_DB['PASSWORD']}",
-                autocommit=False,
+                autocommit=True,
             )
         except pyodbc.OperationalError:
             self.cnxn = None
