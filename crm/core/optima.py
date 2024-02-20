@@ -1,5 +1,3 @@
-import json
-
 import pyodbc
 from django.conf import settings
 
@@ -51,7 +49,7 @@ class BaseOptimaSerializer:
     def data(self):
         if not self._deserialization:
             if self._data and self._valid:
-                return json.dumps(self._data)
+                return self._data
             else:
                 raise IsValidException("is_valid() method wasn't called")
         return self._data
