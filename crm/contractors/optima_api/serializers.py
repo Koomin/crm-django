@@ -69,7 +69,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Telefon2": "",
             "Knt_Fax": "",
             "Knt_URL": "",
-            "Knt_BNaID": "",
+            # "Knt_BNaID": "",
             "Knt_IBAN": 1,
             "Knt_OsPlec": 1,
             "Knt_OsKodPocztowy": "",
