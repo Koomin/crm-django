@@ -43,7 +43,6 @@ class ContractorSerializer(BaseOptimaSerializer):
         return {
             "Knt_KodPocztowy": self.obj.postal_code,
             "Knt_Nip": self.obj.tax_number,
-            "Knt_NipPelny": self.obj.tax_number,
             "Knt_NipKraj": self.obj.tax_number,
             "Knt_NipE": self.obj.tax_number,
             "Knt_Telefon1": self.obj.phone_number,
@@ -171,7 +170,6 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_UmowaWegiel": 0,
             "Knt_IdSisc": "",
             "Knt_eSklepZrodlo": "",
-            "Knt_RachunekNr0": "",
             "Knt_AwfZgoda": 0,
             "Knt_AwfMonit": 0,
             "Knt_NieNaliczajOplataCukrowa": 0,
