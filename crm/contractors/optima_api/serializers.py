@@ -43,7 +43,6 @@ class ContractorSerializer(BaseOptimaSerializer):
         return {
             "Knt_KodPocztowy": self.obj.postal_code,
             "Knt_Nip": self.obj.tax_number,
-            "Knt_NipKraj": self.obj.tax_number,
             "Knt_NipE": self.obj.tax_number,
             "Knt_Telefon1": self.obj.phone_number,
             "Knt_Kraj": self.obj.country,
@@ -62,6 +61,7 @@ class ContractorSerializer(BaseOptimaSerializer):
     @property
     def _default_db_values(self) -> dict:
         return {
+            "Knt_NipKraj": "",
             "Knt_PodmiotTyp": 1,
             "Knt_GLN": "",
             "Knt_EAN": "",
