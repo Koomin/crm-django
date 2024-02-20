@@ -36,7 +36,7 @@ class DeviceTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     serializer_class = DeviceTypeSerializer
 
 
-class DeviceViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
 

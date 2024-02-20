@@ -27,6 +27,7 @@ class TokenWithUserObtainPairSerializer(TokenObtainPairSerializer):
                     "RejectedServiceOrders",
                     "ClosedServiceOrders",
                     "Users",
+                    "Settings",
                 ],
                 "actions": {},
             }
@@ -50,6 +51,7 @@ class TokenWithUserRefreshSerializer(TokenRefreshSerializer):
                     "RejectedServiceOrders",
                     "ClosedServiceOrders",
                     "Users",
+                    "Settings",
                 ],
                 "actions": {},
             }
