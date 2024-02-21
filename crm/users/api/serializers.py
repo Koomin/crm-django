@@ -59,19 +59,32 @@ class TokenWithUserRefreshSerializer(TokenRefreshSerializer):
         return data
 
 
-class UserSerializer(serializers.ModelSerializer[UserType]):
-    optima_user = serializers.SlugRelatedField(slug_field="uuid", queryset=OptimaUser.objects.all(), read_only=False)
-
-    class Meta:
-        model = User
-        fields = ["uuid", "username", "first_name", "last_name", "url", "optima_user"]
-
-        extra_kwargs = {
-            "url": {"view_name": "api:user-detail", "lookup_field": "uuid"},
-        }
-
-
 class OptimaUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = OptimaUser
         fields = ["uuid", "name", "code"]
+
+
+class UserSerializer(serializers.ModelSerializer[UserType]):
+    optima_user = serializers.SlugRelatedField(slug_field="uuid", queryset=OptimaUser.objects.all(), read_only=False)
+    optima_user_name = serializers.CharField(source="optima_user.name", read_only=True)
+    optima_user_code = serializers.CharField(source="optima_user.code", read_only=True)
+    optima_user_full = OptimaUserSerializer(source="optima_user", read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "uuid",
+            "username",
+            "first_name",
+            "last_name",
+            "url",
+            "optima_user",
+            "optima_user_code",
+            "optima_user_name",
+            "optima_user_full",
+        ]
+
+        extra_kwargs = {
+            "url": {"view_name": "api:user-detail", "lookup_field": "uuid"},
+        }

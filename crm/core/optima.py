@@ -90,7 +90,7 @@ class OptimaObject:
         self.connection = OptimaConnection(database).cursor
 
     def _prepare_insert_queryset(self, fields, values):
-        return f"INSERT INTO {self.table_name} " f"({fields}) VALUES " f"({values})"
+        return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values})"
 
     def get(self):
         return self.connection.execute(self.get_queryset).fetchall()
