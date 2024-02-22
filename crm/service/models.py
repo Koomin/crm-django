@@ -102,3 +102,24 @@ class Note(OptimaModel):
     date = models.DateTimeField()
     description = models.TextField(max_length=1024)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+
+class AttributeDefinition(OptimaModel):
+    # Optima table - CDN.DefAtrybuty
+    type = models.IntegerField()
+    code = models.CharField(max_length=150)
+    format = models.IntegerField()
+
+
+class AttributeDefinitionItem(OptimaModel):
+    # Optima table - CDN.DefAtrElem
+    value = models.CharField(max_length=300)
+    number = models.IntegerField()
+    attribute_definition = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE)
+
+
+class Attribute(OptimaModel):
+    # Optima table - CDN.DokAtrybuty
+    attribute_definition = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE)
+    code = models.CharField(max_length=150)
+    value = models.CharField(max_length=300)

@@ -3,7 +3,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from crm.contractors.models import Contractor
 from crm.core.optima import BaseOptimaSerializer
 from crm.documents.models import DocumentType
-from crm.service.models import Category, Device, DeviceType, Note, ServiceOrder, Stage
+from crm.service.models import (
+    Attribute,
+    AttributeDefinition,
+    AttributeDefinitionItem,
+    Category,
+    Device,
+    DeviceType,
+    Note,
+    ServiceOrder,
+    Stage,
+)
 from crm.users.models import OptimaUser
 from crm.warehouses.models import Warehouse
 
@@ -84,6 +94,58 @@ class NoteSerializer(BaseOptimaSerializer):
             "description": self.obj[5],
             "user": self._get_user(),
             "service_order": self._get_service_order(),
+        }
+
+
+class AttributeDefinitionSerializer(BaseOptimaSerializer):
+    model = AttributeDefinition
+
+    def _deserialize(self) -> dict:
+        return {
+            "optima_id": self.obj[0],
+            "code": self.obj[1],
+            "type": self.obj[2],
+            "format": self.obj[3],
+        }
+
+
+class AttributeDefinitionItemSerializer(BaseOptimaSerializer):
+    model = AttributeDefinitionItem
+
+    def _get_attribute_definition(self):
+        try:
+            attribute_definition = AttributeDefinition.objects.get(optima_id=self.obj[3])
+        except ObjectDoesNotExist:
+            return None
+        else:
+            return attribute_definition
+
+    def _deserialize(self) -> dict:
+        return {
+            "optima_id": self.obj[0],
+            "value": self.obj[1],
+            "number": self.obj[2],
+            "attribute_definition": self._get_attribute_definition(),
+        }
+
+
+class AttributeSerializer(BaseOptimaSerializer):
+    model = Attribute
+
+    def _get_attribute_definition(self):
+        try:
+            attribute_definition = AttributeDefinition.objects.get(optima_id=self.obj[2])
+        except ObjectDoesNotExist:
+            return None
+        else:
+            return attribute_definition
+
+    def _deserialize(self) -> dict:
+        return {
+            "optima_id": self.obj[0],
+            "code": self.obj[1],
+            "attribute_definition": self._get_attribute_definition(),
+            "value": self.obj[3],
         }
 
 

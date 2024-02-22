@@ -22,6 +22,24 @@ class DeviceObject(OptimaObject):
     )
 
 
+class AttributeDefinitionObject(OptimaObject):
+    get_queryset = "SELECT DA.DeA_DeAId, DA.DeA_Kod, DA.DeA_Typ, DA.DeA_Format FROM CDN.DefAtrybuty as DA"
+
+
+class AttributeDefinitionItemObject(OptimaObject):
+    get_queryset = "SELECT DAE.DAE_DAEId, DAE.DAE_Wartosc, DAE.DAE_Lp, DAE.DAE_DeAId FROM CDN.DefAtrElem as DAE"
+
+
+class AttributeObject(OptimaObject):
+    get_queryset = (
+        "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt FROM CDN.DokAtrybuty as DA WHERE {0}"
+    )
+
+    def get(self, order_id):
+        self.get_queryset.format(order_id)
+        super().get(self)
+
+
 class ServiceOrderObject(OptimaObject):
     get_queryset = (
         "SELECT SRS.SrZ_SrZId, SRS.SrZ_DDfId, SRS.SrZ_KatID, SRS.SrZ_NumerString, SRS.SrZ_NumerNr, "

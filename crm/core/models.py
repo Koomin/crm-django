@@ -21,6 +21,6 @@ class OptimaModel(BaseModel):
 
     def __str__(self):
         try:
-            return self.name
+            return self.code
         except AttributeError:
             return super().__str__()
