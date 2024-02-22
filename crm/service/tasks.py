@@ -1,6 +1,19 @@
 from config import celery_app
-from crm.service.models import Category, Device, DeviceType, Note, ServiceOrder, Stage
+from crm.service.models import (
+    Attribute,
+    AttributeDefinition,
+    AttributeDefinitionItem,
+    Category,
+    Device,
+    DeviceType,
+    Note,
+    ServiceOrder,
+    Stage,
+)
 from crm.service.optima_api.serializers import (
+    AttributeDefinitionItemSerializer,
+    AttributeDefinitionSerializer,
+    AttributeSerializer,
     CategorySerializer,
     DeviceSerializer,
     DeviceTypeSerializer,
@@ -9,6 +22,9 @@ from crm.service.optima_api.serializers import (
     StageSerializer,
 )
 from crm.service.optima_api.views import (
+    AttributeDefinitionItemObject,
+    AttributeDefinitionObject,
+    AttributeObject,
     CategoryObject,
     DeviceObject,
     DeviceTypeObject,
@@ -70,3 +86,32 @@ def import_notes():
     for obj in objects:
         serializer = NoteSerializer(obj)
         Note.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
+
+
+@celery_app.task()
+def import_attributes_definition():
+    attribute_object = AttributeDefinitionObject()
+    objects = attribute_object.get()
+    for obj in objects:
+        serializer = AttributeDefinitionSerializer(obj)
+        AttributeDefinition.objects.update_or_create(
+            optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+        )
+    attribute_item_object = AttributeDefinitionItemObject()
+    objects = attribute_item_object.get()
+    for obj in objects:
+        serializer = AttributeDefinitionItemSerializer(obj)
+        AttributeDefinitionItem.objects.update_or_create(
+            optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+        )
+
+
+@celery_app.task()
+def import_attributes():
+    orders = ServiceOrder.objects.filter(optima_id__isnull=False)
+    attribute_object = AttributeObject()
+    for order in orders:
+        objects = attribute_object.get(order.optima_id)
+        for obj in objects:
+            serializer = AttributeSerializer(obj)
+            Attribute.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
