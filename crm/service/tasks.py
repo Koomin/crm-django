@@ -1,3 +1,5 @@
+from psycopg import IntegrityError
+
 from config import celery_app
 from crm.service.models import (
     Attribute,
@@ -101,9 +103,12 @@ def import_attributes_definition():
     objects = attribute_item_object.get()
     for obj in objects:
         serializer = AttributeDefinitionItemSerializer(obj)
-        AttributeDefinitionItem.objects.update_or_create(
-            optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-        )
+        try:
+            AttributeDefinitionItem.objects.update_or_create(
+                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+            )
+        except IntegrityError:
+            pass
 
 
 @celery_app.task()
@@ -114,4 +119,9 @@ def import_attributes():
         objects = attribute_object.get(order.optima_id)
         for obj in objects:
             serializer = AttributeSerializer(obj)
-            Attribute.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
+            try:
+                Attribute.objects.update_or_create(
+                    optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                )
+            except IntegrityError:
+                pass
