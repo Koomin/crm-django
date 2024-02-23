@@ -114,8 +114,8 @@ def import_attributes_definition():
 @celery_app.task()
 def import_attributes():
     orders = ServiceOrder.objects.filter(optima_id__isnull=False)
-    attribute_object = AttributeObject()
     for order in orders:
+        attribute_object = AttributeObject()
         objects = attribute_object.get(order.optima_id)
         if objects:
             for obj in objects:
