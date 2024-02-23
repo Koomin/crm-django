@@ -119,7 +119,7 @@ class AttributeDefinitionItem(OptimaModel):
 
 
 class Attribute(OptimaModel):
-    # Optima table - CDN.DokTributary
+    # Optima table - CDN.DokAtrybuty
     attribute_definition = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE)
     code = models.CharField(max_length=150)
     value = models.CharField(max_length=1024)
