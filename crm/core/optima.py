@@ -1,5 +1,3 @@
-import json
-
 import pyodbc
 from django.conf import settings
 
@@ -48,10 +46,17 @@ class BaseOptimaSerializer:
         return self._valid
 
     @property
+    def _default_db_values(self) -> dict:
+        return {}
+
+    @property
     def data(self):
         if not self._deserialization:
             if self._data and self._valid:
-                return json.dumps(self._data)
+                if self._default_db_values:
+                    return {**self._data, **self._default_db_values}
+                else:
+                    return self._data
             else:
                 raise IsValidException("is_valid() method wasn't called")
         return self._data
@@ -66,7 +71,7 @@ class OptimaConnection:
                 f"Database={settings.OPTIMA_DB['DATABASE'] if not database else database};"
                 f"uid={settings.OPTIMA_DB['UID']};"
                 f"pwd={settings.OPTIMA_DB['PASSWORD']}",
-                autocommit=False,
+                autocommit=True,
             )
         except pyodbc.OperationalError:
             self.cnxn = None
@@ -78,12 +83,24 @@ class OptimaConnection:
 class OptimaObject:
     get_queryset = None
     post_queryset = None
+    fields = None
+    table_name = None
 
     def __init__(self, database=None):
         self.connection = OptimaConnection(database).cursor
 
+    def _prepare_insert_queryset(self, fields, values):
+        return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values})"
+
     def get(self):
         return self.connection.execute(self.get_queryset).fetchall()
 
-    def post(self):
-        pass
+    def _get_optima_id(self):
+        return self.connection.execute("SELECT @@Identity").fetchone()[0]
+
+    def post(self, obj):
+        fields = ",".join(field for field in obj.keys())
+        values = ",".join("?" * len(obj.keys()))
+        insert_queryset = self._prepare_insert_queryset(fields, values)
+        self.connection.execute(insert_queryset, tuple(obj.values()))
+        return self._get_optima_id()

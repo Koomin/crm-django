@@ -28,6 +28,9 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 class DeviceSerializer(serializers.ModelSerializer):
     device_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    document_type = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Device
@@ -71,6 +74,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     device_code = serializers.CharField(source="device.code", allow_null=True, required=False)
     purchase_document_base64 = FileBase64Field(source="purchase_document", required=False, read_only=True)
     purchase_document_type = FileTypeField(source="purchase_document", required=False, read_only=True)
+    contractor_confirmed = serializers.BooleanField(source="contractor.confirmed", read_only=True)
 
     class Meta:
         model = ServiceOrder
@@ -95,6 +99,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "contractor_state",
             "contractor_post",
             "contractor_postal_code",
+            "contractor_confirmed",
             "user",
             "document_date",
             "document_date_formatted",
