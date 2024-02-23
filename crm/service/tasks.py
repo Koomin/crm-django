@@ -1,4 +1,4 @@
-from psycopg import IntegrityError
+from django.db.utils import IntegrityError
 
 from config import celery_app
 from crm.service.models import (
