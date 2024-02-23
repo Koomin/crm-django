@@ -32,7 +32,8 @@ class AttributeDefinitionItemObject(OptimaObject):
 
 class AttributeObject(OptimaObject):
     get_queryset = (
-        "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt FROM CDN.DokAtrybuty as DA WHERE {0}"
+        "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt, DA.DAt_SrZId "
+        "FROM CDN.DokAtrybuty as DA WHERE {0}"
     )
 
     def get(self, order_id):
