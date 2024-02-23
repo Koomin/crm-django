@@ -113,7 +113,7 @@ class AttributeDefinition(OptimaModel):
 
 class AttributeDefinitionItem(OptimaModel):
     # Optima table - CDN.DefAtrElem
-    value = models.CharField(max_length=300)
+    value = models.CharField(max_length=1000)
     number = models.IntegerField()
     attribute_definition = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE)
 
@@ -122,5 +122,5 @@ class Attribute(OptimaModel):
     # Optima table - CDN.DokTributary
     attribute_definition = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE)
     code = models.CharField(max_length=150)
-    value = models.CharField(max_length=300)
+    value = models.CharField(max_length=1024)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, null=True)
