@@ -38,7 +38,7 @@ class AttributeObject(OptimaObject):
 
     def get(self, order_id):
         self.get_queryset.format(order_id)
-        super().get(self)
+        super().get()
 
 
 class ServiceOrderObject(OptimaObject):
