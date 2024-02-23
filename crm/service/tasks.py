@@ -117,11 +117,12 @@ def import_attributes():
     attribute_object = AttributeObject()
     for order in orders:
         objects = attribute_object.get(order.optima_id)
-        for obj in objects:
-            serializer = AttributeSerializer(obj)
-            try:
-                Attribute.objects.update_or_create(
-                    optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                )
-            except IntegrityError:
-                pass
+        if objects:
+            for obj in objects:
+                serializer = AttributeSerializer(obj)
+                try:
+                    Attribute.objects.update_or_create(
+                        optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                    )
+                except IntegrityError:
+                    pass
