@@ -140,12 +140,21 @@ class AttributeSerializer(BaseOptimaSerializer):
         else:
             return attribute_definition
 
+    def _get_service_order(self):
+        try:
+            service_order = ServiceOrder.objects.get(optima_id=self.obj[4])
+        except ObjectDoesNotExist:
+            return None
+        else:
+            return service_order
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
             "code": self.obj[1],
             "attribute_definition": self._get_attribute_definition(),
             "value": self.obj[3],
+            "service_order": self._get_service_order(),
         }
 
 
