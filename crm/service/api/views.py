@@ -139,6 +139,22 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             else:
                 data["contractor"] = contractor.uuid
                 data["contractor_name"] = f'{data.pop("first_name")[0]} {data.pop("last_name")[0]}'
+        description = data.get("description")
+        if not description:
+            description = ""
+        description += "\nDane z formularza:\n"
+        purchase_data = (
+            f'\nNumer dokumentu sprzedaży: {data.get("purchase_document_number")}, '
+            f'data sprzedaży: {data.get("purchase_date")}\n'
+        )
+        description += purchase_data
+        address = (
+            f'Adres do wysyłki: ul.{data.get("contractor_street")} {data.get("contractor_home_number")}\n'
+            f'{data.get("contractor_postal_code")} {data.get("contractor_city")}\n'
+            f'{data.get("contractor_country")}\n'
+        )
+        description += address
+        data["description"] = description
         try:
             OrderType.objects.get(uuid=data["order_type"])
         except ObjectDoesNotExist:
