@@ -89,6 +89,7 @@ LOCAL_APPS = [
     "crm.documents",
     "crm.service",
     "crm.warehouses",
+    "crm.crm_config",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
