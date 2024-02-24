@@ -10,7 +10,7 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class StateSerializer(serializers.ModelSerializer):
-    country = CountrySerializer(source="country")
+    country = CountrySerializer()
 
     class Meta:
         model = State

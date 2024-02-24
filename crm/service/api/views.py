@@ -38,6 +38,7 @@ class DeviceTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
 class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = Device.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = DeviceSerializer
 
 
