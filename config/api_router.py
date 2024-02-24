@@ -2,6 +2,7 @@ from django.conf import settings
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
 from crm.contractors.api.views import ContractorViewSet
+from crm.crm_config.api.views import CountryViewSet, StateViewSet
 from crm.documents.api.views import DocumentTypeViewSet
 from crm.service.api.views import (
     CategoryViewSet,
@@ -36,7 +37,8 @@ router.register("contractors", ContractorViewSet)
 router.register("document-types", DocumentTypeViewSet)
 router.register("notes", NoteViewSet)
 router.register("order-types", OrderTypeViewSet)
-
+router.register("states", StateViewSet)
+router.register("countries", CountryViewSet)
 
 app_name = "api"
 urlpatterns = router.urls
