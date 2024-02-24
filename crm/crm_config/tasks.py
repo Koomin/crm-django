@@ -1,6 +1,6 @@
 from config import celery_app
-from crm.crm_config.api.serializers import CountrySerializer, StateSerializer
 from crm.crm_config.models import Country, State
+from crm.crm_config.optima_api.serializers import CountrySerializer, StateSerializer
 from crm.crm_config.optima_api.views import CountryObject, StateObject
 
 
