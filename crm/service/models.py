@@ -109,6 +109,7 @@ class AttributeDefinition(OptimaModel):
     type = models.IntegerField()
     code = models.CharField(max_length=150)
     format = models.IntegerField()
+    is_active = models.BooleanField(default=False)
 
 
 class AttributeDefinitionItem(OptimaModel):

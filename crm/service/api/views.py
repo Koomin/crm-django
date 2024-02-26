@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from crm.contractors.models import Contractor
 from crm.core.api.views import BaseViewSet
 from crm.service.api.serializers import (
+    AttributeDefinitionItemSerializer,
+    AttributeSerializer,
     CategorySerializer,
     DeviceSerializer,
     DeviceTypeSerializer,
@@ -18,7 +20,17 @@ from crm.service.api.serializers import (
     ServiceOrderSerializer,
     StageSerializer,
 )
-from crm.service.models import Category, Device, DeviceType, Note, OrderType, ServiceOrder, Stage
+from crm.service.models import (
+    Attribute,
+    AttributeDefinitionItem,
+    Category,
+    Device,
+    DeviceType,
+    Note,
+    OrderType,
+    ServiceOrder,
+    Stage,
+)
 
 
 class CategoryViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
@@ -165,3 +177,15 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class AttributeViewSet(ListModelMixin, BaseViewSet):
+    queryset = Attribute.objects.all()
+    serializer_class = AttributeSerializer
+    filterset_fields = ["uuid", "service_order__uuid"]
+
+
+class AttributeDefinitionItemViewSet(ListModelMixin, BaseViewSet):
+    queryset = AttributeDefinitionItem.objects.all()
+    serializer_class = AttributeDefinitionItemSerializer
+    filterset_fields = ["uuid", "attribute_definition__uuid"]

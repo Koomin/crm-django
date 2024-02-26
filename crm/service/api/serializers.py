@@ -3,7 +3,18 @@ from rest_framework import serializers
 from crm.contractors.models import Contractor
 from crm.core.api.fields import FileBase64Field, FileTypeField
 from crm.documents.models import DocumentType
-from crm.service.models import Category, Device, DeviceType, Note, OrderType, ServiceOrder, Stage
+from crm.service.models import (
+    Attribute,
+    AttributeDefinition,
+    AttributeDefinitionItem,
+    Category,
+    Device,
+    DeviceType,
+    Note,
+    OrderType,
+    ServiceOrder,
+    Stage,
+)
 from crm.users.models import User
 from crm.warehouses.models import Warehouse
 
@@ -171,3 +182,38 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
             "order_type",
             "purchase_document",
         ]
+
+
+class AttributeSerializer(serializers.ModelSerializer):
+    service_order = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
+    )
+    attribute_definition = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
+    )
+    attribute_definition_type = serializers.IntegerField(source="attribute_definition.type", read_only=True)
+    attribute_definition_format = serializers.IntegerField(source="attribute_definition.format", read_only=True)
+    attribute_definition_code = serializers.CharField(source="attribute_definition.code", read_only=True)
+
+    class Meta:
+        model = Attribute
+        fields = [
+            "uuid",
+            "code",
+            "value",
+            "service_order",
+            "attribute_definition",
+            "attribute_definition_type",
+            "attribute_definition_format",
+            "attribute_definition_code",
+        ]
+
+
+class AttributeDefinitionItemSerializer(serializers.ModelSerializer):
+    attribute_definition = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
+    )
+
+    class Meta:
+        model = AttributeDefinitionItem
+        fields = ["uuid", "value", "number", "attribute_definition"]
