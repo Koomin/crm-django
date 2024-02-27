@@ -9,6 +9,7 @@ from crm.service.models import (
     Category,
     Device,
     DeviceType,
+    FormFile,
     Note,
     OrderType,
     ServiceOrder,
@@ -69,4 +70,9 @@ class AttributeDefinitionAdmin(ModelAdmin):
 
 @admin.register(StageDuration)
 class StageDuration(ModelAdmin):
+    pass
+
+
+@admin.register(FormFile)
+class FormFileAdmin(ModelAdmin):
     pass

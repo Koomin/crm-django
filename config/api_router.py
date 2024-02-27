@@ -46,5 +46,6 @@ router.register("attributes", AttributeViewSet)
 router.register("attributes-definition-items", AttributeDefinitionItemViewSet)
 router.register("stage-duration", StageDurationViewSet)
 
+
 app_name = "api"
 urlpatterns = router.urls

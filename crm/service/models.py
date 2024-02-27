@@ -138,3 +138,8 @@ class StageDuration(BaseModel):
         if self.start and self.end:
             self.duration = self.end - self.start
         super().save()
+
+
+class FormFile(BaseModel):
+    file = models.FileField(upload_to="form_files/")
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
