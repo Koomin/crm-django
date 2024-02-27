@@ -10,6 +10,7 @@ from crm.service.models import (
     Category,
     Device,
     DeviceType,
+    FormFile,
     Note,
     OrderType,
     ServiceOrder,
@@ -59,6 +60,14 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = ["uuid", "service_order", "number", "date", "description", "user"]
 
 
+class FormFileSerializer(serializers.ModelSerializer):
+    file = FileBase64Field(source="file")
+
+    class Meta:
+        model = FormFile
+        fields = ["file"]
+
+
 class ServiceOrderSerializer(serializers.ModelSerializer):
     document_type = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
@@ -85,6 +94,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     device_name = serializers.CharField(source="device.name", allow_null=True, required=False)
     device_code = serializers.CharField(source="device.code", allow_null=True, required=False)
     purchase_document_base64 = FileBase64Field(source="purchase_document", required=False, read_only=True)
+    form_file = FormFileSerializer(many=True, read_only=True)
     purchase_document_type = FileTypeField(source="purchase_document", required=False, read_only=True)
     contractor_confirmed = serializers.BooleanField(source="contractor.confirmed", read_only=True)
 
@@ -141,6 +151,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "phone_number",
             "purchase_document_base64",
             "purchase_document_type",
+            "form_file",
         ]
 
 
@@ -156,12 +167,13 @@ class PurchaseDocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ServiceOrder
-        fields = ["serivce_order_uuid", "purchase_document", "purchase_document_number", "purchase_document_base64"]
+        fields = ["service_order_uuid", "purchase_document", "purchase_document_number", "purchase_document_base64"]
 
 
 class NewServiceOrderSerializer(serializers.ModelSerializer):
     contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
     order_type = serializers.SlugRelatedField(slug_field="uuid", queryset=OrderType.objects.all(), read_only=False)
+    form_files = FormFileSerializer(many=True, read_only=True)
 
     class Meta:
         model = ServiceOrder
@@ -185,7 +197,15 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
             "purchase_date",
             "document_date",
             "acceptance_date",
+            "form_files",
         ]
+
+    def create(self, validated_data):
+        form_files = self.initial_data.pop("form_files")
+        new_service_order = ServiceOrder.objects.create(**validated_data)
+        for form_file in form_files:
+            FormFile.objects.create(service_order=new_service_order, file=form_file)
+        return new_service_order
 
 
 class AttributeSerializer(serializers.ModelSerializer):
