@@ -15,6 +15,7 @@ from crm.service.api.views import (
     OrderTypeViewSet,
     PurchaseDocumentViewSet,
     ServiceOrderViewSet,
+    StageDurationViewSet,
     StageViewSet,
 )
 from crm.users.api.views import OptimaUserViewSet, UserViewSet
@@ -43,6 +44,7 @@ router.register("states", StateViewSet)
 router.register("countries", CountryViewSet)
 router.register("attributes", AttributeViewSet)
 router.register("attributes-definition-items", AttributeDefinitionItemViewSet)
+router.register("stage-duration", StageDurationViewSet)
 
 app_name = "api"
 urlpatterns = router.urls

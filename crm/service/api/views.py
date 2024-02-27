@@ -20,6 +20,7 @@ from crm.service.api.serializers import (
     OrderTypeSerializer,
     PurchaseDocumentSerializer,
     ServiceOrderSerializer,
+    StageDurationSerializer,
     StageSerializer,
 )
 from crm.service.models import (
@@ -214,3 +215,9 @@ class AttributeDefinitionItemViewSet(ListModelMixin, BaseViewSet):
     queryset = AttributeDefinitionItem.objects.all()
     serializer_class = AttributeDefinitionItemSerializer
     filterset_fields = ["uuid", "attribute_definition__uuid"]
+
+
+class StageDurationViewSet(ListModelMixin, BaseViewSet):
+    queryset = StageDuration.objects.all()
+    serializer_class = StageDurationSerializer
+    filterset_fields = ["uuid", "stage_duration__uuid", "service_order__uuid"]

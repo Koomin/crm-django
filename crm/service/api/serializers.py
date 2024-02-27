@@ -14,6 +14,7 @@ from crm.service.models import (
     OrderType,
     ServiceOrder,
     Stage,
+    StageDuration,
 )
 from crm.users.models import User
 from crm.warehouses.models import Warehouse
@@ -220,3 +221,30 @@ class AttributeDefinitionItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttributeDefinitionItem
         fields = ["uuid", "value", "number", "attribute_definition"]
+
+
+class StageDurationSerializer(serializers.ModelSerializer):
+    stage_code = serializers.CharField(source="stage.code", read_only=True)
+    service_order = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
+    )
+    stage = serializers.SlugRelatedField(slug_field="uuid", queryset=Stage.objects.all(), read_only=False)
+    start_date = serializers.DateTimeField(source="start", format="%Y-%m-%d", required=False)
+    start_time = serializers.DateTimeField(source="start", format="%H:%M:%S", required=False)
+    end_date = serializers.DateTimeField(source="end", format="%Y-%m-%d", required=False)
+    end_time = serializers.DateTimeField(source="end", format="%H:%M:%S", required=False)
+
+    class Meta:
+        model = StageDuration
+        fields = [
+            "uuid",
+            "start",
+            "start_date",
+            "start_time",
+            "end",
+            "end_date",
+            "end_time",
+            "stage",
+            "stage_code",
+            "service_order",
+        ]
