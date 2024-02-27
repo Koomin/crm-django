@@ -5,6 +5,8 @@ from crm.contractors.api.views import ContractorViewSet
 from crm.crm_config.api.views import CountryViewSet, StateViewSet
 from crm.documents.api.views import DocumentTypeViewSet
 from crm.service.api.views import (
+    AttributeDefinitionItemViewSet,
+    AttributeViewSet,
     CategoryViewSet,
     DeviceTypeViewSet,
     DeviceViewSet,
@@ -39,6 +41,8 @@ router.register("notes", NoteViewSet)
 router.register("order-types", OrderTypeViewSet)
 router.register("states", StateViewSet)
 router.register("countries", CountryViewSet)
+router.register("attributes", AttributeViewSet)
+router.register("attributes-definition-items", AttributeDefinitionItemViewSet)
 
 app_name = "api"
 urlpatterns = router.urls
