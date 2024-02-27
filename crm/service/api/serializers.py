@@ -61,7 +61,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class FormFileSerializer(serializers.ModelSerializer):
-    file = FileBase64Field(source="file")
+    file = FileBase64Field()
 
     class Meta:
         model = FormFile
@@ -94,7 +94,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     device_name = serializers.CharField(source="device.name", allow_null=True, required=False)
     device_code = serializers.CharField(source="device.code", allow_null=True, required=False)
     purchase_document_base64 = FileBase64Field(source="purchase_document", required=False, read_only=True)
-    form_file = FormFileSerializer(many=True, read_only=True)
+    form_files = FormFileSerializer(many=True, read_only=True)
     purchase_document_type = FileTypeField(source="purchase_document", required=False, read_only=True)
     contractor_confirmed = serializers.BooleanField(source="contractor.confirmed", read_only=True)
 
@@ -151,7 +151,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "phone_number",
             "purchase_document_base64",
             "purchase_document_type",
-            "form_file",
+            "form_files",
         ]
 
 

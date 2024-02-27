@@ -142,4 +142,4 @@ class StageDuration(BaseModel):
 
 class FormFile(BaseModel):
     file = models.FileField(upload_to="form_files/")
-    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name="form_files")
