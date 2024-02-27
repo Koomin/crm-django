@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
+from crm.service.actions import set_active, set_inactive
 from crm.service.models import (
     Attribute,
     AttributeDefinition,
@@ -12,6 +13,7 @@ from crm.service.models import (
     OrderType,
     ServiceOrder,
     Stage,
+    StageDuration,
 )
 
 
@@ -62,4 +64,9 @@ class AttributeDefinitionItemAdmin(ModelAdmin):
 
 @admin.register(AttributeDefinition)
 class AttributeDefinitionAdmin(ModelAdmin):
+    actions = (set_active, set_inactive)
+
+
+@admin.register(StageDuration)
+class StageDuration(ModelAdmin):
     pass

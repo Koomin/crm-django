@@ -126,3 +126,9 @@ def import_attributes():
                     )
                 except IntegrityError:
                     pass
+
+
+@celery_app.task()
+def update_attributes_definition():
+    for obj in Attribute.objects.all().values_list("attribute_definition", flat=True).distinct():
+        print(obj)

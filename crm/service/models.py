@@ -125,3 +125,16 @@ class Attribute(OptimaModel):
     code = models.CharField(max_length=150)
     value = models.CharField(max_length=1024)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, null=True)
+
+
+class StageDuration(BaseModel):
+    start = models.DateTimeField(auto_now_add=True)
+    end = models.DateTimeField()
+    duration = models.DurationField()
+    stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
+
+    def save(self):
+        if self.start and self.end:
+            self.duration = self.end - self.start
+        super().save()
