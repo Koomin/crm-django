@@ -181,6 +181,9 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
             "serial_number",
             "order_type",
             "purchase_document",
+            "purchase_date",
+            "document_date",
+            "acceptance_date",
         ]
 
 

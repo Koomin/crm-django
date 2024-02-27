@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import action
@@ -30,6 +32,7 @@ from crm.service.models import (
     OrderType,
     ServiceOrder,
     Stage,
+    StageDuration,
 )
 
 
@@ -70,6 +73,26 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
     queryset = ServiceOrder.objects.all().order_by("-document_date")
     serializer_class = ServiceOrderSerializer
     filterset_fields = ["uuid", "state"]
+
+    def partial_update(self, request, *args, **kwargs):
+        if request.data.get("state") == 0:
+            request.data["acceptance_date"] = datetime.datetime.now()
+        if request.data.get("stage"):
+            try:
+                service_order = ServiceOrder.objects.get(uuid=kwargs.get("uuid"))
+            except ServiceOrder.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            current_stage = service_order.stage
+            try:
+                current_stage_duration = StageDuration.objects.get(stage=current_stage, service_order=service_order)
+            except StageDuration.DoesNotExist:
+                pass
+            else:
+                current_stage_duration.end = datetime.datetime.now()
+                current_stage_duration.save()
+            new_stage = Stage.objects.get(uuid=request.data.get("stage"))
+            StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
+        return super().partial_update(request, *args, **kwargs)
 
     @action(detail=False)
     def ongoing(self, request):
@@ -134,6 +157,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
+        # TODO ADD STAGE WHILE CREATING NEW ORDER
         data = request.data
         if data.get("tax_number", None):
             customer_dict = {}
@@ -168,6 +192,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         )
         description += address
         data["description"] = description
+        data["document_date"] = datetime.datetime.now()
         try:
             OrderType.objects.get(uuid=data["order_type"])
         except ObjectDoesNotExist:
