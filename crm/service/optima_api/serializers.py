@@ -207,7 +207,7 @@ class ServicePartSerializer(BaseOptimaSerializer):
             "price_discount": self.obj[11],
             "quantity": self.obj[12],
             "quantity_collected": self.obj[13],
-            "quantity_release": self.obj[14],
+            "quantity_released": self.obj[14],
             "unit": self.obj[15],
             "service_order": self._get_service_order(),
         }
