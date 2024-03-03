@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from crm.contractors.models import Contractor
 from crm.core.optima import BaseOptimaSerializer
 from crm.documents.models import DocumentType
+from crm.products.models import Product
 from crm.service.models import (
     Attribute,
     AttributeDefinition,
@@ -12,6 +13,7 @@ from crm.service.models import (
     DeviceType,
     Note,
     ServiceOrder,
+    ServicePart,
     Stage,
 )
 from crm.users.models import OptimaUser
@@ -154,6 +156,59 @@ class AttributeSerializer(BaseOptimaSerializer):
             "code": self.obj[1],
             "attribute_definition": self._get_attribute_definition(),
             "value": self.obj[3],
+            "service_order": self._get_service_order(),
+        }
+
+
+class ServicePartSerializer(BaseOptimaSerializer):
+    model = ServicePart
+
+    def _get_product(self):
+        try:
+            Product.objects.get(optima_id=self.obj[2])
+        except Product.DoesNotExist:
+            self._valid = False
+            return None
+
+    def _get_warehouse(self):
+        try:
+            Warehouse.objects.get(optima_id=self.obj[5])
+        except Warehouse.DoesNotExist:
+            self._valid = False
+            return None
+
+    def _get_user(self):
+        try:
+            OptimaUser.objects.get(optima_id=self.obj[4])
+        except OptimaUser.DoesNotExist:
+            self._valid = False
+            return None
+
+    def _get_service_order(self):
+        try:
+            ServiceOrder.objects.get(optima_id=self.obj[16])
+        except ServiceOrder.DoesNotExist:
+            self._valid = False
+            return None
+
+    def _deserialize(self) -> dict:
+        return {
+            "optima_id": self.obj[0],
+            "number": self.obj[1],
+            "product": self._get_product(),
+            "to_return": self.obj[3],
+            "user": self._get_user(),
+            "warehouse": self._get_warehouse(),
+            "status_collected": self.obj[6],
+            "document": self.obj[7],
+            "to_invoicing": self.obj[8],
+            "price_net": self.obj[9],
+            "price_gross": self.obj[10],
+            "price_discount": self.obj[11],
+            "quantity": self.obj[12],
+            "quantity_collected": self.obj[13],
+            "quantity_release": self.obj[14],
+            "unit": self.obj[15],
             "service_order": self._get_service_order(),
         }
 

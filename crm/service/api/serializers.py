@@ -14,6 +14,7 @@ from crm.service.models import (
     Note,
     OrderType,
     ServiceOrder,
+    ServicePart,
     Stage,
     StageDuration,
 )
@@ -68,6 +69,35 @@ class FormFileSerializer(serializers.ModelSerializer):
         fields = ["file"]
 
 
+class ServicePartSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    product_code = serializers.CharField(source="product.code", read_only=True)
+    warehouse = serializers.CharField(source="warehouse.symbol", read_only=True)
+    user = serializers.CharField(source="user.code", read_only=True)
+
+    class Meta:
+        model = ServicePart
+        fields = [
+            "uuid",
+            "number",
+            "product_name",
+            "product_code",
+            "to_invoicing",
+            "user",
+            "warehouse",
+            "price_net",
+            "price_gross",
+            "price_discount",
+            "quantity",
+            "quantity_collected",
+            "quantity_released",
+            "status_collected",
+            "unit",
+            "to_return",
+            "document",
+        ]
+
+
 class ServiceOrderSerializer(serializers.ModelSerializer):
     document_type = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
@@ -97,6 +127,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     form_files = FormFileSerializer(many=True, read_only=True)
     purchase_document_type = FileTypeField(source="purchase_document", required=False, read_only=True)
     contractor_confirmed = serializers.BooleanField(source="contractor.confirmed", read_only=True)
+    service_parts = ServicePartSerializer(many=True, read_only=True)
 
     class Meta:
         model = ServiceOrder
@@ -152,6 +183,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "purchase_document_base64",
             "purchase_document_type",
             "form_files",
+            "service_parts",
         ]
 
 

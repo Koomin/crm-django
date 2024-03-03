@@ -160,6 +160,7 @@ class ServicePart(OptimaModel):
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     quantity_collected = models.DecimalField(max_digits=10, decimal_places=2)
     quantity_released = models.DecimalField(max_digits=10, decimal_places=2)
+    status_collected = models.BooleanField(default=False)
     unit = models.CharField(max_length=10)
     to_return = models.BooleanField(default=False)
     document = models.IntegerField()
