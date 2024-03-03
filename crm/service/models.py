@@ -3,7 +3,8 @@ from django.db import models
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
 from crm.documents.models import DocumentType
-from crm.users.models import User
+from crm.products.models import Product
+from crm.users.models import OptimaUser, User
 from crm.warehouses.models import Warehouse
 
 
@@ -143,3 +144,22 @@ class StageDuration(BaseModel):
 class FormFile(BaseModel):
     file = models.FileField(upload_to="form_files/")
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name="form_files")
+
+
+class ServicePart(OptimaModel):
+    # Optima table - CDN.SrsCzesci
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name="service_parts")
+    number = models.IntegerField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="service_parts")
+    to_invoicing = models.BooleanField(default=False)
+    user = models.ForeignKey(OptimaUser, on_delete=models.CASCADE, related_name="service_parts")
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name="service_parts")
+    price_net = models.DecimalField(max_digits=10, decimal_places=2)
+    price_gross = models.DecimalField(max_digits=10, decimal_places=2)
+    price_discount = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity_collected = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity_released = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.CharField(max_length=10)
+    to_return = models.BooleanField(default=False)
+    document = models.IntegerField()
