@@ -13,6 +13,7 @@ from crm.service.models import (
     Note,
     OrderType,
     ServiceOrder,
+    ServicePart,
     Stage,
     StageDuration,
 )
@@ -75,4 +76,9 @@ class StageDuration(ModelAdmin):
 
 @admin.register(FormFile)
 class FormFileAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(ServicePart)
+class ServicePartAdmin(ModelAdmin):
     pass

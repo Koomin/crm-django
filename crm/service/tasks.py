@@ -146,9 +146,11 @@ def import_service_parts():
         if objects:
             for obj in objects:
                 serializer = ServicePartSerializer(obj)
-                try:
-                    ServicePart.objects.update_or_create(
-                        optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                    )
-                except IntegrityError:
-                    pass
+                if serializer.data:
+                    try:
+                        ServicePart.objects.update_or_create(
+                            optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                        )
+                    except Exception as e:
+                        print(e)
+                        pass
