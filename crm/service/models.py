@@ -164,3 +164,23 @@ class ServicePart(OptimaModel):
     unit = models.CharField(max_length=10)
     to_return = models.BooleanField(default=False)
     document = models.IntegerField()
+
+
+class ServiceActivity(OptimaModel):
+    # Optima table - CDN.SrsCzynnosci
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name="service_activities")
+    number = models.IntegerField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="service_activities")
+    user = models.ForeignKey(OptimaUser, on_delete=models.CASCADE, related_name="service_activities")
+    is_finished = models.BooleanField(default=False)
+    to_invoicing = models.BooleanField(default=False)
+    date_of_service = models.DateTimeField(null=True, blank=True)
+    date_from = models.DateTimeField(null=True, blank=True)
+    date_to = models.DateTimeField(null=True, blank=True)
+    price_net = models.DecimalField(max_digits=10, decimal_places=2)
+    price_gross = models.DecimalField(max_digits=10, decimal_places=2)
+    price_discount = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    value_net = models.DecimalField(max_digits=10, decimal_places=2)
+    value_gross = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.CharField(max_length=10)

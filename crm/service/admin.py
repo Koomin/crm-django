@@ -12,6 +12,7 @@ from crm.service.models import (
     FormFile,
     Note,
     OrderType,
+    ServiceActivity,
     ServiceOrder,
     ServicePart,
     Stage,
@@ -81,4 +82,9 @@ class FormFileAdmin(ModelAdmin):
 
 @admin.register(ServicePart)
 class ServicePartAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(ServiceActivity)
+class ServiceActivityAdmin(ModelAdmin):
     pass

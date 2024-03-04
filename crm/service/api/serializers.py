@@ -3,6 +3,7 @@ from rest_framework import serializers
 from crm.contractors.models import Contractor
 from crm.core.api.fields import FileBase64Field, FileTypeField
 from crm.documents.models import DocumentType
+from crm.products.models import Product
 from crm.service.models import (
     Attribute,
     AttributeDefinition,
@@ -13,6 +14,7 @@ from crm.service.models import (
     FormFile,
     Note,
     OrderType,
+    ServiceActivity,
     ServiceOrder,
     ServicePart,
     Stage,
@@ -69,6 +71,39 @@ class FormFileSerializer(serializers.ModelSerializer):
         fields = ["file"]
 
 
+class ServiceActivitySerializer(serializers.ModelSerializer):
+    product = serializers.SlugRelatedField(slug_field="uuid", queryset=Product.objects.all(), read_only=False)
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    product_code = serializers.CharField(source="product.code", read_only=True)
+    user = serializers.CharField(source="user.code", read_only=True)
+    service_order = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
+    )
+
+    class Meta:
+        model = ServiceActivity
+        fields = [
+            "uuid",
+            "number",
+            "product",
+            "product_name",
+            "product_code",
+            "to_invoicing",
+            "user",
+            "is_finished",
+            "date_of_service",
+            "date_from",
+            "date_to",
+            "price_net",
+            "price_gross",
+            "price_discount",
+            "quantity",
+            "value_net",
+            "value_gross",
+            "unit",
+        ]
+
+
 class ServicePartSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
     product_code = serializers.CharField(source="product.code", read_only=True)
@@ -80,6 +115,7 @@ class ServicePartSerializer(serializers.ModelSerializer):
         fields = [
             "uuid",
             "number",
+            "product",
             "product_name",
             "product_code",
             "to_invoicing",
@@ -128,6 +164,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
     purchase_document_type = FileTypeField(source="purchase_document", required=False, read_only=True)
     contractor_confirmed = serializers.BooleanField(source="contractor.confirmed", read_only=True)
     service_parts = ServicePartSerializer(many=True, read_only=True)
+    service_activities = ServiceActivitySerializer(many=True, read_only=True)
 
     class Meta:
         model = ServiceOrder
@@ -184,6 +221,7 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             "purchase_document_type",
             "form_files",
             "service_parts",
+            "service_activities",
         ]
 
 
