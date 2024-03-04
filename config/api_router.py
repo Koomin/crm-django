@@ -14,6 +14,7 @@ from crm.service.api.views import (
     NoteViewSet,
     OrderTypeViewSet,
     PurchaseDocumentViewSet,
+    ServiceActivityViewSet,
     ServiceOrderViewSet,
     StageDurationViewSet,
     StageViewSet,
@@ -45,7 +46,7 @@ router.register("countries", CountryViewSet)
 router.register("attributes", AttributeViewSet)
 router.register("attributes-definition-items", AttributeDefinitionItemViewSet)
 router.register("stage-duration", StageDurationViewSet)
-
+router.register("service-activity", ServiceActivityViewSet)
 
 app_name = "api"
 urlpatterns = router.urls

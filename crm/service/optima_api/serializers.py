@@ -12,6 +12,7 @@ from crm.service.models import (
     Device,
     DeviceType,
     Note,
+    ServiceActivity,
     ServiceOrder,
     ServicePart,
     Stage,
@@ -210,6 +211,52 @@ class ServicePartSerializer(BaseOptimaSerializer):
             "quantity_released": self.obj[14],
             "unit": self.obj[15],
             "service_order": self._get_service_order(),
+        }
+
+
+class ServiceActivitySerializer(BaseOptimaSerializer):
+    model = ServiceActivity
+
+    def _get_product(self):
+        try:
+            return Product.objects.get(optima_id=self.obj[3])
+        except Product.DoesNotExist:
+            self._valid = False
+            return None
+
+    def _get_user(self):
+        try:
+            return OptimaUser.objects.get(optima_id=self.obj[4])
+        except OptimaUser.DoesNotExist:
+            self._valid = False
+            return None
+
+    def _get_service_order(self):
+        try:
+            return ServiceOrder.objects.get(optima_id=self.obj[1])
+        except ServiceOrder.DoesNotExist:
+            self._valid = False
+            return None
+
+    def _deserialize(self) -> dict:
+        return {
+            "optima_id": self.obj[0],
+            "service_order": self._get_service_order(),
+            "number": self.obj[2],
+            "product": self._get_product(),
+            "user": self._get_user(),
+            "is_finished": self.obj[5],
+            "to_invoicing": self.obj[6],
+            "date_of_service": self.obj[7],
+            "date_from": self.obj[8],
+            "date_to": self.obj[9],
+            "price_discount": self.obj[10],
+            "price_net": self.obj[11],
+            "price_gross": self.obj[12],
+            "quantity": self.obj[13],
+            "value_net": self.obj[14],
+            "value_gross": self.obj[15],
+            "unit": self.obj[16],
         }
 
 

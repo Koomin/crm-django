@@ -74,3 +74,17 @@ class ServicePartObject(OptimaObject):
     def get(self, order_id):
         self.get_queryset = self.get_queryset.format(order_id)
         return super().get()
+
+
+class ServiceActivityObject(OptimaObject):
+    get_queryset = (
+        "SELECT SRS.SrY_SrYId, SRS.SrY_SrZId, SRS.SrY_Lp, SRS.SrY_TwrId, SRS.SrY_SerwisantId, SRS.SrY_Zakonczona, "
+        "SRS.SrY_Fakturowac, SRS.SrY_DataWykonania, SRS.SrY_TerminOd, SRS.SrY_TerminDo, SRS.SrY_Rabat, "
+        "SRS.SrY_CenaNetto, SRS.SrY_CenaBrutto, SRS.SrY_Ilosc, SRS.SrY_WartoscNetto, "
+        "SRS.SrY_WartoscBrutto, SRS.SrY_JM "
+        "FROM CDN.SrsCzynnosci as SRS WHERE SRS.SrY_SrZId = {0}"
+    )
+
+    def get(self, order_id):
+        self.get_queryset = self.get_queryset.format(order_id)
+        return super().get()
