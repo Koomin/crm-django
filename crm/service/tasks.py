@@ -9,6 +9,7 @@ from crm.service.models import (
     Device,
     DeviceType,
     Note,
+    ServiceActivity,
     ServiceOrder,
     ServicePart,
     Stage,
@@ -21,6 +22,7 @@ from crm.service.optima_api.serializers import (
     DeviceSerializer,
     DeviceTypeSerializer,
     NoteSerializer,
+    ServiceActivitySerializer,
     ServiceOrderSerializer,
     ServicePartSerializer,
     StageSerializer,
@@ -33,6 +35,7 @@ from crm.service.optima_api.views import (
     DeviceObject,
     DeviceTypeObject,
     NoteObject,
+    ServiceActivityObject,
     ServiceOrderObject,
     ServicePartObject,
     StageObject,
@@ -149,6 +152,25 @@ def import_service_parts():
                 if serializer.data:
                     try:
                         ServicePart.objects.update_or_create(
+                            optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                        )
+                    except Exception as e:
+                        print(e)
+                        pass
+
+
+@celery_app.task()
+def import_service_activities():
+    orders = ServiceOrder.objects.filter(optima_id__isnull=False)
+    for order in orders:
+        service_activity_object = ServiceActivityObject()
+        objects = service_activity_object.get(order.optima_id)
+        if objects:
+            for obj in objects:
+                serializer = ServiceActivitySerializer(obj)
+                if serializer.data:
+                    try:
+                        ServiceActivity.objects.update_or_create(
                             optima_id=serializer.data.get("optima_id"), defaults=serializer.data
                         )
                     except Exception as e:
