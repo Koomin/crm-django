@@ -165,28 +165,28 @@ class ServicePartSerializer(BaseOptimaSerializer):
 
     def _get_product(self):
         try:
-            Product.objects.get(optima_id=self.obj[2])
+            return Product.objects.get(optima_id=self.obj[2])
         except Product.DoesNotExist:
             self._valid = False
             return None
 
     def _get_warehouse(self):
         try:
-            Warehouse.objects.get(optima_id=self.obj[5])
+            return Warehouse.objects.get(optima_id=self.obj[5])
         except Warehouse.DoesNotExist:
             self._valid = False
             return None
 
     def _get_user(self):
         try:
-            OptimaUser.objects.get(optima_id=self.obj[4])
+            return OptimaUser.objects.get(optima_id=self.obj[4])
         except OptimaUser.DoesNotExist:
             self._valid = False
             return None
 
     def _get_service_order(self):
         try:
-            ServiceOrder.objects.get(optima_id=self.obj[16])
+            return ServiceOrder.objects.get(optima_id=self.obj[16])
         except ServiceOrder.DoesNotExist:
             self._valid = False
             return None
