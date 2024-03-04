@@ -84,6 +84,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "crm.core",
     "crm.users",
     "crm.contractors",
     "crm.documents",
