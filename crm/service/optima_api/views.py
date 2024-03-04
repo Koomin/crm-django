@@ -1,6 +1,12 @@
 from crm.core.optima import OptimaObject
 
 
+class ServiceOptimaObject(OptimaObject):
+    def get(self, object_id):
+        self.get_queryset = self.get_queryset.format(object_id)
+        return super().get()
+
+
 class CategoryObject(OptimaObject):
     get_queryset = (
         "SELECT Kat.Kat_KatID, Kat.Kat_KodOgolny, Kat.Kat_KodSzczegol, Kat.Kat_Opis FROM CDN.Kategorie as Kat"
@@ -30,18 +36,14 @@ class AttributeDefinitionItemObject(OptimaObject):
     get_queryset = "SELECT DAE.DAE_DAEId, DAE.DAE_Wartosc, DAE.DAE_Lp, DAE.DAE_DeAId FROM CDN.DefAtrElem as DAE"
 
 
-class AttributeObject(OptimaObject):
+class AttributeObject(ServiceOptimaObject):
     get_queryset = (
         "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt, DA.DAt_SrZId "
         "FROM CDN.DokAtrybuty as DA WHERE DA.DAt_SrZId = {0}"
     )
 
-    def get(self, order_id):
-        self.get_queryset = self.get_queryset.format(order_id)
-        return super().get()
 
-
-class ServiceOrderObject(OptimaObject):
+class ServiceOrderObject(ServiceOptimaObject):
     get_queryset = (
         "SELECT SRS.SrZ_SrZId, SRS.SrZ_DDfId, SRS.SrZ_KatID, SRS.SrZ_NumerString, SRS.SrZ_NumerNr, "
         "SRS.SrZ_Bufor, SRS.SrZ_Stan, SRS.SrZ_PodmiotId, SRS.SrZ_OpeZalId, SRS.SrZ_DataDok, "
@@ -51,19 +53,19 @@ class ServiceOrderObject(OptimaObject):
         "SRS.SrZ_PodNazwa1, SRS.SrZ_PodNazwa2, SRS.SrZ_PodNazwa3, SRS.SrZ_PodNrDomu, SRS.SrZ_PodNrLokalu, "
         "SRS.SrZ_PodPoczta, SRS.SrZ_PodUlica, SRS.SrZ_PodWojewodztwo, SRS.SrZ_PodmiotTyp, "
         "SRS.SrZ_PodKodPocztowy "
-        "FROM CDN.SrsZlecenia as SRS"
+        "FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_DDfId = {0}"
     )
 
 
-class NoteObject(OptimaObject):
+class NoteObject(ServiceOptimaObject):
     get_queryset = (
         "SELECT SRS.SrN_SrNId, SRS.SrN_Lp, SRS.SrN_SerwisantTyp, SRS.SrN_SerwisantId, SRS.SrN_DataDok, SRS.SrN_Tresc, "
         "SRS.SrN_SrZId "
-        "FROM CDN.SrsNotatki as SRS"
+        "FROM CDN.SrsNotatki as SRS WHERE SRS.SrN_SrZId = {0}"
     )
 
 
-class ServicePartObject(OptimaObject):
+class ServicePartObject(ServiceOptimaObject):
     get_queryset = (
         "SELECT SC.SrC_SrCId, SC.SrC_Lp, SC.SrC_TwrId, SC.SrC_MmZwrot, SC.SrC_SerwisantId, SC.SrC_MagId, "
         "SC.SrC_Status, SC.SrC_Dokument, SC.SrC_Fakturowac, SC.SrC_CenaNetto, SC.SrC_CenaBrutto, SC.SrC_Rabat, "
@@ -71,12 +73,8 @@ class ServicePartObject(OptimaObject):
         "FROM CDN.SrsCzesci as SC WHERE SC.SrC_SrZId = {0}"
     )
 
-    def get(self, order_id):
-        self.get_queryset = self.get_queryset.format(order_id)
-        return super().get()
 
-
-class ServiceActivityObject(OptimaObject):
+class ServiceActivityObject(ServiceOptimaObject):
     get_queryset = (
         "SELECT SRS.SrY_SrYId, SRS.SrY_SrZId, SRS.SrY_Lp, SRS.SrY_TwrId, SRS.SrY_SerwisantId, SRS.SrY_Zakonczona, "
         "SRS.SrY_Fakturowac, SRS.SrY_DataWykonania, SRS.SrY_TerminOd, SRS.SrY_TerminDo, SRS.SrY_Rabat, "
@@ -84,7 +82,3 @@ class ServiceActivityObject(OptimaObject):
         "SRS.SrY_WartoscBrutto, SRS.SrY_JM "
         "FROM CDN.SrsCzynnosci as SRS WHERE SRS.SrY_SrZId = {0}"
     )
-
-    def get(self, order_id):
-        self.get_queryset = self.get_queryset.format(order_id)
-        return super().get()

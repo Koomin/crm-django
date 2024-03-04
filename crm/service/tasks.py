@@ -1,6 +1,7 @@
 from django.db.utils import IntegrityError
 
 from config import celery_app
+from crm.documents.models import Document
 from crm.service.models import (
     Attribute,
     AttributeDefinition,
@@ -67,14 +68,10 @@ def import_device_types():
     for obj in objects:
         serializer = DeviceTypeSerializer(obj)
         DeviceType.objects.create(**serializer.data)
-
-
-@celery_app.task()
-def import_devices():
     device_object = DeviceObject()
-    objects = device_object.get()
-    for obj in objects:
-        serializer = DeviceSerializer(obj)
+    device_objects = device_object.get()
+    for dev_obj in device_objects:
+        serializer = DeviceSerializer(dev_obj)
         Device.objects.create(**serializer.data)
 
 
@@ -85,15 +82,6 @@ def import_service_orders():
     for obj in objects:
         serializer = ServiceOrderSerializer(obj)
         ServiceOrder.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
-
-
-@celery_app.task()
-def import_notes():
-    note_object = NoteObject()
-    objects = note_object.get()
-    for obj in objects:
-        serializer = NoteSerializer(obj)
-        Note.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
 
 
 @celery_app.task()
@@ -118,61 +106,61 @@ def import_attributes_definition():
 
 
 @celery_app.task()
-def import_attributes():
-    orders = ServiceOrder.objects.filter(optima_id__isnull=False)
-    for order in orders:
-        attribute_object = AttributeObject()
-        objects = attribute_object.get(order.optima_id)
-        if objects:
-            for obj in objects:
-                serializer = AttributeSerializer(obj)
-                try:
-                    Attribute.objects.update_or_create(
-                        optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                    )
-                except IntegrityError:
-                    pass
-
-
-@celery_app.task()
 def update_attributes_definition():
     for obj in Attribute.objects.all().values_list("attribute_definition", flat=True).distinct():
         print(obj)
 
 
 @celery_app.task()
-def import_service_parts():
-    orders = ServiceOrder.objects.filter(optima_id__isnull=False)
-    for order in orders:
-        service_part_object = ServicePartObject()
-        objects = service_part_object.get(order.optima_id)
-        if objects:
-            for obj in objects:
-                serializer = ServicePartSerializer(obj)
-                if serializer.data:
+def full_import_orders():
+    service_order_object = ServiceOrderObject()
+    for document in Document.objects.filter(to_import=True):
+        order_objects = service_order_object.get(document.optima_id)
+        for order_obj in order_objects:
+            serializer = ServiceOrderSerializer(order_obj)
+            service_order, created = ServiceOrder.objects.update_or_create(
+                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+            )
+            service_part_object = ServicePartObject()
+            part_objects = service_part_object.get(service_order.optima_id)
+            if part_objects:
+                for part_obj in part_objects:
+                    serializer = ServicePartSerializer(part_obj)
+                    if serializer.data:
+                        try:
+                            ServicePart.objects.update_or_create(
+                                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                            )
+                        except Exception as e:
+                            print(e)
+                            pass
+            attribute_object = AttributeObject()
+            attr_objects = attribute_object.get(service_order.optima_id)
+            if attr_objects:
+                for attr_obj in attr_objects:
+                    serializer = AttributeSerializer(attr_obj)
                     try:
-                        ServicePart.objects.update_or_create(
+                        Attribute.objects.update_or_create(
                             optima_id=serializer.data.get("optima_id"), defaults=serializer.data
                         )
-                    except Exception as e:
-                        print(e)
+                    except IntegrityError:
                         pass
-
-
-@celery_app.task()
-def import_service_activities():
-    orders = ServiceOrder.objects.filter(optima_id__isnull=False)
-    for order in orders:
-        service_activity_object = ServiceActivityObject()
-        objects = service_activity_object.get(order.optima_id)
-        if objects:
-            for obj in objects:
-                serializer = ServiceActivitySerializer(obj)
-                if serializer.data:
-                    try:
-                        ServiceActivity.objects.update_or_create(
-                            optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                        )
-                    except Exception as e:
-                        print(e)
-                        pass
+            service_activity_object = ServiceActivityObject()
+            activities_objects = service_activity_object.get(service_order.optima_id)
+            if activities_objects:
+                for activity_obj in activities_objects:
+                    serializer = ServiceActivitySerializer(activity_obj)
+                    if serializer.data:
+                        try:
+                            ServiceActivity.objects.update_or_create(
+                                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                            )
+                        except Exception as e:
+                            print(e)
+                            pass
+            note_object = NoteObject()
+            note_objects = note_object.get(service_order.optima_id)
+            if note_objects:
+                for note_obj in note_objects:
+                    serializer = NoteSerializer(note_obj)
+                    Note.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
