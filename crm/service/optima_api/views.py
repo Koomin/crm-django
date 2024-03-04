@@ -61,3 +61,16 @@ class NoteObject(OptimaObject):
         "SRS.SrN_SrZId "
         "FROM CDN.SrsNotatki as SRS"
     )
+
+
+class ServicePartObject(OptimaObject):
+    get_queryset = (
+        "SELECT SC.SrC_SrCId, SC.SrC_Lp, SC.SrC_TwrId, SC.SrC_MmZwrot, SC.SrC_SerwisantId, SC.SrC_MagId, "
+        "SC.SrC_Status, SC.SrC_Dokument, SC.SrC_Fakturowac, SC.SrC_CenaNetto, SC.SrC_CenaBrutto, SC.SrC_Rabat, "
+        "SC.SrC_Ilosc, SC.SrC_IloscPobierana, SC.SrC_IloscWydanaDisp, SC.SrC_JM, SC.SrC_SrZId "
+        "FROM CDN.SrsCzesci as SC WHERE SC.SrC_SrZId = {0}"
+    )
+
+    def get(self, order_id):
+        self.get_queryset = self.get_queryset.format(order_id)
+        return super().get()

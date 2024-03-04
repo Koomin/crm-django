@@ -15,6 +15,7 @@ class BaseOptimaSerializer:
         if isinstance(obj, self.model):
             self._deserialization = False
         else:
+            self._valid = True
             self._deserialization = True
             self._data = self._deserialize()
 
@@ -59,7 +60,9 @@ class BaseOptimaSerializer:
                     return self._data
             else:
                 raise IsValidException("is_valid() method wasn't called")
-        return self._data
+        elif self._valid and self._deserialization:
+            return self._data
+        return None
 
 
 class OptimaConnection:
