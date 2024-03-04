@@ -10,7 +10,7 @@ def import_countries():
     objects = country_object.get()
     for obj in objects:
         serializer = CountrySerializer(obj)
-        Country.objects.create(**serializer.data)
+        Country.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
 
 
 @celery_app.task()
@@ -19,4 +19,4 @@ def import_states():
     objects = state_object.get()
     for obj in objects:
         serializer = StateSerializer(obj)
-        State.objects.create(**serializer.data)
+        State.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)

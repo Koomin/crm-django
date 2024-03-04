@@ -54,6 +54,7 @@ class DeviceSerializer(BaseOptimaSerializer):
         try:
             return DeviceType.objects.get(optima_id=self.obj[4])
         except ObjectDoesNotExist:
+            self._valid = False
             return None
 
     def _deserialize(self) -> dict:
@@ -85,6 +86,7 @@ class NoteSerializer(BaseOptimaSerializer):
         try:
             service_order = ServiceOrder.objects.get(optima_id=self.obj[6])
         except ObjectDoesNotExist:
+            self._valid = False
             return None
         else:
             return service_order
@@ -119,6 +121,7 @@ class AttributeDefinitionItemSerializer(BaseOptimaSerializer):
         try:
             attribute_definition = AttributeDefinition.objects.get(optima_id=self.obj[3])
         except ObjectDoesNotExist:
+            self._valid = False
             return None
         else:
             return attribute_definition
@@ -139,6 +142,7 @@ class AttributeSerializer(BaseOptimaSerializer):
         try:
             attribute_definition = AttributeDefinition.objects.get(optima_id=self.obj[2])
         except ObjectDoesNotExist:
+            self._valid = False
             return None
         else:
             return attribute_definition
@@ -147,6 +151,7 @@ class AttributeSerializer(BaseOptimaSerializer):
         try:
             service_order = ServiceOrder.objects.get(optima_id=self.obj[4])
         except ObjectDoesNotExist:
+            self._valid = False
             return None
         else:
             return service_order
