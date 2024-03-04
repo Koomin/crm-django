@@ -1,7 +1,7 @@
 from django.db.utils import IntegrityError
 
 from config import celery_app
-from crm.documents.models import Document
+from crm.documents.models import DocumentType
 from crm.service.models import (
     Attribute,
     AttributeDefinition,
@@ -114,7 +114,7 @@ def update_attributes_definition():
 @celery_app.task()
 def full_import_orders():
     service_order_object = ServiceOrderObject()
-    for document in Document.objects.filter(to_import=True):
+    for document in DocumentType.objects.filter(to_import=True):
         order_objects = service_order_object.get(document.optima_id)
         for order_obj in order_objects:
             serializer = ServiceOrderSerializer(order_obj)
