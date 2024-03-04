@@ -145,6 +145,7 @@ def import_service_parts():
         objects = service_part_object.get(order.optima_id)
         if objects:
             for obj in objects:
+                print(obj)
                 serializer = ServicePartSerializer(obj)
                 if serializer.data:
                     try:
