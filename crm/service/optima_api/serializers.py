@@ -163,7 +163,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _get_value(self):
         if self._get_format() == 4 and self.obj[3]:
-            return datetime.datetime(year=1899, month=12, day=28).date() + datetime.timedelta(days=int(self.obj[3]))
+            return datetime.datetime(year=1800, month=12, day=28).date() + datetime.timedelta(days=int(self.obj[3]))
         return self.obj[3]
 
     def _deserialize(self) -> dict:
