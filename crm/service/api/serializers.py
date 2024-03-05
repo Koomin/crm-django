@@ -101,6 +101,7 @@ class ServiceActivitySerializer(serializers.ModelSerializer):
             "value_net",
             "value_gross",
             "unit",
+            "service_order",
         ]
 
 

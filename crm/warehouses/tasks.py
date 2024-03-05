@@ -10,4 +10,5 @@ def import_warehouses():
     warehouses = warehouse_object.get()
     for obj in warehouses:
         serializer = WarehouseSerializer(obj)
-        Warehouse.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
+        if serializer.data:
+            Warehouse.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
