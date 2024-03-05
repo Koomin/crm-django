@@ -53,7 +53,7 @@ class ServiceOrderObject(ServiceOptimaObject):
         "SRS.SrZ_PodNazwa1, SRS.SrZ_PodNazwa2, SRS.SrZ_PodNazwa3, SRS.SrZ_PodNrDomu, SRS.SrZ_PodNrLokalu, "
         "SRS.SrZ_PodPoczta, SRS.SrZ_PodUlica, SRS.SrZ_PodWojewodztwo, SRS.SrZ_PodmiotTyp, "
         "SRS.SrZ_PodKodPocztowy "
-        "FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_DDfId = {0} and SRS.SrZ_DataDok >= {1}"
+        "FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_DDfId = {0} AND SRS.SrZ_DataDok >= '{1}'"
     )
 
 
