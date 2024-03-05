@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.exceptions import ObjectDoesNotExist
 
 from crm.contractors.models import Contractor
@@ -155,6 +157,14 @@ class AttributeSerializer(BaseOptimaSerializer):
             return None
         else:
             return service_order
+
+    def _get_format(self):
+        return int(self.obj[5])
+
+    def _get_value(self):
+        if self._get_format() == 4:
+            return datetime.datetime(year=1899, month=12, day=28).date() + datetime.timedelta(days=self.obj[3])
+        return self.obj[3]
 
     def _deserialize(self) -> dict:
         return {

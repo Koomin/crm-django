@@ -38,8 +38,10 @@ class AttributeDefinitionItemObject(OptimaObject):
 
 class AttributeObject(ServiceOptimaObject):
     get_queryset = (
-        "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt, DA.DAt_SrZId "
-        "FROM CDN.DokAtrybuty as DA WHERE DA.DAt_SrZId = {0}"
+        "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt, DA.DAt_SrZId, DEF.DeA_Format "
+        "FROM CDN.DokAtrybuty as DA "
+        "INNER JOIN CDN.DefAtrybuty as DEF ON DA.DAt_DeAId=DEF.DeA_DeAId "
+        "WHERE DA.DAt_SrZId = {0}"
     )
 
 
