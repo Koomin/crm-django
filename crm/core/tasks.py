@@ -17,6 +17,6 @@ def initial_import():
     import_products.apply_async()
     import_contractors.apply_async()
     import_document_types.apply_async()
-    import_countries.apply_async(link=import_states.s)
     import_users.apply_async()
     import_warehouses.apply_async()
+    import_countries.apply_async(link=import_states.s())
