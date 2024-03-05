@@ -79,6 +79,8 @@ class ServiceActivitySerializer(serializers.ModelSerializer):
     service_order = serializers.SlugRelatedField(
         slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
     )
+    date_from_formatted = serializers.DateTimeField(source="date_from", format="%Y-%m-%d", required=False)
+    date_to_formatted = serializers.DateTimeField(source="date_to", format="%Y-%m-%d", required=False)
 
     class Meta:
         model = ServiceActivity
@@ -93,7 +95,9 @@ class ServiceActivitySerializer(serializers.ModelSerializer):
             "is_finished",
             "date_of_service",
             "date_from",
+            "date_from_formatted",
             "date_to",
+            "date_to_formatted",
             "price_net",
             "price_gross",
             "price_discount",
@@ -101,6 +105,7 @@ class ServiceActivitySerializer(serializers.ModelSerializer):
             "value_net",
             "value_gross",
             "unit",
+            "service_order",
         ]
 
 

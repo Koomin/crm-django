@@ -37,6 +37,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "name2": self.obj[13],
             "name3": self.obj[14],
             "confirmed": True,
+            "exported": True,
         }
 
     def _serialize(self) -> dict:

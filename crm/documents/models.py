@@ -12,3 +12,7 @@ class DocumentType(OptimaModel):
     numbering_scheme = models.CharField(null=False, max_length=500)
     active = models.BooleanField(default=True)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True)
+    to_import = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.symbol} - {self.name}"

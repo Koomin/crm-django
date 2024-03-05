@@ -9,4 +9,7 @@ def import_products():
     objects = product_object.get()
     for obj in objects:
         serializer = ProductSerializer(obj)
-        serializer.model.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
+        if serializer.data:
+            serializer.model.objects.update_or_create(
+                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+            )
