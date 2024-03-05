@@ -171,7 +171,7 @@ class AttributeSerializer(BaseOptimaSerializer):
             "optima_id": self.obj[0],
             "code": self.obj[1],
             "attribute_definition": self._get_attribute_definition(),
-            "value": self.obj[3],
+            "value": self._get_value(),
             "service_order": self._get_service_order(),
         }
 
