@@ -115,7 +115,7 @@ def update_attributes_definition():
 def full_import_orders():
     service_order_object = ServiceOrderObject()
     for document in DocumentType.objects.filter(to_import=True):
-        order_objects = service_order_object.get(document.optima_id)
+        order_objects = service_order_object.get(document.optima_id, "2024-01-01")
         for order_obj in order_objects:
             serializer = ServiceOrderSerializer(order_obj)
             service_order, created = ServiceOrder.objects.update_or_create(
