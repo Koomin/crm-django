@@ -20,7 +20,7 @@ from crm.service.models import (
     Stage,
     StageDuration,
 )
-from crm.users.models import User
+from crm.users.models import OptimaUser, User
 from crm.warehouses.models import Warehouse
 
 
@@ -75,7 +75,8 @@ class ServiceActivitySerializer(serializers.ModelSerializer):
     product = serializers.SlugRelatedField(slug_field="uuid", queryset=Product.objects.all(), read_only=False)
     product_name = serializers.CharField(source="product.name", read_only=True)
     product_code = serializers.CharField(source="product.code", read_only=True)
-    user = serializers.CharField(source="user.code", read_only=True)
+    user_code = serializers.CharField(source="user.code", read_only=True)
+    user = serializers.SlugRelatedField(slug_field="uuid", queryset=OptimaUser.objects.all(), read_only=False)
     service_order = serializers.SlugRelatedField(
         slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
     )
@@ -91,7 +92,7 @@ class ServiceActivitySerializer(serializers.ModelSerializer):
             "product_name",
             "product_code",
             "to_invoicing",
-            "user",
+            "user_code",
             "is_finished",
             "date_of_service",
             "date_from",
