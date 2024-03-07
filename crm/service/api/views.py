@@ -223,7 +223,7 @@ class StageDurationViewSet(ListModelMixin, BaseViewSet):
     filterset_fields = ["uuid", "stage_duration__uuid", "service_order__uuid"]
 
 
-class ServiceActivityViewSet(ListModelMixin, BaseViewSet):
+class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = ServiceActivity.objects.all()
     serializer_class = ServiceActivitySerializer
     filterset_fields = ["uuid", "service_order__uuid"]

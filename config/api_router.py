@@ -46,8 +46,8 @@ router.register("states", StateViewSet)
 router.register("countries", CountryViewSet)
 router.register("attributes", AttributeViewSet)
 router.register("attributes-definition-items", AttributeDefinitionItemViewSet)
-router.register("stage-duration", StageDurationViewSet)
-router.register("service-activity", ServiceActivityViewSet)
+router.register("stage-durations", StageDurationViewSet)
+router.register("service-activities", ServiceActivityViewSet)
 router.register("products", ProductViewSet)
 
 app_name = "api"
