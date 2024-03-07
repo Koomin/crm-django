@@ -28,6 +28,8 @@ class TokenWithUserObtainPairSerializer(TokenObtainPairSerializer):
                     "ClosedServiceOrders",
                     "Users",
                     "Settings",
+                    "Connections",
+                    "Mailing",
                 ],
                 "actions": {},
             }

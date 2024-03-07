@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from crm.contractors.models import Contractor
 from crm.core.api.fields import FileBase64Field, FileTypeField
+from crm.crm_config.api.serializers import EmailTemplateSerializer
+from crm.crm_config.models import EmailTemplate
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.service.models import (
@@ -31,9 +33,21 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class StageSerializer(serializers.ModelSerializer):
+    email_template = EmailTemplateSerializer(read_only=True)
+
     class Meta:
         model = Stage
-        fields = ["uuid", "type", "code", "description"]
+        fields = ["uuid", "type", "code", "description", "email_template"]
+
+
+class StageUpdateSerializer(serializers.ModelSerializer):
+    email_template = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=EmailTemplate.objects.all(), read_only=False
+    )
+
+    class Meta:
+        model = Stage
+        fields = ["uuid", "type", "code", "description", "email_template"]
 
 
 class DeviceTypeSerializer(serializers.ModelSerializer):

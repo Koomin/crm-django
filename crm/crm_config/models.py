@@ -1,6 +1,6 @@
 from django.db import models
 
-from crm.core.models import OptimaModel
+from crm.core.models import BaseModel, OptimaModel
 
 
 class Country(OptimaModel):
@@ -13,3 +13,9 @@ class State(OptimaModel):
     # Optima table - CDN.Teryt
     name = models.CharField(max_length=255)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
+
+
+class EmailTemplate(BaseModel):
+    name = models.CharField(max_length=255)
+    template = models.TextField()
+    subject = models.CharField(max_length=255)

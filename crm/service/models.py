@@ -2,6 +2,7 @@ from django.db import models
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
+from crm.crm_config.models import EmailTemplate
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.users.models import OptimaUser, User
@@ -20,6 +21,7 @@ class Stage(OptimaModel):
     type = models.IntegerField()
     code = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=255, null=True)
+    email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True)
 
 
 class DeviceType(OptimaModel):
@@ -184,3 +186,13 @@ class ServiceActivity(OptimaModel):
     value_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     value_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     unit = models.CharField(max_length=10, null=True, blank=True)
+
+
+class EmailSent(BaseModel):
+    email = models.CharField(max_length=255, null=False)
+    stage = models.ForeignKey(Stage, on_delete=models.CASCADE, related_name="emails_sent")
+    email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, related_name="emails_sent")
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    date_of_sent = models.DateTimeField(null=True, blank=True)
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name="emails_sent")
