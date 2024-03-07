@@ -23,6 +23,7 @@ from crm.service.api.serializers import (
     ServiceOrderSerializer,
     StageDurationSerializer,
     StageSerializer,
+    StageUpdateSerializer,
 )
 from crm.service.models import (
     Attribute,
@@ -44,9 +45,15 @@ class CategoryViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     serializer_class = CategorySerializer
 
 
-class StageViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+class StageViewSet(ListModelMixin, UpdateModelMixin, RetrieveModelMixin, BaseViewSet):
     queryset = Stage.objects.all()
     serializer_class = StageSerializer
+    update_serializer_class = StageUpdateSerializer
+
+    def get_serializer_class(self):
+        if self.action == "partial_update":
+            return self.update_serializer_class
+        return self.serializer_class
 
 
 class DeviceTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):

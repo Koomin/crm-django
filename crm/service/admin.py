@@ -9,6 +9,7 @@ from crm.service.models import (
     Category,
     Device,
     DeviceType,
+    EmailSent,
     FormFile,
     Note,
     OrderType,
@@ -87,4 +88,9 @@ class ServicePartAdmin(ModelAdmin):
 
 @admin.register(ServiceActivity)
 class ServiceActivityAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(EmailSent)
+class EmailSentAdmin(ModelAdmin):
     pass
