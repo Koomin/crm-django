@@ -97,6 +97,20 @@ class ServiceOrder(OptimaModel):
     order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True)
     purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
 
+    def _export_to_optima(self):
+        from service.optima_api.serializers import ServiceOrderSerializer
+        from service.optima_api.views import ServiceOrderObject
+
+        if self.state != self.States.NEW:
+            serializer = ServiceOrderSerializer(self)
+            if serializer.is_valid(safe=False):
+                optima_object = ServiceOrderObject()
+                queryset = optima_object.post(serializer.data)
+                print(queryset)
+
+    def _update_optima_obj(self):
+        pass
+
 
 class Note(OptimaModel):
     # Optima table - CDN.SrsNotatki

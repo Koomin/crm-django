@@ -1,4 +1,5 @@
 import pyodbc
+from django.apps import apps
 from django.conf import settings
 
 from crm.core.exceptions import IsValidException
@@ -96,7 +97,20 @@ class OptimaObject:
     table_name = None
 
     def __init__(self, database=None):
-        self.connection = OptimaConnection(database).cursor
+        self._synchronize = self._get_synchronize()
+        if self._synchronize:
+            try:
+                self.connection = OptimaConnection(database).cursor
+            except pyodbc.Error:
+                self.connection = None
+
+    def _get_synchronize(self):
+        general_settings_model = apps.get_model("crm_config", "GeneralSettings")
+        try:
+            general_settings = general_settings_model.objects.first()
+        except general_settings_model.DoesNotExist:
+            return False
+        return general_settings.optima_synchronization
 
     def _prepare_insert_queryset(self, fields, values):
         return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values})"
@@ -111,5 +125,7 @@ class OptimaObject:
         fields = ",".join(field for field in obj.keys())
         values = ",".join("?" * len(obj.keys()))
         insert_queryset = self._prepare_insert_queryset(fields, values)
-        self.connection.execute(insert_queryset, tuple(obj.values()))
-        return self._get_optima_id()
+        if self._synchronize and self.connection:
+            self.connection.execute(insert_queryset, tuple(obj.values()))
+            return self._get_optima_id()
+        return insert_queryset

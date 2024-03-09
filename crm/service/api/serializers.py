@@ -290,7 +290,9 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        form_files = self.initial_data.pop("form_files")
+        form_files = []
+        if self.initial_data.get("form_files"):
+            form_files = self.initial_data.pop("form_files")
         new_service_order = ServiceOrder.objects.create(**validated_data)
         for form_file in form_files:
             FormFile.objects.create(service_order=new_service_order, file=form_file)

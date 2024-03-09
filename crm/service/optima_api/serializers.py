@@ -1,30 +1,18 @@
 import datetime
 
+from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 
 from crm.contractors.models import Contractor
 from crm.core.optima import BaseOptimaSerializer
 from crm.documents.models import DocumentType
 from crm.products.models import Product
-from crm.service.models import (
-    Attribute,
-    AttributeDefinition,
-    AttributeDefinitionItem,
-    Category,
-    Device,
-    DeviceType,
-    Note,
-    ServiceActivity,
-    ServiceOrder,
-    ServicePart,
-    Stage,
-)
 from crm.users.models import OptimaUser
 from crm.warehouses.models import Warehouse
 
 
 class CategorySerializer(BaseOptimaSerializer):
-    model = Category
+    model = apps.get_model("service", "Category")
 
     def _deserialize(self) -> dict:
         return {
@@ -36,24 +24,25 @@ class CategorySerializer(BaseOptimaSerializer):
 
 
 class StageSerializer(BaseOptimaSerializer):
-    model = Stage
+    model = apps.get_model("service", "Stage")
 
     def _deserialize(self) -> dict:
         return {"optima_id": self.obj[0], "type": self.obj[1], "code": self.obj[2], "description": self.obj[3]}
 
 
 class DeviceTypeSerializer(BaseOptimaSerializer):
-    model = DeviceType
+    model = apps.get_model("service", "DeviceType")
 
     def _deserialize(self) -> dict:
         return {"optima_id": self.obj[0], "code": self.obj[1], "active": self.obj[2], "name": self.obj[3]}
 
 
 class DeviceSerializer(BaseOptimaSerializer):
-    model = Device
+    model = apps.get_model("service", "Device")
 
     def _get_device_type(self):
         try:
+            DeviceType = apps.get_model("service", "DeviceType")
             return DeviceType.objects.get(optima_id=self.obj[4])
         except ObjectDoesNotExist:
             self._valid = False
@@ -70,7 +59,7 @@ class DeviceSerializer(BaseOptimaSerializer):
 
 
 class NoteSerializer(BaseOptimaSerializer):
-    model = Note
+    model = apps.get_model("service", "Note")
 
     def _get_user(self):
         try:
@@ -86,6 +75,7 @@ class NoteSerializer(BaseOptimaSerializer):
 
     def _get_service_order(self):
         try:
+            ServiceOrder = apps.get_model("service", "ServiceOrder")
             service_order = ServiceOrder.objects.get(optima_id=self.obj[6])
         except ObjectDoesNotExist:
             self._valid = False
@@ -105,7 +95,7 @@ class NoteSerializer(BaseOptimaSerializer):
 
 
 class AttributeDefinitionSerializer(BaseOptimaSerializer):
-    model = AttributeDefinition
+    model = apps.get_model("service", "AttributeDefinition")
 
     def _deserialize(self) -> dict:
         return {
@@ -117,11 +107,11 @@ class AttributeDefinitionSerializer(BaseOptimaSerializer):
 
 
 class AttributeDefinitionItemSerializer(BaseOptimaSerializer):
-    model = AttributeDefinitionItem
+    model = apps.get_model("service", "AttributeDefinitionItem")
 
     def _get_attribute_definition(self):
         try:
-            attribute_definition = AttributeDefinition.objects.get(optima_id=self.obj[3])
+            attribute_definition = self.model.objects.get(optima_id=self.obj[3])
         except ObjectDoesNotExist:
             self._valid = False
             return None
@@ -138,11 +128,11 @@ class AttributeDefinitionItemSerializer(BaseOptimaSerializer):
 
 
 class AttributeSerializer(BaseOptimaSerializer):
-    model = Attribute
+    model = apps.get_model("service", "Attribute")
 
     def _get_attribute_definition(self):
         try:
-            attribute_definition = AttributeDefinition.objects.get(optima_id=self.obj[2])
+            attribute_definition = self.model.objects.get(optima_id=self.obj[2])
         except ObjectDoesNotExist:
             self._valid = False
             return None
@@ -151,7 +141,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _get_service_order(self):
         try:
-            service_order = ServiceOrder.objects.get(optima_id=self.obj[4])
+            service_order = self.model.objects.get(optima_id=self.obj[4])
         except ObjectDoesNotExist:
             self._valid = False
             return None
@@ -177,7 +167,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
 
 class ServicePartSerializer(BaseOptimaSerializer):
-    model = ServicePart
+    model = apps.get_model("service", "ServicePart")
 
     def _get_product(self):
         try:
@@ -202,6 +192,7 @@ class ServicePartSerializer(BaseOptimaSerializer):
 
     def _get_service_order(self):
         try:
+            ServiceOrder = apps.get_model("service", "ServiceOrder")
             return ServiceOrder.objects.get(optima_id=self.obj[16])
         except ServiceOrder.DoesNotExist:
             self._valid = False
@@ -230,7 +221,7 @@ class ServicePartSerializer(BaseOptimaSerializer):
 
 
 class ServiceActivitySerializer(BaseOptimaSerializer):
-    model = ServiceActivity
+    model = apps.get_model("service", "ServiceActivity")
 
     def _get_product(self):
         try:
@@ -248,6 +239,7 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
 
     def _get_service_order(self):
         try:
+            ServiceOrder = apps.get_model("service", "ServiceOrder")
             return ServiceOrder.objects.get(optima_id=self.obj[1])
         except ServiceOrder.DoesNotExist:
             self._valid = False
@@ -276,7 +268,7 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
 
 
 class ServiceOrderSerializer(BaseOptimaSerializer):
-    model = ServiceOrder
+    model = apps.get_model("service", "ServiceOrder")
 
     def _get_document_type(self):
         try:
@@ -286,6 +278,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
 
     def _get_category(self):
         try:
+            Category = apps.get_model("service", "Category")
             return Category.objects.get(optima_id=self.obj[2])
         except ObjectDoesNotExist:
             return None
@@ -319,12 +312,14 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
 
     def _get_stage(self):
         try:
+            Stage = apps.get_model("service", "Stage")
             return Stage.objects.get(optima_id=self.obj[14])
         except ObjectDoesNotExist:
             return None
 
     def _get_device(self):
         try:
+            Device = apps.get_model("service", "Device")
             return Device.objects.get(optima_id=self.obj[18])
         except ObjectDoesNotExist:
             return None
@@ -339,6 +334,55 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             return None
         else:
             return _home_number
+
+    def _serialize_document_type(self):
+        try:
+            return self.obj.document_type.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_category(self):
+        try:
+            return self.obj.category.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_contractor(self):
+        try:
+            return self.obj.contractor.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_user(self):
+        try:
+            return self.obj.user.optima_user.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_warehouse(self):
+        try:
+            return self.obj.warehouse.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_stage(self):
+        try:
+            return self.obj.stage.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_device(self):
+        try:
+            return self.obj.device.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
 
     def _deserialize(self) -> dict:
         return {
@@ -378,3 +422,44 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "contractor_postal_code": self.obj[33],
             "contractor_name": self._get_name(),
         }
+
+    def _serialize(self):
+        return {
+            "SrZ_DDfId": self._serialize_document_type(),
+            "SrZ_KatID": self._serialize_category(),
+            "SrZ_NumerString": self.obj.number_scheme,
+            "SrZ_NumerNr": self.obj.number,
+            "SrZ_Bufor": self.obj.status,
+            "SrZ_Stan": self.obj.state,
+            "SrZ_PodmiotId": self._serialize_contractor(),
+            "SrZ_OpeZalId": self._serialize_user(),
+            "SrZ_DataDok": self.obj.document_date,
+            "SrZ_DataPrzyjecia": self.obj.acceptance_date,
+            "SrZ_DataRealizacji": self.obj.realization_date,
+            "SrZ_DataZamkniecia": self.obj.closing_date,
+            "SrZ_MagId": self._serialize_warehouse(),
+            "SrZ_EtapId": self._serialize_stage(),
+            "SrZ_WartoscNetto": self.obj.net_value,
+            "SrZ_WartoscBrutto": self.obj.gross_value,
+            "SrZ_Opis": self.obj.description,
+            "SrZ_SrUId": self._serialize_device(),
+            "SrZ_NumerPelny": self.obj.full_number,
+            "SrZ_Email": self.obj.email,
+            "SrZ_Telefon": self.obj.phone_number,
+            "SrZ_PodKraj": self.obj.contractor_country,
+            "SrZ_PodMiasto": self.obj.contractor_city,
+            "SrZ_PodNazwa1": self.obj.contractor_name1,
+            "SrZ_PodNazwa2": self.obj.contractor_name2,
+            "SrZ_PodNazwa3": self.obj.contractor_name3,
+            "SrZ_PodNrDomu": self.obj.contractor_street_number,
+            "SrZ_PodNrLokalu": self.obj.contractor_home_number,
+            "SrZ_PodPoczta": self.obj.contractor_post,
+            "SrZ_PodUlica": self.obj.contractor_street,
+            "SrZ_PodWojewodztwo": self.obj.contractor_state,
+            "SrZ_PodmiotTyp": self.obj.contractor_type,
+            "SrZ_PodKodPocztowy": self.obj.contractor_postal_code,
+        }
+
+    @property
+    def _default_db_values(self) -> dict:
+        return {}

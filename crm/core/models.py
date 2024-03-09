@@ -33,7 +33,7 @@ class OptimaModel(BaseModel):
         pass
 
     def _optima_synchronization(self):
-        general_settings_model = apps.get_model("crm.crm_config", "GeneralSettings")
+        general_settings_model = apps.get_model("crm_config", "GeneralSettings")
         try:
             general_settings = general_settings_model.objects.first()
         except general_settings_model.DoesNotExist:
