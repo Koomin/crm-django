@@ -2,6 +2,7 @@ import pyodbc
 from django.conf import settings
 
 from crm.core.exceptions import IsValidException
+from crm.crm_config.models import GeneralSettings
 
 
 class BaseOptimaSerializer:
@@ -67,11 +68,16 @@ class BaseOptimaSerializer:
 
 class OptimaConnection:
     def __init__(self, database=None):
+        general_settings = GeneralSettings.objects.all().first()
+        if general_settings and general_settings.optima_general_database:
+            general_db = general_settings.optima_general_database
+        else:
+            general_db = settings.OPTIMA_DB["DATABASE"]
         try:
             self.cnxn = pyodbc.connect(
                 "Driver={ODBC Driver 17 for SQL Server};"
                 f"Server={settings.OPTIMA_DB['SERVER']};"
-                f"Database={settings.OPTIMA_DB['DATABASE'] if not database else database};"
+                f"Database={general_db if not database else database};"
                 f"uid={settings.OPTIMA_DB['UID']};"
                 f"pwd={settings.OPTIMA_DB['PASSWORD']}",
                 autocommit=True,

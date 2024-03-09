@@ -1,5 +1,6 @@
 import uuid as uuid_lib
 
+from django.apps import apps
 from django.db import models
 
 
@@ -24,3 +25,25 @@ class OptimaModel(BaseModel):
             return self.code
         except AttributeError:
             return super().__str__()
+
+    def _export_to_optima(self):
+        pass
+
+    def _update_optima_obj(self):
+        pass
+
+    def _optima_synchronization(self):
+        general_settings_model = apps.get_model("crm.crm_config", "GeneralSettings")
+        try:
+            general_settings = general_settings_model.objects.first()
+        except general_settings_model.DoesNotExist:
+            general_settings = None
+        if general_settings and general_settings.optima_synchronization:
+            if self.exported and self.optima_id:
+                self._update_optima_obj()
+            elif not self.exported and not self.optima_id:
+                self._export_to_optima()
+
+    def save(self, *args, **kwargs):
+        super().save()
+        self._optima_synchronization()

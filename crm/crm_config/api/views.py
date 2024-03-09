@@ -1,9 +1,15 @@
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, UpdateModelMixin
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from crm.core.api.views import BaseViewSet
-from crm.crm_config.api.serializers import CountrySerializer, EmailTemplateSerializer, StateSerializer
-from crm.crm_config.models import Country, EmailTemplate, State
+from crm.crm_config.api.serializers import (
+    CountrySerializer,
+    EmailTemplateSerializer,
+    GeneralSettingsSerializer,
+    StateSerializer,
+)
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, State
 
 
 class CountryViewSet(ListModelMixin, BaseViewSet):
@@ -22,3 +28,14 @@ class EmailTemplateViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, B
     queryset = EmailTemplate.objects.all()
     serializer_class = EmailTemplateSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class GeneralSettingsViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
+    queryset = GeneralSettings.objects.all()
+    serializer_class = GeneralSettingsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        queryset = GeneralSettings.objects.all().first()
+        serializer = GeneralSettingsSerializer(queryset)
+        return Response(serializer.data)
