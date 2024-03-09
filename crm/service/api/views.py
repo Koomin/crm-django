@@ -234,3 +234,14 @@ class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin,
     queryset = ServiceActivity.objects.all()
     serializer_class = ServiceActivitySerializer
     filterset_fields = ["uuid", "service_order__uuid"]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            service_order = ServiceOrder.objects.get(uuid=request.data["service_order"])
+        except ServiceOrder.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        last_number = max(
+            service_order.service_activities.filter(number__isnull=False).values_list("number", flat=True)
+        )
+        request.data["number"] = last_number + 1
+        return super().create(request, *args, **kwargs)
