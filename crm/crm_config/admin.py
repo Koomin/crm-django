@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from crm.crm_config.models import Country, EmailTemplate, State
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, State
 
 
 @admin.register(State)
@@ -16,4 +16,9 @@ class CountryAdmin(ModelAdmin):
 
 @admin.register(EmailTemplate)
 class EmailTemplateAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(GeneralSettings)
+class GeneralSettingsAdmin(ModelAdmin):
     pass

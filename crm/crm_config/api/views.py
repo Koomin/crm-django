@@ -1,5 +1,6 @@
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from crm.core.api.views import BaseViewSet
 from crm.crm_config.api.serializers import (
@@ -33,3 +34,8 @@ class GeneralSettingsViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = GeneralSettings.objects.all()
     serializer_class = GeneralSettingsSerializer
     permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        queryset = GeneralSettings.objects.all().first()
+        serializer = GeneralSettingsSerializer(queryset)
+        return Response(serializer.data)

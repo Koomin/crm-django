@@ -25,7 +25,8 @@ class EmailTemplate(BaseModel):
 class GeneralSettings(BaseModel):
     optima_synchronization = models.BooleanField(default=False)
     mailing = models.BooleanField(default=False)
-    optima_config_database = models.CharField(max_length=255)
+    optima_config_database = models.CharField(max_length=255, null=True, blank=True)
+    optima_general_database = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk and GeneralSettings.objects.exists():

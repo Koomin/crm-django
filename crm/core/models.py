@@ -18,8 +18,6 @@ class OptimaModel(BaseModel):
     exported = models.BooleanField(default=False)
 
     class Meta:
-        optima_update = False
-        optima_create = False
         abstract = True
 
     def __str__(self):
@@ -41,11 +39,11 @@ class OptimaModel(BaseModel):
         except general_settings_model.DoesNotExist:
             general_settings = None
         if general_settings and general_settings.optima_synchronization:
-            if self.exported and self.optima_id and self.__class__._meta.optima_update:
+            if self.exported and self.optima_id:
                 self._update_optima_obj()
-            elif not self.exported and not self.optima_id and self.__class__._meta.optima_create:
+            elif not self.exported and not self.optima_id:
                 self._export_to_optima()
 
     def save(self, *args, **kwargs):
-        self._optima_synchronization()
         super().save()
+        self._optima_synchronization()

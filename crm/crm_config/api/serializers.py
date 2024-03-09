@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from crm.crm.crm_config.models import GeneralSettings
-from crm.crm_config.models import Country, EmailTemplate, State
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, State
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -27,4 +26,4 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
 class GeneralSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = GeneralSettings
-        fields = ["uuid", "optima_synchronization", "mailing", "optima_config_database"]
+        fields = ["uuid", "optima_synchronization", "mailing", "optima_config_database", "optima_general_database"]
