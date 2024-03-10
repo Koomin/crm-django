@@ -33,8 +33,8 @@ class Contractor(OptimaModel):
             serializer = ContractorSerializer(self)
             if serializer.is_valid():
                 connection = ContractorObject()
-                optima_id = connection.post(serializer.data)
-                if optima_id:
+                created, optima_id = connection.post(serializer.data)
+                if created and optima_id:
                     self.optima_id = optima_id
                     self.code = self.tax_number
                     self.exported = True

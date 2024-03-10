@@ -1,3 +1,4 @@
+from django.contrib.admin.models import LogEntry
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -7,9 +8,11 @@ from crm.crm_config.api.serializers import (
     CountrySerializer,
     EmailTemplateSerializer,
     GeneralSettingsSerializer,
+    LogEntrySerializer,
+    LogSerializer,
     StateSerializer,
 )
-from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, State
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, State
 
 
 class CountryViewSet(ListModelMixin, BaseViewSet):
@@ -39,3 +42,15 @@ class GeneralSettingsViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
         queryset = GeneralSettings.objects.all().first()
         serializer = GeneralSettingsSerializer(queryset)
         return Response(serializer.data)
+
+
+class LogViewSet(ListModelMixin, BaseViewSet):
+    queryset = Log.objects.all()
+    serializer_class = LogSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class LogEntryViewSet(ListModelMixin, BaseViewSet):
+    queryset = LogEntry.objects.all()
+    serializer_class = LogEntrySerializer
+    permission_classes = [IsAuthenticated]

@@ -5,6 +5,7 @@ from crm.core.models import BaseModel, OptimaModel
 from crm.crm_config.models import EmailTemplate
 from crm.documents.models import DocumentType
 from crm.products.models import Product
+from crm.service.tasks import synchronize_order
 from crm.users.models import OptimaUser, User
 from crm.warehouses.models import Warehouse
 
@@ -97,7 +98,7 @@ class ServiceOrder(OptimaModel):
     order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True)
     purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
 
-    def _export_to_optima(self):
+    def _export_to_optima(self) -> (bool, str, dict):
         from service.optima_api.serializers import ServiceOrderSerializer
         from service.optima_api.views import ServiceOrderObject
 
@@ -105,8 +106,17 @@ class ServiceOrder(OptimaModel):
             serializer = ServiceOrderSerializer(self)
             if serializer.is_valid(safe=False):
                 optima_object = ServiceOrderObject()
-                queryset = optima_object.post(serializer.data)
-                print(queryset)
+                created, response = optima_object.post(serializer.data)
+                if created and response:
+                    self.optima_id = response
+                    self.exported = True
+                    super().save()
+                    synchronize_order.apply_async(args=[self.optima_id])
+                return created, response, serializer.data
+
+    def export(self):
+        if not self.exported and not self.optima_id:
+            self._export_to_optima()
 
     def _update_optima_obj(self):
         pass

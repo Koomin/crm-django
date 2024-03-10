@@ -32,3 +32,21 @@ class GeneralSettings(BaseModel):
         if not self.pk and GeneralSettings.objects.exists():
             return ValidationError("Only one settings can be saved")
         return super().save(*args, **kwargs)
+
+
+class Log(BaseModel):
+    number = models.IntegerField(unique=True)
+    exception_traceback = models.TextField(null=True, blank=True)
+    method_name = models.CharField(max_length=255)
+    model_name = models.CharField(max_length=255, null=True)
+    object_uuid = models.UUIDField(null=True)
+    object_serialized = models.TextField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            if Log.objects.exists():
+                self.number = Log.objects.last().number + 1
+            else:
+                self.number = 1
+
+        super().save(*args, **kwargs)

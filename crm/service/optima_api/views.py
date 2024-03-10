@@ -59,6 +59,22 @@ class ServiceOrderObject(ServiceOptimaObject):
         "FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_DDfId = {0} AND SRS.SrZ_DataDok >= '{1}'"
     )
 
+    get_queryset_optima_id = (
+        "SELECT SRS.SrZ_SrZId, SRS.SrZ_DDfId, SRS.SrZ_KatID, SRS.SrZ_NumerString, SRS.SrZ_NumerNr, "
+        "SRS.SrZ_Bufor, SRS.SrZ_Stan, SRS.SrZ_PodmiotId, SRS.SrZ_OpeZalId, SRS.SrZ_DataDok, "
+        "SRS.SrZ_DataPrzyjecia, SRS.SrZ_DataRealizacji, SRS.SrZ_DataZamkniecia, SRS.SrZ_MagId, "
+        "SRS.SrZ_EtapId, SRS.SrZ_WartoscNetto, SRS.SrZ_WartoscBrutto, SRS.SrZ_Opis, SRS.SrZ_SrUId, "
+        "SRS.SrZ_NumerPelny, SRS.SrZ_Email, SRS.SrZ_Telefon, SRS.SrZ_PodKraj, SRS.SrZ_PodMiasto, "
+        "SRS.SrZ_PodNazwa1, SRS.SrZ_PodNazwa2, SRS.SrZ_PodNazwa3, SRS.SrZ_PodNrDomu, SRS.SrZ_PodNrLokalu, "
+        "SRS.SrZ_PodPoczta, SRS.SrZ_PodUlica, SRS.SrZ_PodWojewodztwo, SRS.SrZ_PodmiotTyp, "
+        "SRS.SrZ_PodKodPocztowy "
+        "FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_SrZId = {0}"
+    )
+
+    def get_by_optima_id(self, optima_id):
+        self.get_queryset = self.get_queryset_optima_id.format(optima_id)
+        return super().get()
+
 
 class NoteObject(ServiceOptimaObject):
     get_queryset = (

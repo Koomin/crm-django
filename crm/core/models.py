@@ -26,7 +26,7 @@ class OptimaModel(BaseModel):
         except AttributeError:
             return super().__str__()
 
-    def _export_to_optima(self):
+    def _export_to_optima(self) -> (bool, str, dict):
         pass
 
     def _update_optima_obj(self):
@@ -42,7 +42,17 @@ class OptimaModel(BaseModel):
             if self.exported and self.optima_id:
                 self._update_optima_obj()
             elif not self.exported and not self.optima_id:
-                self._export_to_optima()
+                created, response, data = self._export_to_optima()
+                if not created:
+                    from crm.crm_config.models import Log
+
+                    Log.objects.create(
+                        exception_traceback=response,
+                        method_name=self.__class__.__name__,
+                        model_name=self.__class__.__name__,
+                        object_uuid=self.uuid,
+                        object_serialized=data,
+                    )
 
     def save(self, *args, **kwargs):
         super().save()

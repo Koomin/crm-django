@@ -1,6 +1,7 @@
 from django.db.utils import IntegrityError
 
 from config import celery_app
+from crm.crm_config.models import Log
 from crm.documents.models import DocumentType
 from crm.service.models import (
     Attribute,
@@ -108,61 +109,98 @@ def update_attributes_definition():
         print(obj)
 
 
+def import_service_order_full(order_objects):
+    for order_obj in order_objects:
+        serializer = ServiceOrderSerializer(order_obj)
+        if serializer.data:
+            service_order, created = ServiceOrder.objects.update_or_create(
+                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+            )
+            service_part_object = ServicePartObject()
+            part_objects = service_part_object.get(service_order.optima_id)
+            if part_objects:
+                for part_obj in part_objects:
+                    serializer = ServicePartSerializer(part_obj)
+                    if serializer.data:
+                        try:
+                            ServicePart.objects.update_or_create(
+                                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                            )
+                        except Exception as e:
+                            print(e)
+                            pass
+            attribute_object = AttributeObject()
+            attr_objects = attribute_object.get(service_order.optima_id)
+            if attr_objects:
+                for attr_obj in attr_objects:
+                    serializer = AttributeSerializer(attr_obj)
+                    if serializer.data:
+                        try:
+                            Attribute.objects.update_or_create(
+                                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                            )
+                        except IntegrityError:
+                            pass
+            service_activity_object = ServiceActivityObject()
+            activities_objects = service_activity_object.get(service_order.optima_id)
+            if activities_objects:
+                for activity_obj in activities_objects:
+                    serializer = ServiceActivitySerializer(activity_obj)
+                    if serializer.data:
+                        try:
+                            ServiceActivity.objects.update_or_create(
+                                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                            )
+                        except Exception as e:
+                            print(e)
+                            pass
+            note_object = NoteObject()
+            note_objects = note_object.get(service_order.optima_id)
+            if note_objects:
+                for note_obj in note_objects:
+                    serializer = NoteSerializer(note_obj)
+                    if serializer.data:
+                        Note.objects.update_or_create(
+                            optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                        )
+
+
 @celery_app.task()
 def full_import_orders():
     service_order_object = ServiceOrderObject()
     for document in DocumentType.objects.filter(to_import=True):
-        order_objects = service_order_object.get(document.optima_id, "2024-01-01")
-        for order_obj in order_objects:
-            serializer = ServiceOrderSerializer(order_obj)
-            if serializer.data:
-                service_order, created = ServiceOrder.objects.update_or_create(
-                    optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                )
-                service_part_object = ServicePartObject()
-                part_objects = service_part_object.get(service_order.optima_id)
-                if part_objects:
-                    for part_obj in part_objects:
-                        serializer = ServicePartSerializer(part_obj)
-                        if serializer.data:
-                            try:
-                                ServicePart.objects.update_or_create(
-                                    optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                                )
-                            except Exception as e:
-                                print(e)
-                                pass
-                attribute_object = AttributeObject()
-                attr_objects = attribute_object.get(service_order.optima_id)
-                if attr_objects:
-                    for attr_obj in attr_objects:
-                        serializer = AttributeSerializer(attr_obj)
-                        if serializer.data:
-                            try:
-                                Attribute.objects.update_or_create(
-                                    optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                                )
-                            except IntegrityError:
-                                pass
-                service_activity_object = ServiceActivityObject()
-                activities_objects = service_activity_object.get(service_order.optima_id)
-                if activities_objects:
-                    for activity_obj in activities_objects:
-                        serializer = ServiceActivitySerializer(activity_obj)
-                        if serializer.data:
-                            try:
-                                ServiceActivity.objects.update_or_create(
-                                    optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                                )
-                            except Exception as e:
-                                print(e)
-                                pass
-                note_object = NoteObject()
-                note_objects = note_object.get(service_order.optima_id)
-                if note_objects:
-                    for note_obj in note_objects:
-                        serializer = NoteSerializer(note_obj)
-                        if serializer.data:
-                            Note.objects.update_or_create(
-                                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-                            )
+        try:
+            order_objects = service_order_object.get(document.optima_id, "2024-01-01")
+        except Exception as e:
+            from crm.documents.api.serializers import DocumentTypeSerializer
+
+            serializer = DocumentTypeSerializer(document)
+            if serializer.is_valid():
+                data = serializer.data
+            else:
+                data = f"document_optima_id: {document.optima_id}"
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="full_import_orders",
+                model_name="ServiceOrder",
+                object_uuid="",
+                object_serialized=data,
+            )
+            continue
+        import_service_order_full(order_objects)
+
+
+@celery_app.task()
+def synchronize_order(optima_id):
+    service_order_object = ServiceOrderObject()
+    try:
+        order_objects = service_order_object.get_by_optima_id(optima_id)
+    except Exception as e:
+        Log.objects.create(
+            exception_traceback=e,
+            method_name="synchronize_order",
+            model_name="ServiceOrder",
+            object_serialized=f"optima_id: {optima_id}",
+        )
+        return
+    import_service_order_full(order_objects)

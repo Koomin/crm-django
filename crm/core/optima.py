@@ -3,7 +3,7 @@ from django.apps import apps
 from django.conf import settings
 
 from crm.core.exceptions import IsValidException
-from crm.crm_config.models import GeneralSettings
+from crm.crm_config.models import GeneralSettings, Log
 
 
 class BaseOptimaSerializer:
@@ -83,9 +83,16 @@ class OptimaConnection:
                 f"pwd={settings.OPTIMA_DB['PASSWORD']}",
                 autocommit=True,
             )
-        except pyodbc.OperationalError:
+        except pyodbc.OperationalError as e:
             self.cnxn = None
             self.cursor = None
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="__init__",
+                model_name=self.__class__.__name__,
+                object_uuid="",
+                object_serialized="",
+            )
         else:
             self.cursor = self.cnxn.cursor()
 
@@ -101,7 +108,8 @@ class OptimaObject:
         if self._synchronize:
             try:
                 self.connection = OptimaConnection(database).cursor
-            except pyodbc.Error:
+            except Exception as e:
+                self._connection_error = e
                 self.connection = None
 
     def _get_synchronize(self):
@@ -116,16 +124,42 @@ class OptimaObject:
         return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values})"
 
     def get(self):
-        return self.connection.execute(self.get_queryset).fetchall()
+        try:
+            return self.connection.execute(self.get_queryset).fetchall()
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="get",
+                model_name=self.__class__.__name__,
+                object_uuid="",
+                object_serialized="",
+            )
+            return
 
     def _get_optima_id(self):
-        return self.connection.execute("SELECT @@Identity").fetchone()[0]
+        try:
+            return self.connection.execute("SELECT @@Identity").fetchone()[0]
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="_get_optima_id",
+                model_name=self.__class__.__name__,
+                object_uuid="",
+                object_serialized="",
+            )
+            return
 
     def post(self, obj):
         fields = ",".join(field for field in obj.keys())
         values = ",".join("?" * len(obj.keys()))
         insert_queryset = self._prepare_insert_queryset(fields, values)
         if self._synchronize and self.connection:
-            self.connection.execute(insert_queryset, tuple(obj.values()))
-            return self._get_optima_id()
-        return insert_queryset
+            try:
+                self.connection.execute(insert_queryset, tuple(obj.values()))
+            except Exception as e:
+                return False, e
+            return True, self._get_optima_id()
+        elif self._synchronize and not self.connection:
+            return False, self._connection_error
+        else:
+            return False, "Synchronization is disabled"

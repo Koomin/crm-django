@@ -31,6 +31,7 @@ class TokenWithUserObtainPairSerializer(TokenObtainPairSerializer):
                     "Connections",
                     "Mailing",
                     "GeneralSettings",
+                    "Logging",
                 ],
                 "actions": {},
             }

@@ -363,6 +363,20 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
+    def _serialize_user_code(self):
+        try:
+            return self.obj.user.optima_user.code
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_user_name(self):
+        try:
+            return self.obj.user.optima_user.name
+        except AttributeError:
+            self._valid = False
+            return None
+
     def _serialize_warehouse(self):
         try:
             return self.obj.warehouse.optima_id
@@ -383,6 +397,9 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
         except AttributeError:
             self._valid = False
             return None
+
+    def _serialize_bufor(self):
+        return 1 if self.obj.status else 0
 
     def _deserialize(self) -> dict:
         return {
@@ -429,9 +446,10 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_KatID": self._serialize_category(),
             "SrZ_NumerString": self.obj.number_scheme,
             "SrZ_NumerNr": self.obj.number,
-            "SrZ_Bufor": self.obj.status,
+            "SrZ_Bufor": self._serialize_bufor(),
             "SrZ_Stan": self.obj.state,
             "SrZ_PodmiotId": self._serialize_contractor(),
+            "SrZ_OdbId": self._serialize_contractor(),
             "SrZ_OpeZalId": self._serialize_user(),
             "SrZ_DataDok": self.obj.document_date,
             "SrZ_DataPrzyjecia": self.obj.acceptance_date,
@@ -440,10 +458,16 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_MagId": self._serialize_warehouse(),
             "SrZ_EtapId": self._serialize_stage(),
             "SrZ_WartoscNetto": self.obj.net_value,
+            "SrZ_WartoscNettoPLN": self.obj.net_value,
             "SrZ_WartoscBrutto": self.obj.gross_value,
+            "SrZ_WartoscBruttoPLN": self.obj.gross_value,
+            "SrZ_WartoscNettoDoFA": self.obj.net_value,
+            "SrZ_WartoscNettoDoFAPLN": self.obj.net_value,
+            "SrZ_WartoscBruttoDoFA": self.obj.gross_value,
+            "SrZ_WartoscBruttoDoFAPLN": self.obj.gross_value,
             "SrZ_Opis": self.obj.description,
             "SrZ_SrUId": self._serialize_device(),
-            "SrZ_NumerPelny": self.obj.full_number,
+            # "SrZ_NumerPelny": self.obj.full_number,
             "SrZ_Email": self.obj.email,
             "SrZ_Telefon": self.obj.phone_number,
             "SrZ_PodKraj": self.obj.contractor_country,
@@ -458,8 +482,50 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_PodWojewodztwo": self.obj.contractor_state,
             "SrZ_PodmiotTyp": self.obj.contractor_type,
             "SrZ_PodKodPocztowy": self.obj.contractor_postal_code,
+            "SrZ_OdbKraj": self.obj.contractor_country,
+            "SrZ_OdbMiasto": self.obj.contractor_city,
+            "SrZ_OdbNazwa1": self.obj.contractor_name1,
+            "SrZ_OdbNazwa2": self.obj.contractor_name2,
+            "SrZ_OdbNazwa3": self.obj.contractor_name3,
+            "SrZ_OdbNrDomu": self.obj.contractor_street_number,
+            "SrZ_OdbNrLokalu": self.obj.contractor_home_number,
+            "SrZ_OdbPoczta": self.obj.contractor_post,
+            "SrZ_OdbUlica": self.obj.contractor_street,
+            "SrZ_OdbWojewodztwo": self.obj.contractor_state,
+            "SrZ_OdbmiotTyp": self.obj.contractor_type,
+            "SrZ_OdbKodPocztowy": self.obj.contractor_postal_code,
+            "SrZ_OpeModKod": self._serialize_user_code(),
+            "SrZ_OpeModNazwisko": self._serialize_user_name(),
+            "SrZ_OpeZalKod": self._serialize_user_code(),
+            "SrZ_OpeZalNazwisko": self._serialize_user_name(),
         }
 
     @property
     def _default_db_values(self) -> dict:
-        return {}
+        return {
+            "SrZ_Priorytet": 1,
+            "SrZ_Wykonano": "0.00",
+            "SrZ_TypNB": 1,
+            "SrZ_CzasRealizacjiCzynnosci": 0,
+            "SrZ_ZbiorczeFaCzesci": 0,
+            "SrZ_ZbiorczeFaCzynnosci": 0,
+            "SrZ_TS_Zal": datetime.datetime.now(),
+            "SrZ_TS_Mod": datetime.datetime.now(),
+            "SrZ_DokStatus": " ",
+            "SrZ_OdbAdres2": " ",
+            "SrZ_PodAdres2": " ",
+            "SrZ_PodGmina": " ",
+            "SrZ_OdbGmina": " ",
+            "SrZ_PodPowiat": " ",
+            "SrZ_OdbPowiat": " ",
+            "SrZ_ZlecajacyNazwisko": " ",
+            "SrZ_Waluta": " ",
+            "SrZ_KursNumer": 3,
+            "SrZ_KursL": 1.0000,
+            "SrZ_KursM": 1,
+            "SrZ_DataKur": datetime.datetime(year=1900, month=1, day=1, hour=0, minute=0, second=0, microsecond=0),
+            "SrZ_FpITyp": 0,
+            "SrZ_TerminPlatTyp": 0,
+            "SrZ_PodmiotTyp": 1,  # sprawdzic czy zawsze 1
+            "SrZ_OdbiorcaTyp": 1,  # sprawdzic czy zawsze 1
+        }

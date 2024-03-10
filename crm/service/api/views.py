@@ -84,6 +84,10 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
     serializer_class = ServiceOrderSerializer
     filterset_fields = ["uuid", "state"]
 
+    def export(self):
+        # ENDPOINT FOR EXPORTING TO OPTIMA
+        pass
+
     def partial_update(self, request, *args, **kwargs):
         if request.data.get("state") == 0:
             request.data["acceptance_date"] = datetime.datetime.now()
@@ -102,6 +106,12 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
                 current_stage_duration.save()
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
+        if request.data.get("document_type"):
+            # Get last service order with this document type and run synchronization with optima using data from this
+            # service order (string number and id > currentId) and looking for newer one,
+            # then get last service order get its number and add 1
+            # thats our document new number
+            pass
         return super().partial_update(request, *args, **kwargs)
 
     @action(detail=False)
