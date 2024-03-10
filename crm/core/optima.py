@@ -13,6 +13,7 @@ class BaseOptimaSerializer:
     def __init__(self, obj):
         self._data = None
         self._valid = False
+        self.errors = []
         self.obj = obj
         if isinstance(obj, self.model):
             self._deserialization = False
@@ -41,6 +42,7 @@ class BaseOptimaSerializer:
                     else:
                         self._data = None
                 except KeyError:
+                    self._errors.append(f'Field "{field}" is required.')
                     self._data = None
                     return self._valid
             self._valid = True
@@ -102,6 +104,7 @@ class OptimaObject:
     post_queryset = None
     fields = None
     table_name = None
+    id_field = None
 
     def __init__(self, database=None):
         self._synchronize = self._get_synchronize()
@@ -123,18 +126,18 @@ class OptimaObject:
     def _prepare_insert_queryset(self, fields, values):
         return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values})"
 
-    def get(self):
-        try:
-            return self.connection.execute(self.get_queryset).fetchall()
-        except Exception as e:
-            Log.objects.create(
-                exception_traceback=e,
-                method_name="get",
-                model_name=self.__class__.__name__,
-                object_uuid="",
-                object_serialized="",
-            )
-            return
+    @staticmethod
+    def _prepare_fields_string(fields):
+        return ",".join([f"{field}=?" for field in fields])
+
+    def _prepare_update_queryset(self, fields):
+        return f"UPDATE {self.table_name} SET {self._prepare_fields_string(fields)} WHERE {self.id_field}=?"
+
+    @staticmethod
+    def _prepare_update_values(values, optima_id):
+        values_list = list(values)
+        values_list.append(optima_id)
+        return tuple(values_list)
 
     def _get_optima_id(self):
         try:
@@ -149,7 +152,20 @@ class OptimaObject:
             )
             return
 
-    def post(self, obj):
+    def get(self):
+        try:
+            return self.connection.execute(self.get_queryset).fetchall()
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="get",
+                model_name=self.__class__.__name__,
+                object_uuid="",
+                object_serialized="",
+            )
+            return
+
+    def post(self, obj) -> (bool, str):
         fields = ",".join(field for field in obj.keys())
         values = ",".join("?" * len(obj.keys()))
         insert_queryset = self._prepare_insert_queryset(fields, values)
@@ -159,6 +175,20 @@ class OptimaObject:
             except Exception as e:
                 return False, e
             return True, self._get_optima_id()
+        elif self._synchronize and not self.connection:
+            return False, self._connection_error
+        else:
+            return False, "Synchronization is disabled"
+
+    def put(self, obj, optima_id):
+        update_queryset = self._prepare_update_queryset(obj.keys())
+        values = self._prepare_update_values(obj.values(), optima_id)
+        if self._synchronize and self.connection:
+            try:
+                self.connection.execute(update_queryset, values)
+            except Exception as e:
+                return False, e
+            return True, "Updated"
         elif self._synchronize and not self.connection:
             return False, self._connection_error
         else:

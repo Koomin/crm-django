@@ -29,7 +29,7 @@ class OptimaModel(BaseModel):
     def _export_to_optima(self) -> (bool, str, dict):
         pass
 
-    def _update_optima_obj(self):
+    def _update_optima_obj(self) -> (bool, str, dict):
         pass
 
     def _optima_synchronization(self):
@@ -39,13 +39,21 @@ class OptimaModel(BaseModel):
         except general_settings_model.DoesNotExist:
             general_settings = None
         if general_settings and general_settings.optima_synchronization:
+            from crm.crm_config.models import Log
+
             if self.exported and self.optima_id:
-                self._update_optima_obj()
+                updated, response, data = self._update_optima_obj()
+                if not updated:
+                    Log.objects.create(
+                        exception_traceback=response,
+                        method_name=self.__class__.__name__,
+                        model_name=self.__class__.__name__,
+                        object_uuid=self.uuid,
+                        object_serialized=data,
+                    )
             elif not self.exported and not self.optima_id:
                 created, response, data = self._export_to_optima()
                 if not created:
-                    from crm.crm_config.models import Log
-
                     Log.objects.create(
                         exception_traceback=response,
                         method_name=self.__class__.__name__,

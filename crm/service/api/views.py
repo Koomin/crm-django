@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from crm.contractors.models import Contractor
 from crm.core.api.views import BaseViewSet
+from crm.documents.models import DocumentType
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
     AttributeSerializer,
@@ -84,9 +85,15 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
     serializer_class = ServiceOrderSerializer
     filterset_fields = ["uuid", "state"]
 
-    def export(self):
-        # ENDPOINT FOR EXPORTING TO OPTIMA
-        pass
+    def export(self, uuid):
+        try:
+            order = self.queryset.filter(uuid=uuid)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        created = order.export()
+        if created:
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     def partial_update(self, request, *args, **kwargs):
         if request.data.get("state") == 0:
@@ -110,7 +117,26 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
             # Get last service order with this document type and run synchronization with optima using data from this
             # service order (string number and id > currentId) and looking for newer one,
             # then get last service order get its number and add 1
-            # thats our document new number
+            # that's our document new number
+            try:
+                document_type = DocumentType.objects.get(name=request.data.get("document_type"))
+            except Exception:
+                # Handle exception
+                pass
+            last_order = (  # noqa
+                ServiceOrder.objects.filter(
+                    document_type=document_type,
+                    optima_id__isnull=False,
+                    number_scheme=document_type.format_numbering_scheme(),
+                    number__isnull=False,
+                )
+                .order_by("-number")
+                .first()
+            )
+
+            # Get service order from optima with number_scheme, document_type from last_order where number is greater
+            # than in last_order if there is greater get number from it and use greater number, if not use
+            # number + 1 from last_order
             pass
         return super().partial_update(request, *args, **kwargs)
 

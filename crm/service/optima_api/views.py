@@ -47,6 +47,7 @@ class AttributeObject(ServiceOptimaObject):
 
 class ServiceOrderObject(ServiceOptimaObject):
     table_name = "CDN.SrsZlecenia"
+    id_field = "SrZ_SrZId"
     get_queryset = (
         "SELECT SRS.SrZ_SrZId, SRS.SrZ_DDfId, SRS.SrZ_KatID, SRS.SrZ_NumerString, SRS.SrZ_NumerNr, "
         "SRS.SrZ_Bufor, SRS.SrZ_Stan, SRS.SrZ_PodmiotId, SRS.SrZ_OpeZalId, SRS.SrZ_DataDok, "

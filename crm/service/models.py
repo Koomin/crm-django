@@ -2,7 +2,7 @@ from django.db import models
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
-from crm.crm_config.models import EmailTemplate
+from crm.crm_config.models import EmailTemplate, Log
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.service.tasks import synchronize_order
@@ -113,13 +113,33 @@ class ServiceOrder(OptimaModel):
                     super().save()
                     synchronize_order.apply_async(args=[self.optima_id])
                 return created, response, serializer.data
+            return False, serializer.errors, {}
 
     def export(self):
         if not self.exported and not self.optima_id:
-            self._export_to_optima()
+            created, errors, data = self._export_to_optima()
+            if not created:
+                Log.objects.create(
+                    exception_traceback=",".join(errors),
+                    method_name="export",
+                    model_name=self.__class__.__name__,
+                    object_uuid=self.uuid,
+                    object_serialized=data,
+                )
+            return True
+        return False
 
     def _update_optima_obj(self):
-        pass
+        from service.optima_api.serializers import ServiceOrderSerializer
+        from service.optima_api.views import ServiceOrderObject
+
+        if self.state != self.States.NEW:
+            serializer = ServiceOrderSerializer(self)
+            if serializer.is_valid(safe=False):
+                optima_object = ServiceOrderObject()
+                updated, response = optima_object.put(serializer.data, self.optima_id)
+                return updated, response, serializer.data
+            return False, serializer.errors, {}
 
 
 class Note(OptimaModel):
