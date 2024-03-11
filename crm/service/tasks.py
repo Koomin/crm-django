@@ -109,13 +109,18 @@ def update_attributes_definition():
         print(obj)
 
 
-def import_service_order_full(order_objects):
+def import_service_order_full(order_objects, with_service_order=True):
     for order_obj in order_objects:
         serializer = ServiceOrderSerializer(order_obj)
         if serializer.data:
-            service_order, created = ServiceOrder.objects.update_or_create(
-                optima_id=serializer.data.get("optima_id"), defaults=serializer.data
-            )
+            if with_service_order:
+                service_order, created = ServiceOrder.objects.update_or_create(
+                    optima_id=serializer.data.get("optima_id"), defaults=serializer.data
+                )
+            else:
+                service_order = ServiceOrder.objects.get(optima_id=serializer.data.get("optima_id"))
+                service_order.full_number = serializer.data.get("full_number")
+                service_order.save(with_optima_update=False)
             service_part_object = ServicePartObject()
             part_objects = service_part_object.get(service_order.optima_id)
             if part_objects:
@@ -202,4 +207,4 @@ def synchronize_order(optima_id):
             object_serialized=f"optima_id: {optima_id}",
         )
         return
-    import_service_order_full(order_objects)
+    import_service_order_full(order_objects, False)

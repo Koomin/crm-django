@@ -32,13 +32,13 @@ class OptimaModel(BaseModel):
     def _update_optima_obj(self) -> (bool, str, dict):
         pass
 
-    def _optima_synchronization(self):
+    def _optima_synchronization(self, with_optima_update):
         general_settings_model = apps.get_model("crm_config", "GeneralSettings")
         try:
             general_settings = general_settings_model.objects.first()
         except general_settings_model.DoesNotExist:
             general_settings = None
-        if general_settings and general_settings.optima_synchronization:
+        if general_settings and general_settings.optima_synchronization and with_optima_update:
             from crm.crm_config.models import Log
 
             if self.exported and self.optima_id:
@@ -62,6 +62,6 @@ class OptimaModel(BaseModel):
                         object_serialized=data,
                     )
 
-    def save(self, *args, **kwargs):
+    def save(self, with_optima_update=True, *args, **kwargs):
         super().save()
-        self._optima_synchronization()
+        self._optima_synchronization(with_optima_update)

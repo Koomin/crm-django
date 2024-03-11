@@ -211,6 +211,16 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             else:
                 data["contractor"] = contractor.uuid
                 data["contractor_name"] = f'{data.pop("first_name")[0]} {data.pop("last_name")[0]}'
+        if data.get("contractor_name"):
+            if len(data.get("contractor_name")) > 50:
+                data["contractor_name1"] = data.get("contractor_name")[:50]
+                if len(data.get("contractor_name")) > 100:
+                    data["contractor_name2"] = data.get("contractor_name")[51:100]
+                    data["contractor_name3"] = data.get("contractor_name")[100:]
+                else:
+                    data["contractor_name2"] = data.get("contractor_name")[51:]
+            else:
+                data["contractor_name1"] = data.get("contractor_name")
         description = data.get("description")
         if not description:
             description = ""

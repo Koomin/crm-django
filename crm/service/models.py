@@ -132,7 +132,7 @@ class ServiceOrder(OptimaModel):
                     self.optima_id = response
                     self.exported = True
                     super().save()
-                    synchronize_order.apply_async(args=[self.optima_id])
+                    synchronize_order.apply_async(args=[str(self.optima_id)])
                 return created, response, serializer.data
             return False, serializer.errors, {}
         return False, None, {}
@@ -152,8 +152,12 @@ class ServiceOrder(OptimaModel):
         return False
 
     def _update_optima_obj(self):
-        from service.optima_api.serializers import ServiceOrderSerializer
-        from service.optima_api.views import ServiceOrderObject
+        try:
+            from service.optima_api.serializers import ServiceOrderSerializer
+            from service.optima_api.views import ServiceOrderObject
+        except ModuleNotFoundError:
+            from crm.service.optima_api.serializers import ServiceOrderSerializer
+            from crm.service.optima_api.views import ServiceOrderObject
 
         if self.state != self.States.NEW:
             serializer = ServiceOrderSerializer(self)
