@@ -5,7 +5,6 @@ from crm.core.models import BaseModel, OptimaModel
 from crm.crm_config.models import EmailTemplate, Log
 from crm.documents.models import DocumentType
 from crm.products.models import Product
-from crm.service.tasks import synchronize_order
 from crm.users.models import OptimaUser, User
 from crm.warehouses.models import Warehouse
 
@@ -101,6 +100,8 @@ class ServiceOrder(OptimaModel):
     def _export_to_optima(self) -> (bool, str, dict):
         from service.optima_api.serializers import ServiceOrderSerializer
         from service.optima_api.views import ServiceOrderObject
+
+        from crm.service.tasks import synchronize_order
 
         if self.state != self.States.NEW:
             serializer = ServiceOrderSerializer(self)
