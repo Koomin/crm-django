@@ -492,7 +492,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_OdbPoczta": self.obj.contractor_post,
             "SrZ_OdbUlica": self.obj.contractor_street,
             "SrZ_OdbWojewodztwo": self.obj.contractor_state,
-            "SrZ_OdbmiotTyp": self.obj.contractor_type,
+            "SrZ_OdbTyp": self.obj.contractor_type,
             "SrZ_OdbKodPocztowy": self.obj.contractor_postal_code,
             "SrZ_OpeModKod": self._serialize_user_code(),
             "SrZ_OpeModNazwisko": self._serialize_user_name(),
