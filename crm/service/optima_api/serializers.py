@@ -310,6 +310,27 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
+    def _serialize_service_order(self):
+        try:
+            return self.obj.servicer_order.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_product(self):
+        try:
+            return self.obj.product.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_optima_user(self):
+        try:
+            return self.obj.user.optima_user.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -329,6 +350,28 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
             "value_net": self.obj[14],
             "value_gross": self.obj[15],
             "unit": self.obj[16],
+        }
+
+    def _serialize(self) -> dict:
+        # TODO Finish serializer
+        return {
+            "SrY_SrZId": self._serialize_service_order(),
+            "SrY_Lp": self.number,
+            "SrY_TwrId": self._serialize_product(),
+            "SrY_SerwisantId": self._serialize_optima_user(),
+            "SrY_Zakonczona": self.is_finished,
+            "SrY_Fakturowac": self.to_invoicing,
+        }
+
+    @property
+    def _default_db_values(self) -> dict:
+        return {
+            "SrY_SerwisantTyp": 8,
+            "SrY_Dokument": 0,
+            "SrY_Realizacja": 0,
+            "SrY_PoprzedniaOk": 0,
+            "SrY_RezerwujCzas": 0,
+            "SrY_Przypomnienie": 0,
         }
 
 
