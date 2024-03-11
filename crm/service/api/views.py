@@ -119,7 +119,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
             # then get last service order get its number and add 1
             # that's our document new number
             try:
-                document_type = DocumentType.objects.get(name=request.data.get("document_type"))
+                document_type = DocumentType.objects.get(uuid=request.data.get("document_type"))
             except Exception:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             number_scheme = document_type.format_numbering_scheme()
