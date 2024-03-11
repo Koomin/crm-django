@@ -120,7 +120,7 @@ class ServiceOrder(OptimaModel):
                 last_number = max(all_numbers) if all_numbers else 0
                 optima_last_number = ServiceOrderObject().get_last_number(
                     self.number_scheme, self.document_type.optima_id, last_number
-                )
+                )[0]
                 print(optima_last_number)
                 if optima_last_number:
                     self.number = optima_last_number + 1
