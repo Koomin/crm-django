@@ -114,19 +114,12 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
         if request.data.get("document_type"):
-            # Get last service order with this document type and run synchronization with optima using data from this
-            # service order (string number and id > currentId) and looking for newer one,
-            # then get last service order get its number and add 1
-            # that's our document new number
             try:
                 document_type = DocumentType.objects.get(uuid=request.data.get("document_type"))
             except Exception:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             number_scheme = document_type.format_numbering_scheme()
             request.data["number_scheme"] = number_scheme
-            # Get service order from optima with number_scheme, document_type from last_order where number is greater
-            # than in last_order if there is greater get number from it and use greater number, if not use
-            # number + 1 from last_order
         return super().partial_update(request, *args, **kwargs)
 
     @action(detail=False)

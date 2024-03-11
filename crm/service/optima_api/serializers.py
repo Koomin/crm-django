@@ -83,6 +83,20 @@ class NoteSerializer(BaseOptimaSerializer):
         else:
             return service_order
 
+    def _serialize_optima_user(self):
+        try:
+            return self.obj.user.optima_user.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_service_order(self):
+        try:
+            return self.obj.servicer_order.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -91,6 +105,21 @@ class NoteSerializer(BaseOptimaSerializer):
             "description": self.obj[5],
             "user": self._get_user(),
             "service_order": self._get_service_order(),
+        }
+
+    def _serialize(self) -> dict:
+        return {
+            "SrN_Lp": self.obj.number,
+            "SrN_SerwisantId": self._serialize_optima_user(),
+            "SrN_DataDok": self.obj.date,
+            "SrN_Tresc": self.obj.description,
+            "SrN_SrZId": self._serialize_service_order(),
+        }
+
+    @property
+    def _default_db_values(self) -> dict:
+        return {
+            "SrN_SerwisantTyp": 8,
         }
 
 

@@ -1,3 +1,6 @@
+import datetime
+
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 
 from crm.contractors.models import Contractor
@@ -102,7 +105,6 @@ class ServiceOrder(OptimaModel):
     order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True, blank=True)
     purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
 
-    # TODO Fill contractor_name1 etc while saving
     def _export_to_optima(self) -> (bool, str, dict):
         from service.optima_api.serializers import ServiceOrderSerializer
         from service.optima_api.views import ServiceOrderObject
@@ -118,10 +120,12 @@ class ServiceOrder(OptimaModel):
                     number__isnull=False,
                 ).values_list("number", flat=True)
                 last_number = max(all_numbers) if all_numbers else 0
-                optima_last_number = ServiceOrderObject().get_last_number(
-                    self.number_scheme, self.document_type.optima_id, last_number
-                )[0]
-                print(optima_last_number)
+                try:
+                    optima_last_number = ServiceOrderObject().get_last_number(
+                        self.number_scheme, self.document_type.optima_id, last_number
+                    )[0]
+                except IndexError:
+                    return False, None, {}
                 if optima_last_number:
                     self.number = optima_last_number + 1
                 else:
@@ -168,6 +172,29 @@ class ServiceOrder(OptimaModel):
                 updated, response = optima_object.put(serializer.data, self.optima_id)
                 return updated, response, serializer.data
             return False, serializer.errors, {}
+
+    def save(self, with_optima_update=True, *args, **kwargs):
+        # TODO Test
+        default_stage = None
+        if not self.pk:
+            try:
+                default_stage = Stage.objects.get(is_default=True)
+            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+                Log.objects.create(
+                    exception_traceback=e,
+                    method_name="save",
+                    model_name=self.__class__.__name__,
+                )
+            else:
+                self.stage = default_stage
+        if self.device:
+            if self.device.document_type:
+                self.document_type = self.device.document_type
+                if self.device.document_type.warehouse:
+                    self.warehouse = self.device.document_type.warehouse
+        super().save(with_optima_update, *args, **kwargs)
+        if default_stage:
+            StageDuration.objects.create(stage=default_stage, start=datetime.datetime.now(), service_order=self)
 
 
 class Note(OptimaModel):
