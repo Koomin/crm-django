@@ -185,6 +185,34 @@ class AttributeSerializer(BaseOptimaSerializer):
             return datetime.datetime(year=1800, month=12, day=28).date() + datetime.timedelta(days=int(self.obj[3]))
         return self.obj[3]
 
+    def _serialize_attribute_definition(self):
+        try:
+            return self.obj.attribute_definition.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_service_order(self):
+        try:
+            return self.obj.servicer_order.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_value(self):
+        try:
+            format = self.obj.attribute_definition.format
+        except AttributeError:
+            self._valid = False
+            return None
+        if format == 4:
+            delta = datetime.datetime(year=1800, month=12, days=28).date - datetime.datetime.strptime(
+                self.obj.value, "%Y-%m-%d"
+            )
+            return delta.days
+        else:
+            return self.obj.value
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -192,6 +220,14 @@ class AttributeSerializer(BaseOptimaSerializer):
             "attribute_definition": self._get_attribute_definition(),
             "value": self._get_value(),
             "service_order": self._get_service_order(),
+        }
+
+    def _serialize(self) -> dict:
+        return {
+            "DAt_Kod": self.obj.code,
+            "DAt_DeAId": self._serialize_attribute_definition(),
+            "DAt_WartoscTxt": self._serialize_value(),
+            "DAt_SrZId": self._serialize_service_order(),
         }
 
 
