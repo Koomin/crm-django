@@ -111,16 +111,13 @@ class ServiceOrder(OptimaModel):
 
         if self.state != self.States.NEW:
             if not self.number:
-                last_number = max(
-                    ServiceOrder.objects.filter(
-                        document_type=self.document_type,
-                        optima_id__isnull=False,
-                        number_scheme=self.number_scheme,
-                        number__isnull=False,
-                    ).values_list("number", flat=True)
-                )
-                if not last_number:
-                    last_number = 0
+                all_numbers = ServiceOrder.objects.filter(
+                    document_type=self.document_type,
+                    optima_id__isnull=False,
+                    number_scheme=self.number_scheme,
+                    number__isnull=False,
+                ).values_list("number", flat=True)
+                last_number = max(all_numbers) if all_numbers else 0
                 optima_last_number = ServiceOrderObject().get_last_number(
                     self.number_scheme, self.document_type.optima_id, last_number
                 )
