@@ -500,6 +500,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_OpeModNazwisko": self._serialize_user_name(),
             "SrZ_OpeZalKod": self._serialize_user_code(),
             "SrZ_OpeZalNazwisko": self._serialize_user_name(),
+            "SrZ_ProwadzacyId": self._serialize_user(),
         }
 
     @property
@@ -530,4 +531,5 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_TerminPlatTyp": 0,
             "SrZ_PodmiotTyp": 1,  # sprawdzic czy zawsze 1
             "SrZ_OdbiorcaTyp": 1,  # sprawdzic czy zawsze 1
+            "SrZ_ProwadzacyTyp": 8,
         }
