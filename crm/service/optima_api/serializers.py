@@ -524,7 +524,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_KursL": 1.0000,
             "SrZ_KursM": 1,
             "SrZ_DataKur": datetime.datetime(year=1900, month=1, day=1, hour=0, minute=0, second=0, microsecond=0),
-            "SrZ_FpITyp": 0,
+            "SrZ_FplTyp": 0,
             "SrZ_TerminPlatTyp": 0,
             "SrZ_PodmiotTyp": 1,  # sprawdzic czy zawsze 1
             "SrZ_OdbiorcaTyp": 1,  # sprawdzic czy zawsze 1
