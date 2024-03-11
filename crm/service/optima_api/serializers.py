@@ -491,6 +491,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_OdbNrLokalu": self.obj.contractor_home_number or " ",
             "SrZ_OdbPoczta": self.obj.contractor_post or " ",
             "SrZ_OdbUlica": self.obj.contractor_street,
+            "SrZ_OdbTelefon": self.obj.phone_number,
             "SrZ_OdbWojewodztwo": self.obj.contractor_state,
             "SrZ_OdbiorcaTyp": self.obj.contractor_type,
             "SrZ_OdbKodPocztowy": self.obj.contractor_postal_code,
