@@ -92,7 +92,6 @@ class OptimaConnection:
                 exception_traceback=e,
                 method_name="__init__",
                 model_name=self.__class__.__name__,
-                object_uuid="",
                 object_serialized="",
             )
         else:
@@ -149,7 +148,6 @@ class OptimaObject:
                 exception_traceback=e,
                 method_name="_get_optima_id",
                 model_name=self.__class__.__name__,
-                object_uuid="",
                 object_serialized="",
             )
             return
@@ -162,7 +160,6 @@ class OptimaObject:
                 exception_traceback=e,
                 method_name="get",
                 model_name=self.__class__.__name__,
-                object_uuid="",
                 object_serialized="",
             )
             return

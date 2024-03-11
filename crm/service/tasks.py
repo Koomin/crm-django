@@ -183,7 +183,6 @@ def full_import_orders():
                 exception_traceback=e,
                 method_name="full_import_orders",
                 model_name="ServiceOrder",
-                object_uuid="",
                 object_serialized=data,
             )
             continue
