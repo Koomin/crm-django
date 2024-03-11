@@ -114,6 +114,8 @@ class OptimaObject:
             except Exception as e:
                 self._connection_error = e
                 self.connection = None
+        else:
+            self.connection = None
 
     def _get_synchronize(self):
         general_settings_model = apps.get_model("crm_config", "GeneralSettings")

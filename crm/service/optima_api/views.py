@@ -71,9 +71,18 @@ class ServiceOrderObject(ServiceOptimaObject):
         "SRS.SrZ_PodKodPocztowy "
         "FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_SrZId = {0}"
     )
+    get_queryset_last_number = (
+        "SELECT MAX(SRS.SrZ_NumerNr) "
+        "FROM CDN.SrsZlecenia as SRS "
+        "WHERE SRS.SrZ_NumerString = {0} AND SRS.SrZ_DDfId = {1} AND SRS.SrZ_NumerNr >= {2}"
+    )
 
     def get_by_optima_id(self, optima_id):
         self.get_queryset = self.get_queryset_optima_id.format(optima_id)
+        return super().get()
+
+    def get_last_number(self, number_scheme, document_id, number):
+        self.get_queryset = self.get_queryset_last_number.format(number_scheme, document_id, number)
         return super().get()
 
 

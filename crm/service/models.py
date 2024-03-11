@@ -104,6 +104,25 @@ class ServiceOrder(OptimaModel):
         from crm.service.tasks import synchronize_order
 
         if self.state != self.States.NEW:
+            if not self.number:
+                last_number = max(
+                    ServiceOrder.objects.filter(
+                        document_type=self.document_type,
+                        optima_id__isnull=False,
+                        number_scheme=self.number_scheme,
+                        number__isnull=False,
+                    ).values_list("number", flat=True)
+                )
+                if not last_number:
+                    last_number = 0
+                optima_last_number = ServiceOrderObject().get_last_number(
+                    self.number_scheme, self.document_type.optima_id, last_number
+                )
+                print(optima_last_number)
+                if optima_last_number:
+                    self.number = optima_last_number + 1
+                else:
+                    self.number = 1
             serializer = ServiceOrderSerializer(self)
             if serializer.is_valid(safe=False):
                 optima_object = ServiceOrderObject()
