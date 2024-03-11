@@ -85,6 +85,17 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
     serializer_class = ServiceOrderSerializer
     filterset_fields = ["uuid", "state"]
 
+    def synchronize(self, uuid):
+        try:
+            order = self.queryset.filter(uuid=uuid)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            from crm.service.tasks import synchronize_order
+
+            synchronize_order.apply_async(args=[order.optima_id])
+            return Response(status=status.HTTP_200_OK)
+
     def export(self, uuid):
         try:
             order = self.queryset.filter(uuid=uuid)
