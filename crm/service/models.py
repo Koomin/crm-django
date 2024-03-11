@@ -22,6 +22,11 @@ class Stage(OptimaModel):
     code = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=255, null=True)
     email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True)
+    is_default = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        Stage.objects.filter(is_default=True).update(is_default=False)
+        super().save(*args, **kwargs)
 
 
 class DeviceType(OptimaModel):

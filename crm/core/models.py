@@ -27,10 +27,10 @@ class OptimaModel(BaseModel):
             return super().__str__()
 
     def _export_to_optima(self) -> (bool, str, dict):
-        pass
+        return True, "", {}
 
     def _update_optima_obj(self) -> (bool, str, dict):
-        pass
+        return True, "", {}
 
     def _optima_synchronization(self, with_optima_update):
         general_settings_model = apps.get_model("crm_config", "GeneralSettings")
@@ -38,10 +38,10 @@ class OptimaModel(BaseModel):
             general_settings = general_settings_model.objects.first()
         except general_settings_model.DoesNotExist:
             general_settings = None
-        if general_settings and general_settings.optima_synchronization and with_optima_update:
+        if general_settings and general_settings.optima_synchronization:
             from crm.crm_config.models import Log
 
-            if self.exported and self.optima_id:
+            if self.exported and self.optima_id and with_optima_update:
                 updated, response, data = self._update_optima_obj()
                 if not updated:
                     Log.objects.create(
