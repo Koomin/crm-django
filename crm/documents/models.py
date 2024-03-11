@@ -23,8 +23,8 @@ class DocumentType(OptimaModel):
         formatted_scheme = self.numbering_scheme
         formatting_dict = {
             "@symbol": getattr(self, "symbol"),
-            "@miesiac": datetime.date.today().month,
-            "@rok_kal": datetime.date.today().year,
+            "@miesiac": str(datetime.date.today().month),
+            "@rok_kal": str(datetime.date.today().year),
             "/@brak": "",
             "@brak/": "",
         }
