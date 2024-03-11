@@ -263,6 +263,7 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
     contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
     order_type = serializers.SlugRelatedField(slug_field="uuid", queryset=OrderType.objects.all(), read_only=False)
     form_files = FormFileSerializer(many=True, read_only=True)
+    device = serializers.SlugRelatedField(slug_field="uuid", queryset=Device.objects.all(), read_only=False)
 
     class Meta:
         model = ServiceOrder
@@ -287,6 +288,7 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
             "document_date",
             "acceptance_date",
             "form_files",
+            "device",
         ]
 
     def create(self, validated_data):
