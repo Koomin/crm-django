@@ -523,7 +523,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_OdbPowiat": " ",
             "SrZ_ZlecajacyNazwisko": " ",
             "SrZ_Waluta": "",
-            "SrZ_KursNumer": 5,
+            "SrZ_KursNumer": 3,
             "SrZ_KursL": 1.0000,
             "SrZ_KursM": 1,
             "SrZ_DataKur": datetime.datetime(year=1900, month=1, day=1, hour=0, minute=0, second=0, microsecond=0),
