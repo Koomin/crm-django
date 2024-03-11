@@ -83,7 +83,7 @@ class ServiceOrderObject(ServiceOptimaObject):
 
     def get_last_number(self, number_scheme, document_id, number):
         self.get_queryset = self.get_queryset_last_number.format(number_scheme, document_id, number)
-        return super().get()
+        return super().get_one()
 
 
 class NoteObject(ServiceOptimaObject):

@@ -164,6 +164,18 @@ class OptimaObject:
             )
             return
 
+    def get_one(self):
+        try:
+            return self.connection.execute(self.get_queryset).fetchone()
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="get",
+                model_name=self.__class__.__name__,
+                object_serialized="",
+            )
+            return
+
     def post(self, obj) -> (bool, str):
         fields = ",".join(field for field in obj.keys())
         values = ",".join("?" * len(obj.keys()))
