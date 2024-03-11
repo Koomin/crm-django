@@ -115,6 +115,7 @@ class ServiceOrder(OptimaModel):
                     synchronize_order.apply_async(args=[self.optima_id])
                 return created, response, serializer.data
             return False, serializer.errors, {}
+        return False, None, {}
 
     def export(self):
         if not self.exported and not self.optima_id:

@@ -53,7 +53,7 @@ class OptimaModel(BaseModel):
                     )
             elif not self.exported and not self.optima_id:
                 created, response, data = self._export_to_optima()
-                if not created:
+                if not created and response:
                     Log.objects.create(
                         exception_traceback=response,
                         method_name=self.__class__.__name__,
