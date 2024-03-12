@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from crm.contractors.models import Contractor
 from crm.core.api.mixins import OptimaUpdateModelMixin
 from crm.core.api.views import BaseViewSet
-from crm.documents.models import DocumentType
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
     AttributeSerializer,
@@ -125,13 +124,14 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
                 current_stage_duration.save()
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
-        if request.data.get("document_type"):
-            try:
-                document_type = DocumentType.objects.get(uuid=request.data.get("document_type"))
-            except Exception:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            number_scheme = document_type.format_numbering_scheme()
-            request.data["number_scheme"] = number_scheme
+        # Moved to ServiceOrder save method.
+        # if request.data.get("document_type"):
+        #     try:
+        #         document_type = DocumentType.objects.get(uuid=request.data.get("document_type"))
+        #     except Exception:
+        #         return Response(status=status.HTTP_404_NOT_FOUND)
+        #     number_scheme = document_type.format_numbering_scheme()
+        #     request.data["number_scheme"] = number_scheme
         return super().partial_update(request, *args, **kwargs)
 
     @action(detail=False)

@@ -194,6 +194,8 @@ class ServiceOrder(OptimaModel):
                 self.document_type = self.device.document_type
                 if self.device.document_type.warehouse:
                     self.warehouse = self.device.document_type.warehouse
+        if self.document_type and not self.number_scheme:
+            self.number_scheme = self.document_type.format_numbering_scheme()
         super().save(fields_changed, with_optima_update, *args, **kwargs)
         if default_stage:
             StageDuration.objects.create(stage=default_stage, start=datetime.datetime.now(), service_order=self)
