@@ -205,8 +205,8 @@ class AttributeSerializer(BaseOptimaSerializer):
         except AttributeError:
             self._valid = False
             return None
-        if format == 4:
-            delta = datetime.datetime(year=1800, month=12, days=28).date - datetime.datetime.strptime(
+        if format == 4 and self.obj.value:
+            delta = datetime.datetime(year=1800, month=12, day=28).date - datetime.datetime.strptime(
                 self.obj.value, "%Y-%m-%d"
             )
             return delta.days
