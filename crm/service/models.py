@@ -138,7 +138,8 @@ class ServiceOrder(OptimaModel):
                     self.optima_id = response
                     self.exported = True
                     super().save()
-                    create_attributes.apply_async(args=[str(self.pk)])
+                    if self.optima_id:
+                        create_attributes.apply_async(args=[str(self.pk)])
                     # No need to synchronize since Attributes are not created by Optima itself
                     # synchronize_order.apply_async(args=[str(self.optima_id)])
                 return created, response, serializer.data
@@ -233,8 +234,12 @@ class Attribute(OptimaModel):
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, null=True)
 
     def _export_to_optima(self):
-        from service.optima_api.serializers import AttributeSerializer
-        from service.optima_api.views import AttributeObject
+        try:
+            from service.optima_api.serializers import AttributeSerializer
+            from service.optima_api.views import AttributeObject
+        except ModuleNotFoundError:
+            from crm.service.optima_api.serializers import AttributeSerializer
+            from crm.service.optima_api.views import AttributeObject
 
         serializer = AttributeSerializer(self)
         if serializer.is_valid(safe=False):

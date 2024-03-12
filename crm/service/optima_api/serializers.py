@@ -575,6 +575,13 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
+    def _serialize_stage_description(self):
+        try:
+            return self.obj.stage.description
+        except AttributeError:
+            self._valid = False
+            return None
+
     def _serialize_device(self):
         try:
             return self.obj.device.optima_id
@@ -642,6 +649,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_DataZamkniecia": self.obj.closing_date,
             "SrZ_MagId": self._serialize_warehouse(),
             "SrZ_EtapId": self._serialize_stage(),
+            "SrZ_EtapOpis": self._serialize_stage_description(),
             "SrZ_WartoscNetto": self.obj.net_value or 0.00,
             "SrZ_WartoscNettoPLN": self.obj.net_value or 0.00,
             "SrZ_WartoscBrutto": self.obj.gross_value or 0.00,

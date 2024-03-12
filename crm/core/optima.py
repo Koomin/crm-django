@@ -130,7 +130,7 @@ class OptimaObject:
         return general_settings.optima_synchronization
 
     def _prepare_insert_queryset(self, fields, values):
-        return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values})"
+        return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values}); SELECT SCOPE_IDENTITY();"
 
     @staticmethod
     def _prepare_fields_string(fields):
@@ -190,7 +190,7 @@ class OptimaObject:
                 self.connection.execute(insert_queryset, tuple(obj.values()))
             except Exception as e:
                 return False, e
-            return True, self._get_optima_id()
+            return True, self.connection.fetchone()  # self._get_optima_id()
         elif self._synchronize and not self.connection:
             return False, self._connection_error
         else:
