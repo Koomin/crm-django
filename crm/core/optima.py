@@ -147,7 +147,7 @@ class OptimaObject:
 
     def _get_optima_id(self):
         try:
-            return self.connection.execute("SELECT @@Identity").fetchval()
+            return self.connection.execute("SELECT @@Identity").fetchone()[0]
         except Exception as e:
             Log.objects.create(
                 exception_traceback=e,
