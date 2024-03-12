@@ -187,7 +187,7 @@ class OptimaObject:
         insert_queryset = self._prepare_insert_queryset(fields, values)
         if self._synchronize and self.connection:
             try:
-                self.connection.execute(insert_queryset, tuple(obj.values())).fetchval()
+                self.connection.execute(insert_queryset, tuple(obj.values()))
                 optima_id = self._get_optima_id()
             except Exception as e:
                 self.connection.rollback()
