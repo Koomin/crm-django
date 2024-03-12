@@ -255,10 +255,10 @@ class StageDuration(BaseModel):
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.start and self.end:
             self.duration = self.end - self.start
-        super().save()
+        super().save(*args, **kwargs)
 
 
 class FormFile(BaseModel):
