@@ -93,7 +93,7 @@ class ServiceOrderObject(ServiceOptimaObject):
 
     def get_id_by_number(self, number, number_scheme):
         self.get_queryset = self.get_queryset_id_by_number.format(number, number_scheme)
-        return super().get_one()
+        return super().get_one()[0]
 
 
 class NoteObject(ServiceOptimaObject):
