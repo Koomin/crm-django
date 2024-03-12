@@ -10,12 +10,14 @@ class BaseOptimaSerializer:
     required_fields = []
     model = None
 
-    def __init__(self, obj):
+    # TODO verify fields to update
+    def __init__(self, obj, fields_updated=None):
         self._data = None
         self._valid = False
         self.errors = []
         self.obj = obj
         if isinstance(obj, self.model):
+            self._fields_updated = fields_updated
             self._deserialization = False
         else:
             self._valid = True

@@ -29,10 +29,10 @@ class OptimaModel(BaseModel):
     def _export_to_optima(self) -> (bool, str, dict):
         return True, "", {}
 
-    def _update_optima_obj(self) -> (bool, str, dict):
+    def _update_optima_obj(self, fields_changed) -> (bool, str, dict):
         return True, "", {}
 
-    def _optima_synchronization(self, with_optima_update):
+    def _optima_synchronization(self, with_optima_update, fields_changed):
         general_settings_model = apps.get_model("crm_config", "GeneralSettings")
         try:
             general_settings = general_settings_model.objects.first()
@@ -41,8 +41,8 @@ class OptimaModel(BaseModel):
         if general_settings and general_settings.optima_synchronization:
             from crm.crm_config.models import Log
 
-            if self.exported and self.optima_id and with_optima_update:
-                updated, response, data = self._update_optima_obj()
+            if self.exported and self.optima_id and with_optima_update and fields_changed:
+                updated, response, data = self._update_optima_obj(fields_changed)
                 if not updated:
                     Log.objects.create(
                         exception_traceback=response,
@@ -62,6 +62,6 @@ class OptimaModel(BaseModel):
                         object_serialized=data,
                     )
 
-    def save(self, with_optima_update=True, *args, **kwargs):
+    def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         super().save()
-        self._optima_synchronization(with_optima_update)
+        self._optima_synchronization(with_optima_update, fields_changed)

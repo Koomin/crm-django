@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from crm.contractors.models import Contractor
+from crm.core.api.mixins import OptimaUpdateModelMixin
 from crm.core.api.views import BaseViewSet
 from crm.documents.models import DocumentType
 from crm.service.api.serializers import (
@@ -68,7 +69,7 @@ class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseVi
     serializer_class = DeviceSerializer
 
 
-class NoteViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = Note.objects.all().order_by("-date")
     serializer_class = NoteSerializer
     filterset_fields = ["uuid", "service_order__uuid"]
@@ -80,7 +81,7 @@ class OrderTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     serializer_class = OrderTypeSerializer
 
 
-class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseViewSet):
+class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = ServiceOrder.objects.all().order_by("-document_date")
     serializer_class = ServiceOrderSerializer
     filterset_fields = ["uuid", "state"]
@@ -251,7 +252,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class AttributeViewSet(ListModelMixin, BaseViewSet):
+class AttributeViewSet(ListModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = Attribute.objects.all()
     serializer_class = AttributeSerializer
     filterset_fields = ["uuid", "service_order__uuid"]
@@ -269,7 +270,7 @@ class StageDurationViewSet(ListModelMixin, BaseViewSet):
     filterset_fields = ["uuid", "stage_duration__uuid", "service_order__uuid"]
 
 
-class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, BaseViewSet):
+class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = ServiceActivity.objects.all()
     serializer_class = ServiceActivitySerializer
     filterset_fields = ["uuid", "service_order__uuid"]

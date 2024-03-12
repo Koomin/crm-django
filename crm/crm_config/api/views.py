@@ -1,4 +1,5 @@
 from django.contrib.admin.models import LogEntry
+from rest_framework import viewsets
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -50,7 +51,7 @@ class LogViewSet(ListModelMixin, BaseViewSet):
     permission_classes = [IsAuthenticated]
 
 
-class LogEntryViewSet(ListModelMixin, BaseViewSet):
+class LogEntryViewSet(ListModelMixin, viewsets.GenericViewSet):
     queryset = LogEntry.objects.all()
     serializer_class = LogEntrySerializer
     permission_classes = [IsAuthenticated]

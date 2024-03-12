@@ -157,7 +157,7 @@ class ServiceOrder(OptimaModel):
             return True
         return False
 
-    def _update_optima_obj(self):
+    def _update_optima_obj(self, fields_changed):
         try:
             from service.optima_api.serializers import ServiceOrderSerializer
             from service.optima_api.views import ServiceOrderObject
@@ -166,14 +166,14 @@ class ServiceOrder(OptimaModel):
             from crm.service.optima_api.views import ServiceOrderObject
 
         if self.state != self.States.NEW:
-            serializer = ServiceOrderSerializer(self)
+            serializer = ServiceOrderSerializer(self, fields_changed)
             if serializer.is_valid(safe=False):
                 optima_object = ServiceOrderObject()
                 updated, response = optima_object.put(serializer.data, self.optima_id)
                 return updated, response, serializer.data
             return False, serializer.errors, {}
 
-    def save(self, with_optima_update=True, *args, **kwargs):
+    def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         # TODO Test
         default_stage = None
         if not self.pk:
@@ -192,7 +192,7 @@ class ServiceOrder(OptimaModel):
                 self.document_type = self.device.document_type
                 if self.device.document_type.warehouse:
                     self.warehouse = self.device.document_type.warehouse
-        super().save(with_optima_update, *args, **kwargs)
+        super().save(fields_changed, with_optima_update, *args, **kwargs)
         if default_stage:
             StageDuration.objects.create(stage=default_stage, start=datetime.datetime.now(), service_order=self)
 

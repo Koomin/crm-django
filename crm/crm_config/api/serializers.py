@@ -49,4 +49,4 @@ class LogSerializer(serializers.ModelSerializer):
 class LogEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = LogEntry
-        fields = ["__all__"]
+        fields = ["action_time", "user", "object_id", "object_repr"]
