@@ -80,7 +80,7 @@ class ServiceOrderObject(ServiceOptimaObject):
     )
 
     get_queryset_id_by_number = (
-        "SELECT SRS.SrZ_SrZId FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_NumerNr={0} AND SRS.SrZ_NumerString={1}"
+        "SELECT SRS.SrZ_SrZId FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_NumerNr={0} AND SRS.SrZ_NumerString='{1}'"
     )
 
     def get_by_optima_id(self, optima_id):
