@@ -37,6 +37,7 @@ class AttributeDefinitionItemObject(OptimaObject):
 
 
 class AttributeObject(ServiceOptimaObject):
+    table_name = "CDN.DokAtrybuty"
     id_field = "DAt_DAtId"
     get_queryset = (
         "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt, DA.DAt_SrZId, DEF.DeA_Format "
@@ -78,12 +79,20 @@ class ServiceOrderObject(ServiceOptimaObject):
         "WHERE SRS.SrZ_NumerString = '{0}' AND SRS.SrZ_DDfId = {1} AND SRS.SrZ_NumerNr >= {2}"
     )
 
+    get_queryset_id_by_number = (
+        "SELECT SRS.SrZ_SrZId FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_NumerNr={0} AND SRS.SrZ_NumerString={1}"
+    )
+
     def get_by_optima_id(self, optima_id):
         self.get_queryset = self.get_queryset_optima_id.format(optima_id)
         return super().get()
 
     def get_last_number(self, number_scheme, document_id, number):
         self.get_queryset = self.get_queryset_last_number.format(number_scheme, document_id, number)
+        return super().get_one()
+
+    def get_id_by_number(self, number, number_scheme):
+        self.get_queryset = self.get_queryset_id_by_number.format(number, number_scheme)
         return super().get_one()
 
 

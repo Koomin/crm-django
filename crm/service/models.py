@@ -135,7 +135,8 @@ class ServiceOrder(OptimaModel):
                 optima_object = ServiceOrderObject()
                 created, response = optima_object.post(serializer.data)
                 if created and response:
-                    self.optima_id = response
+                    optima_id = optima_object.get_id_by_number(self.number, self.number_scheme)
+                    self.optima_id = optima_id
                     self.exported = True
                     super().save()
                     if self.optima_id:
