@@ -5,7 +5,7 @@ from django.db import models
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
-from crm.crm_config.models import EmailTemplate, Log
+from crm.crm_config.models import EmailTemplate, Log, TaxPercentage
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.users.models import OptimaUser, User
@@ -281,6 +281,10 @@ class ServiceActivity(OptimaModel):
     price_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    service_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    value_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    value_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    tax_percentage = models.ForeignKey(TaxPercentage, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     value_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     value_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)

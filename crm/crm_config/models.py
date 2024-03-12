@@ -16,6 +16,11 @@ class State(OptimaModel):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
 
+class TaxPercentage(BaseModel):
+    name = models.CharField(max_length=12)
+    value = models.DecimalField(max_digits=4, decimal_places=2)
+
+
 class EmailTemplate(BaseModel):
     name = models.CharField(max_length=255)
     template = models.TextField()

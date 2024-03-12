@@ -1,7 +1,7 @@
 from django.contrib.admin.models import LogEntry
 from rest_framework import serializers
 
-from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, State
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, State, TaxPercentage
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -50,3 +50,9 @@ class LogEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = LogEntry
         fields = ["action_time", "user", "object_id", "object_repr"]
+
+
+class TaxPercentageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaxPercentage
+        fields = ["uuid", "name", "value"]
