@@ -37,6 +37,7 @@ class AttributeDefinitionItemObject(OptimaObject):
 
 
 class AttributeObject(ServiceOptimaObject):
+    id_field = "DAt_DAtId"
     get_queryset = (
         "SELECT DA.DAt_DAtId, DA.DAt_Kod, DA.DAt_DeAId, DA.DAt_WartoscTxt, DA.DAt_SrZId, DEF.DeA_Format "
         "FROM CDN.DokAtrybuty as DA "
