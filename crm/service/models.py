@@ -24,7 +24,7 @@ class Stage(OptimaModel):
     type = models.IntegerField()
     code = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=255, null=True)
-    email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True)
+    email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True, blank=True)
     is_default = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -250,8 +250,8 @@ class Attribute(OptimaModel):
 
 class StageDuration(BaseModel):
     start = models.DateTimeField(auto_now_add=True)
-    end = models.DateTimeField()
-    duration = models.DurationField()
+    end = models.DateTimeField(null=True, blank=True)
+    duration = models.DurationField(null=True, blank=True)
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
 
