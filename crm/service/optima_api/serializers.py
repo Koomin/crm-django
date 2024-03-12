@@ -635,6 +635,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_PodmiotId": self._serialize_contractor(),
             "SrZ_OdbId": self._serialize_contractor(),
             "SrZ_OpeZalId": self._serialize_user(),
+            "SrZ_OpeModId": self._serialize_user(),
             "SrZ_DataDok": self.obj.document_date,
             "SrZ_DataPrzyjecia": self.obj.acceptance_date,
             "SrZ_DataRealizacji": self.obj.realization_date,
