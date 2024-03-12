@@ -1,3 +1,5 @@
+import datetime
+
 import pyodbc
 from django.apps import apps
 from django.conf import settings
@@ -9,6 +11,7 @@ from crm.crm_config.models import GeneralSettings, Log
 class BaseOptimaSerializer:
     required_fields = []
     model = None
+    default_datetime = datetime.datetime(year=1899, month=12, day=30, hour=0, minute=0, second=0, microsecond=0)
 
     # TODO verify fields to update
     def __init__(self, obj, fields_updated=None):

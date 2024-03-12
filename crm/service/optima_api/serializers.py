@@ -324,9 +324,37 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
+    def _serialize_product_price_number(self):
+        try:
+            return self.obj.product.price_number
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_product_code(self):
+        try:
+            return self.obj.product.code
+        except AttributeError:
+            self._valid = False
+            return None
+
     def _serialize_optima_user(self):
         try:
             return self.obj.user.optima_user.optima_id
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_product_name(self):
+        try:
+            return self.obj.product.name
+        except AttributeError:
+            self._valid = False
+            return None
+
+    def _serialize_tax_percentage(self):
+        try:
+            return self.tax_percentage.value
         except AttributeError:
             self._valid = False
             return None
@@ -350,17 +378,45 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
             "value_net": self.obj[14],
             "value_gross": self.obj[15],
             "unit": self.obj[16],
+            "tax_percentage": self.obj[17],
         }
 
     def _serialize(self) -> dict:
-        # TODO Finish serializer
         return {
             "SrY_SrZId": self._serialize_service_order(),
-            "SrY_Lp": self.number,
+            "SrY_Lp": self.obj.number,
             "SrY_TwrId": self._serialize_product(),
             "SrY_SerwisantId": self._serialize_optima_user(),
-            "SrY_Zakonczona": self.is_finished,
-            "SrY_Fakturowac": self.to_invoicing,
+            "SrY_Zakonczona": self.obj.is_finished,
+            "SrY_Fakturowac": self.obj.to_invoicing,
+            "SrY_DataWykonania": self.obj.date_of_service,
+            "SrY_TerminOd": self.obj.date_from,
+            "SrY_TerminDo": self.obj.date_to,
+            "SrY_CzasPrzypomnienia": self.obj.date_from,
+            "SrY_CzasTrwania": self.default_datetime,
+            "SrY_Rabat": self.obj.price_discount,
+            "SrY_CenaNetto": self.obj.price_net,
+            "SrY_Cena0": self.obj.price_net,
+            "SrY_CenaBrutto": self.obj.price_gross,
+            "SrY_CenaNettoPLN": self.obj.price_net,
+            "SrY_Cena0PLN": self.obj.price_net,
+            "SrY_CenaBruttoPLN": self.obj.price_gross,
+            "SrY_Ilosc": self.obj.quantity,
+            "SrY_IloscJM": self.obj.quantity,
+            "SrY_IloscDisp": self.obj.quantity,
+            "Sry_TwCNumer": self._serialize_product_price_number(),
+            "SrY_WartoscNetto": self.obj.value_net,
+            "SrY_WartoscBrutto": self.obj.value_gross,
+            "SrY_WartoscNettoPLN": self.obj.value_net,
+            "SrY_WartoscBruttoPLN": self.obj.value_gross,
+            "SrY_WartoscNettoWylicz": self.obj.value_net,
+            "SrY_WartoscBruttoWylicz": self.obj.value_gross,
+            "SrY_KosztUslugi": self.obj.service_cost,
+            "SrY_JM": self.obj.unit,
+            "SrY_TwrKod": self._serialize_product_code(),
+            "SrY_TwrNazwa": self._serialize_product_name(),
+            "SrY_Stawka": self._serialize_tax_percentage(),
+            "SrY_Zrodlowa": self._serialize_tax_percentage(),
         }
 
     @property
@@ -372,6 +428,26 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
             "SrY_PoprzedniaOk": 0,
             "SrY_RezerwujCzas": 0,
             "SrY_Przypomnienie": 0,
+            "SrY_JMPrzelicznikL": 1,
+            "SrY_JMPrzelicznikM": 1,
+            "SrY_JMZ": "",
+            "SrY_Opis": "",
+            "SrY_Waluta": "PLN",
+            "SrY_FlagaVat": 2,
+            "SrY_CenaZCzteremaMiejscami": 0,
+            "SrY_TwrEan": "",
+            "SrY_StawkaOSS": 0,
+            "SrY_UstawAtrSQL": -1,
+            "SrY_Atr1_Kod": "",
+            "SrY_Atr1_Wartosc": "",
+            "SrY_Atr2_Kod": "",
+            "SrY_Atr2_Wartosc": "",
+            "SrY_Atr3_Kod": "",
+            "SrY_Atr3_Wartosc": "",
+            "SrY_Atr4_Kod": "",
+            "SrY_Atr4_Wartosc": "",
+            "SrY_Atr5_Kod": "",
+            "SrY_Atr5_Wartosc": "",
         }
 
 

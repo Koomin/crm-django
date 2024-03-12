@@ -286,9 +286,9 @@ class ServiceActivity(OptimaModel):
     value_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     tax_percentage = models.ForeignKey(TaxPercentage, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    value_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    value_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     unit = models.CharField(max_length=10, null=True, blank=True)
+
+    # TODO fill date_from and date_to on save()
 
 
 class EmailSent(BaseModel):
