@@ -130,7 +130,7 @@ class OptimaObject:
         return general_settings.optima_synchronization
 
     def _prepare_insert_queryset(self, fields, values):
-        return f"INSERT INTO {self.table_name} ({fields}) VALUES ({values});SELECT @@Identity;"
+        return f"SET NOCOUNT ON; INSERT INTO {self.table_name} ({fields}) VALUES ({values}); SELECT @@Identity;"
 
     @staticmethod
     def _prepare_fields_string(fields):
