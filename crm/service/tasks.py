@@ -208,3 +208,22 @@ def synchronize_order(optima_id):
         )
         return
     import_service_order_full(order_objects)
+
+
+@celery_app.task()
+def create_attributes(service_order_pk):
+    try:
+        service_order = ServiceOrder.objects.get(pk=service_order_pk)
+    except Exception as e:
+        Log.objects.create(
+            exception_traceback=e,
+            method_name="create_attributes",
+            model_name="ServiceOrder",
+            object_serialized=f"service_order_pk: {service_order_pk}",
+        )
+        return
+    attributes_to_create = AttributeDefinition.objects.filter(is_active=True)
+    for attribute in attributes_to_create:
+        Attribute.objects.create(
+            attribute_definition=attribute, code=attribute.code, value="", service_order=service_order
+        )

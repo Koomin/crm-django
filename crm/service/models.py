@@ -109,7 +109,7 @@ class ServiceOrder(OptimaModel):
         from service.optima_api.serializers import ServiceOrderSerializer
         from service.optima_api.views import ServiceOrderObject
 
-        from crm.service.tasks import synchronize_order
+        from crm.service.tasks import create_attributes
 
         if self.state != self.States.NEW:
             if not self.number:
@@ -138,7 +138,9 @@ class ServiceOrder(OptimaModel):
                     self.optima_id = response
                     self.exported = True
                     super().save()
-                    synchronize_order.apply_async(args=[str(self.optima_id)])
+                    create_attributes.apply_async(args=[str(self.pk)])
+                    # No need to synchronize since Attributes are not created by Optima itself
+                    # synchronize_order.apply_async(args=[str(self.optima_id)])
                 return created, response, serializer.data
             return False, serializer.errors, {}
         return False, None, {}
@@ -228,6 +230,21 @@ class Attribute(OptimaModel):
     value = models.CharField(max_length=1024)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, null=True)
 
+    def _export_to_optima(self):
+        from service.optima_api.serializers import AttributeSerializer
+        from service.optima_api.views import AttributeObject
+
+        serializer = AttributeSerializer(self)
+        if serializer.is_valid(safe=False):
+            optima_object = AttributeObject()
+            created, response = optima_object.post(serializer.data)
+            if created and response:
+                self.optima_id = response
+                self.exported = True
+                super().save()
+            return created, response, serializer.data
+        return False, serializer.errors, {}
+
 
 class StageDuration(BaseModel):
     start = models.DateTimeField(auto_now_add=True)
@@ -288,7 +305,14 @@ class ServiceActivity(OptimaModel):
     quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     unit = models.CharField(max_length=10, null=True, blank=True)
 
-    # TODO fill date_from and date_to on save()
+    def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
+        if not self.pk:
+            now_date = datetime.datetime.now()
+            if not self.date_from:
+                self.date_from = now_date
+            if not self.date_to:
+                self.date_to = now_date
+        super().save(fields_changed, with_optima_update, *args, **kwargs)
 
 
 class EmailSent(BaseModel):

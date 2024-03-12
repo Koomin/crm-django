@@ -211,7 +211,7 @@ class AttributeSerializer(BaseOptimaSerializer):
             )
             return delta.days
         else:
-            return self.obj.value
+            return self.obj.value or ""
 
     def _deserialize(self) -> dict:
         return {
