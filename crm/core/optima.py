@@ -88,7 +88,7 @@ class OptimaConnection:
                 f"Database={general_db if not database else database};"
                 f"uid={settings.OPTIMA_DB['UID']};"
                 f"pwd={settings.OPTIMA_DB['PASSWORD']}",
-                autocommit=True,
+                autocommit=False,
             )
         except pyodbc.OperationalError as e:
             self.cnxn = None
@@ -188,9 +188,13 @@ class OptimaObject:
         if self._synchronize and self.connection:
             try:
                 self.connection.execute(insert_queryset, tuple(obj.values())).fetchval()
+                optima_id = self._get_optima_id()
             except Exception as e:
+                self.connection.rollback()
                 return False, e
-            return True, self._get_optima_id()
+            else:
+                self.connection.commit()
+            return True, optima_id
         elif self._synchronize and not self.connection:
             return False, self._connection_error
         else:
