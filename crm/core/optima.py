@@ -17,7 +17,7 @@ class BaseOptimaSerializer:
     def __init__(self, obj, fields_updated=None):
         self._data = None
         self._valid = False
-        self.errors = []
+        self._errors = []
         self.obj = obj
         if isinstance(obj, self.model):
             self._fields_updated = fields_updated

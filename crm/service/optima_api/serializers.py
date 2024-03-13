@@ -160,6 +160,10 @@ class AttributeSerializer(BaseOptimaSerializer):
     model = apps.get_model("service", "Attribute")
     required_fields = ["DAt_SrZId", "DAt_DeAId", "DAt_Kod"]
 
+    def __init__(self, obj, fields_updated=None, order_id=None):
+        self._order_id = order_id
+        super().__init__(obj, fields_updated)
+
     def _get_attribute_definition(self):
         try:
             attribute_definition = self.model.objects.get(optima_id=self.obj[2])
@@ -195,26 +199,25 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _serialize_service_order(self):
         try:
-            return self.obj.servicer_order.optima_id
+            return self._order_id if self._order_id else self.obj.servicer_order.optima_id
         except AttributeError:
             self._valid = False
             return None
 
     def _serialize_value(self):
-        # try:
-        #     val_format = self.obj.attribute_definition.format
-        # except AttributeError:
-        #     self._valid = False
-        #     return None
-        # if val_format == 4 and self.obj.value:
-        #     delta = (
-        #         datetime.datetime.strptime(self.obj.value, "%Y-%m-%d")
-        #         - datetime.datetime(year=1800, month=12, day=28).date
-        #     )
-        #     return delta.days
-        # else:
-        #     return self.obj.value or ""
-        return ""
+        try:
+            val_format = self.obj.attribute_definition.format
+        except AttributeError:
+            self._valid = False
+            return None
+        if val_format == 4 and self.obj.value:
+            delta = (
+                datetime.datetime.strptime(self.obj.value, "%Y-%m-%d")
+                - datetime.datetime(year=1800, month=12, day=28).date
+            )
+            return delta.days
+        else:
+            return self.obj.value or ""
 
     def _deserialize(self) -> dict:
         return {
