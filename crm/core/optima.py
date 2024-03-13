@@ -23,12 +23,18 @@ class BaseOptimaSerializer:
         self.obj = obj
         if isinstance(obj, self.model):
             self._fields_updated = fields_updated
-            self.required_fields = fields_updated
+            self.required_fields = self._override_required_fields()
             self._deserialization = False
         else:
             self._valid = True
             self._deserialization = True
             self._data = self._deserialize()
+
+    def _override_required_fields(self):
+        new_required_fields = []
+        for field in self._fields_updated:
+            new_required_fields.extend(self.fields_mapping[field])
+        return new_required_fields
 
     @property
     def errors(self):
