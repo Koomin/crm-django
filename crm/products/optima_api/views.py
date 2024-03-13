@@ -6,4 +6,7 @@ class ProductGroupObject(OptimaObject):
 
 
 class ProductObject(OptimaObject):
-    get_queryset = "SELECT Towary.Twr_TwrId, Towary.Twr_Kod, Towary.Twr_Nazwa, Towary.Twr_JM FROM CDN.Towary as Towary"
+    get_queryset = (
+        "SELECT Towary.Twr_TwrId, Towary.Twr_Kod, Towary.Twr_Nazwa, Towary.Twr_JM, "
+        "Towary.Twr_Typ, Towary.Twr_TwCNumer FROM CDN.Towary as Towary"
+    )

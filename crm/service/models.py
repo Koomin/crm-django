@@ -1,8 +1,11 @@
+import datetime
+
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
-from crm.crm_config.models import EmailTemplate
+from crm.crm_config.models import EmailTemplate, Log, TaxPercentage
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.users.models import OptimaUser, User
@@ -21,7 +24,12 @@ class Stage(OptimaModel):
     type = models.IntegerField()
     code = models.CharField(max_length=50, null=False)
     description = models.CharField(max_length=255, null=True)
-    email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True)
+    email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True, blank=True)
+    is_default = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        Stage.objects.filter(is_default=True).update(is_default=False)
+        super().save(*args, **kwargs)
 
 
 class DeviceType(OptimaModel):
@@ -59,43 +67,143 @@ class ServiceOrder(OptimaModel):
     category = models.ForeignKey(
         Category, null=True, blank=True, related_name="service_order", on_delete=models.CASCADE
     )
-    number_scheme = models.CharField(max_length=255, null=True)
-    number = models.IntegerField(null=True)
-    full_number = models.CharField(max_length=255, null=True)
-    status = models.BooleanField(default=False)
+    number_scheme = models.CharField(max_length=255, null=True, blank=True)
+    number = models.IntegerField(null=True, blank=True)
+    full_number = models.CharField(max_length=255, null=True, blank=True)
+    in_buffer = models.BooleanField(default=True, blank=True)
     state = models.IntegerField(choices=States.choices, default=States.NEW)
-    contractor = models.ForeignKey(Contractor, on_delete=models.CASCADE, null=True)
-    contractor_type = models.IntegerField(null=True)
-    contractor_name = models.CharField(max_length=1024, null=True)
-    contractor_name1 = models.CharField(max_length=1024, null=True)
-    contractor_name2 = models.CharField(max_length=1024, null=True)
-    contractor_name3 = models.CharField(max_length=1024, null=True)
-    contractor_city = models.CharField(max_length=120, null=True)
-    contractor_country = models.CharField(max_length=50, null=True)
-    contractor_street = models.CharField(max_length=200, null=True)
-    contractor_street_number = models.CharField(max_length=12, null=True)
-    contractor_home_number = models.IntegerField(null=True)
-    contractor_state = models.CharField(max_length=40, null=True)
-    contractor_post = models.CharField(max_length=120, null=True)
-    contractor_postal_code = models.CharField(max_length=120, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    document_date = models.DateTimeField(null=True)
-    acceptance_date = models.DateTimeField(null=True)
-    realization_date = models.DateTimeField(null=True)
-    closing_date = models.DateTimeField(null=True)
-    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, null=True)
-    stage = models.ForeignKey(Stage, on_delete=models.CASCADE, null=True)
-    net_value = models.DecimalField(decimal_places=2, max_digits=12, null=True)
-    gross_value = models.DecimalField(decimal_places=2, max_digits=12, null=True)
+    contractor = models.ForeignKey(Contractor, on_delete=models.CASCADE, null=True, blank=True)
+    contractor_type = models.IntegerField(null=True, blank=True)
+    contractor_name = models.CharField(max_length=1024, null=True, blank=True)
+    contractor_name1 = models.CharField(max_length=1024, null=True, blank=True)
+    contractor_name2 = models.CharField(max_length=1024, null=True, blank=True)
+    contractor_name3 = models.CharField(max_length=1024, null=True, blank=True)
+    contractor_city = models.CharField(max_length=120, null=True, blank=True)
+    contractor_country = models.CharField(max_length=50, null=True, blank=True)
+    contractor_street = models.CharField(max_length=200, null=True, blank=True)
+    contractor_street_number = models.CharField(max_length=12, null=True, blank=True)
+    contractor_home_number = models.IntegerField(null=True, blank=True)
+    contractor_state = models.CharField(max_length=40, null=True, blank=True)
+    contractor_post = models.CharField(max_length=120, null=True, blank=True)
+    contractor_postal_code = models.CharField(max_length=120, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    document_date = models.DateTimeField(null=True, blank=True)
+    acceptance_date = models.DateTimeField(null=True, blank=True)
+    realization_date = models.DateTimeField(null=True, blank=True)
+    closing_date = models.DateTimeField(null=True, blank=True)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, null=True, blank=True)
+    stage = models.ForeignKey(Stage, on_delete=models.CASCADE, null=True, blank=True)
+    net_value = models.DecimalField(decimal_places=2, max_digits=12, null=True, blank=True)
+    gross_value = models.DecimalField(decimal_places=2, max_digits=12, null=True, blank=True)
     description = models.TextField()
-    device = models.ForeignKey(Device, on_delete=models.CASCADE, null=True)
-    serial_number = models.CharField(max_length=255, null=True)
-    purchase_document_number = models.CharField(max_length=255, null=True)
-    purchase_date = models.DateField(null=True)
-    email = models.CharField(max_length=255, null=True)
-    phone_number = models.CharField(max_length=255, null=True)
-    order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, null=True, blank=True)
+    serial_number = models.CharField(max_length=255, null=True, blank=True)
+    purchase_document_number = models.CharField(max_length=255, null=True, blank=True)
+    purchase_date = models.DateField(null=True, blank=True)
+    email = models.CharField(max_length=255, null=True, blank=True)
+    phone_number = models.CharField(max_length=255, null=True, blank=True)
+    order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True, blank=True)
     purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
+
+    def _export_to_optima(self) -> (bool, str, dict):
+        from service.optima_api.serializers import ServiceOrderSerializer
+        from service.optima_api.views import ServiceOrderObject
+
+        from crm.service.tasks import create_attributes
+
+        if self.state != self.States.NEW:
+            if not self.number:
+                all_numbers = ServiceOrder.objects.filter(
+                    document_type=self.document_type,
+                    optima_id__isnull=False,
+                    number_scheme=self.number_scheme,
+                    number__isnull=False,
+                ).values_list("number", flat=True)
+                last_number = max(all_numbers) if all_numbers else 0
+                try:
+                    optima_last_number = ServiceOrderObject().get_last_number(
+                        self.number_scheme, self.document_type.optima_id, last_number
+                    )[0]
+                except IndexError:
+                    return False, None, {}
+                if optima_last_number:
+                    self.number = optima_last_number + 1
+                else:
+                    self.number = 1
+            serializer = ServiceOrderSerializer(self)
+            if serializer.is_valid():
+                optima_object = ServiceOrderObject()
+                created, response = optima_object.post(serializer.data)
+                if created and response:
+                    optima_id = optima_object.get_id_by_number(self.number, self.number_scheme)
+                    full_number = optima_object.get_full_number(optima_id)
+                    self.optima_id = optima_id
+                    self.full_number = full_number
+                    self.exported = True
+                    super().save()
+                    create_attributes.apply_async(args=[str(self.pk)])
+                return created, response, serializer.data
+            return False, serializer.errors, {}
+        return False, None, {}
+
+    def export(self):
+        if not self.exported and not self.optima_id:
+            created, errors, data = self._export_to_optima()
+            if not created:
+                Log.objects.create(
+                    exception_traceback=",".join(errors),
+                    method_name="export",
+                    model_name=self.__class__.__name__,
+                    object_uuid=self.uuid,
+                    object_serialized=data,
+                )
+            return True
+        return False
+
+    def _update_optima_obj(self, fields_changed):
+        try:
+            from service.optima_api.serializers import ServiceOrderSerializer
+            from service.optima_api.views import ServiceOrderObject
+        except ModuleNotFoundError:
+            from crm.service.optima_api.serializers import ServiceOrderSerializer
+            from crm.service.optima_api.views import ServiceOrderObject
+
+        if self.state != self.States.NEW:
+            serializer = ServiceOrderSerializer(self, fields_changed)
+            if serializer.is_valid():
+                optima_object = ServiceOrderObject()
+                updated, response = optima_object.put(serializer.data, self.optima_id)
+                return updated, response, serializer.data
+            return False, serializer.errors, {}
+
+    def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
+        # TODO Test
+        default_stage = None
+        if not self.pk:
+            try:
+                default_stage = Stage.objects.get(is_default=True)
+            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+                Log.objects.create(
+                    exception_traceback=e,
+                    method_name="save",
+                    model_name=self.__class__.__name__,
+                )
+            else:
+                self.stage = default_stage
+        if self.device:
+            if self.device.document_type:
+                self.document_type = self.device.document_type
+                if self.device.document_type.warehouse:
+                    self.warehouse = self.device.document_type.warehouse
+        if self.document_type and not self.number_scheme:
+            self.number_scheme = self.document_type.format_numbering_scheme()
+        if not self.contractor_name1 and self.contractor:
+            self.contractor_name1 = self.contractor.name1
+            self.contractor_name2 = self.contractor.name2
+            self.contractor_name3 = self.contractor.name3
+        super().save(fields_changed, with_optima_update, *args, **kwargs)
+        if default_stage:
+            StageDuration.objects.create(stage=default_stage, start=datetime.datetime.now(), service_order=self)
 
 
 class Note(OptimaModel):
@@ -129,18 +237,37 @@ class Attribute(OptimaModel):
     value = models.CharField(max_length=1024)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, null=True)
 
+    def _export_to_optima(self):
+        try:
+            from service.optima_api.serializers import AttributeSerializer
+            from service.optima_api.views import AttributeObject
+        except ModuleNotFoundError:
+            from crm.service.optima_api.serializers import AttributeSerializer
+            from crm.service.optima_api.views import AttributeObject
+
+        serializer = AttributeSerializer(self)
+        if serializer.is_valid():
+            optima_object = AttributeObject()
+            created, response = optima_object.post(serializer.data)
+            if created and response:
+                self.optima_id = response
+                self.exported = True
+                super().save()
+            return created, response, serializer.data
+        return False, serializer.errors, {}
+
 
 class StageDuration(BaseModel):
     start = models.DateTimeField(auto_now_add=True)
-    end = models.DateTimeField()
-    duration = models.DurationField()
+    end = models.DateTimeField(null=True, blank=True)
+    duration = models.DurationField(null=True, blank=True)
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.start and self.end:
             self.duration = self.end - self.start
-        super().save()
+        super().save(*args, **kwargs)
 
 
 class FormFile(BaseModel):
@@ -182,10 +309,21 @@ class ServiceActivity(OptimaModel):
     price_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    service_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     value_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     value_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    tax_percentage = models.ForeignKey(TaxPercentage, on_delete=models.CASCADE, null=True, blank=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     unit = models.CharField(max_length=10, null=True, blank=True)
+
+    def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
+        if not self.pk:
+            now_date = datetime.datetime.now()
+            if not self.date_from:
+                self.date_from = now_date
+            if not self.date_to:
+                self.date_to = now_date
+        super().save(fields_changed, with_optima_update, *args, **kwargs)
 
 
 class EmailSent(BaseModel):

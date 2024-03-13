@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 from crm.core.models import OptimaModel
@@ -16,3 +18,16 @@ class DocumentType(OptimaModel):
 
     def __str__(self):
         return f"{self.symbol} - {self.name}"
+
+    def format_numbering_scheme(self):
+        formatted_scheme = self.numbering_scheme
+        formatting_dict = {
+            "@symbol": getattr(self, "symbol"),
+            "@miesiac": str(datetime.date.today().month),
+            "@rok_kal": str(datetime.date.today().year),
+            "/@brak": "",
+            "@brak/": "",
+        }
+        for key, value in formatting_dict.items():
+            formatted_scheme = formatted_scheme.replace(key, value)
+        return formatted_scheme

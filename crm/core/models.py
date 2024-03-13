@@ -26,24 +26,42 @@ class OptimaModel(BaseModel):
         except AttributeError:
             return super().__str__()
 
-    def _export_to_optima(self):
-        pass
+    def _export_to_optima(self) -> (bool, str, dict):
+        return True, "", {}
 
-    def _update_optima_obj(self):
-        pass
+    def _update_optima_obj(self, fields_changed) -> (bool, str, dict):
+        return True, "", {}
 
-    def _optima_synchronization(self):
-        general_settings_model = apps.get_model("crm.crm_config", "GeneralSettings")
+    def _optima_synchronization(self, with_optima_update, fields_changed):
+        general_settings_model = apps.get_model("crm_config", "GeneralSettings")
         try:
             general_settings = general_settings_model.objects.first()
         except general_settings_model.DoesNotExist:
             general_settings = None
         if general_settings and general_settings.optima_synchronization:
-            if self.exported and self.optima_id:
-                self._update_optima_obj()
-            elif not self.exported and not self.optima_id:
-                self._export_to_optima()
+            from crm.crm_config.models import Log
 
-    def save(self, *args, **kwargs):
-        super().save()
-        self._optima_synchronization()
+            if self.exported and self.optima_id and with_optima_update and fields_changed:
+                updated, response, data = self._update_optima_obj(fields_changed)
+                if not updated:
+                    Log.objects.create(
+                        exception_traceback=response,
+                        method_name=self.__class__.__name__,
+                        model_name=self.__class__.__name__,
+                        object_uuid=self.uuid,
+                        object_serialized=data,
+                    )
+            elif not self.exported and not self.optima_id:
+                created, response, data = self._export_to_optima()
+                if not created and response:
+                    Log.objects.create(
+                        exception_traceback=response,
+                        method_name=self.__class__.__name__,
+                        model_name=self.__class__.__name__,
+                        object_uuid=self.uuid,
+                        object_serialized=data,
+                    )
+
+    def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._optima_synchronization(with_optima_update, fields_changed)

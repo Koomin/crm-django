@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from crm.contractors.models import Contractor
+from crm.core.api.mixins import OptimaUpdateModelMixin
 from crm.core.api.views import BaseViewSet
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
@@ -67,7 +68,7 @@ class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseVi
     serializer_class = DeviceSerializer
 
 
-class NoteViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = Note.objects.all().order_by("-date")
     serializer_class = NoteSerializer
     filterset_fields = ["uuid", "service_order__uuid"]
@@ -79,10 +80,31 @@ class OrderTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     serializer_class = OrderTypeSerializer
 
 
-class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseViewSet):
+class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = ServiceOrder.objects.all().order_by("-document_date")
     serializer_class = ServiceOrderSerializer
     filterset_fields = ["uuid", "state"]
+
+    def synchronize(self, uuid):
+        try:
+            order = self.queryset.filter(uuid=uuid)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            from crm.service.tasks import synchronize_order
+
+            synchronize_order.apply_async(args=[order.optima_id])
+            return Response(status=status.HTTP_200_OK)
+
+    def export(self, uuid):
+        try:
+            order = self.queryset.filter(uuid=uuid)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        created = order.export()
+        if created:
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     def partial_update(self, request, *args, **kwargs):
         if request.data.get("state") == 0:
@@ -102,6 +124,14 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
                 current_stage_duration.save()
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
+        # Moved to ServiceOrder save method.
+        # if request.data.get("document_type"):
+        #     try:
+        #         document_type = DocumentType.objects.get(uuid=request.data.get("document_type"))
+        #     except Exception:
+        #         return Response(status=status.HTTP_404_NOT_FOUND)
+        #     number_scheme = document_type.format_numbering_scheme()
+        #     request.data["number_scheme"] = number_scheme
         return super().partial_update(request, *args, **kwargs)
 
     @action(detail=False)
@@ -186,6 +216,16 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             else:
                 data["contractor"] = contractor.uuid
                 data["contractor_name"] = f'{data.pop("first_name")[0]} {data.pop("last_name")[0]}'
+        if data.get("contractor_name"):
+            if len(data.get("contractor_name")) > 50:
+                data["contractor_name1"] = data.get("contractor_name")[:50]
+                if len(data.get("contractor_name")) > 100:
+                    data["contractor_name2"] = data.get("contractor_name")[51:100]
+                    data["contractor_name3"] = data.get("contractor_name")[100:]
+                else:
+                    data["contractor_name2"] = data.get("contractor_name")[51:]
+            else:
+                data["contractor_name1"] = data.get("contractor_name")
         description = data.get("description")
         if not description:
             description = ""
@@ -212,7 +252,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class AttributeViewSet(ListModelMixin, BaseViewSet):
+class AttributeViewSet(ListModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = Attribute.objects.all()
     serializer_class = AttributeSerializer
     filterset_fields = ["uuid", "service_order__uuid"]
@@ -230,7 +270,18 @@ class StageDurationViewSet(ListModelMixin, BaseViewSet):
     filterset_fields = ["uuid", "stage_duration__uuid", "service_order__uuid"]
 
 
-class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, BaseViewSet):
+class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = ServiceActivity.objects.all()
     serializer_class = ServiceActivitySerializer
     filterset_fields = ["uuid", "service_order__uuid"]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            service_order = ServiceOrder.objects.get(uuid=request.data["service_order"])
+        except ServiceOrder.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        last_number = max(
+            service_order.service_activities.filter(number__isnull=False).values_list("number", flat=True)
+        )
+        request.data["number"] = last_number + 1
+        return super().create(request, *args, **kwargs)

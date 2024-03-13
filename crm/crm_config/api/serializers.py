@@ -1,6 +1,7 @@
+from django.contrib.admin.models import LogEntry
 from rest_framework import serializers
 
-from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, State
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, State, TaxPercentage
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -27,3 +28,31 @@ class GeneralSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = GeneralSettings
         fields = ["uuid", "optima_synchronization", "mailing", "optima_config_database", "optima_general_database"]
+
+
+class LogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log
+        fields = [
+            "uuid",
+            "number",
+            "exception_traceback",
+            "method_name",
+            "model_name",
+            "object_uuid",
+            "object_serialized",
+            "created",
+            "modified",
+        ]
+
+
+class LogEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LogEntry
+        fields = ["action_time", "user", "object_id", "object_repr"]
+
+
+class TaxPercentageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaxPercentage
+        fields = ["uuid", "name", "value"]
