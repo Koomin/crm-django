@@ -83,6 +83,8 @@ class ServiceOrderObject(ServiceOptimaObject):
         "SELECT SRS.SrZ_SrZId FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_NumerNr={0} AND SRS.SrZ_NumerString='{1}'"
     )
 
+    get_queryset_full_number = "SELECT SRS.SrZ_NumerPelny FROM CDN.SrsZlecenia as SRS WHERE SRS.SrZ_SrZId={0}"
+
     def get_by_optima_id(self, optima_id):
         self.get_queryset = self.get_queryset_optima_id.format(optima_id)
         return super().get()
@@ -93,6 +95,10 @@ class ServiceOrderObject(ServiceOptimaObject):
 
     def get_id_by_number(self, number, number_scheme):
         self.get_queryset = self.get_queryset_id_by_number.format(number, number_scheme)
+        return super().get_one()[0]
+
+    def get_full_number(self, optima_id):
+        self.get_queryset = self.get_queryset_full_number.format(optima_id)
         return super().get_one()[0]
 
 

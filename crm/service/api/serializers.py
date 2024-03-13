@@ -271,6 +271,9 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
         fields = [
             "contractor",
             "contractor_name",
+            "contractor_name1",
+            "contractor_name2",
+            "contractor_name3",
             "contractor_city",
             "contractor_country",
             "contractor_street",

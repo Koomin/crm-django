@@ -136,7 +136,9 @@ class ServiceOrder(OptimaModel):
                 created, response = optima_object.post(serializer.data)
                 if created and response:
                     optima_id = optima_object.get_id_by_number(self.number, self.number_scheme)
+                    full_number = optima_object.get_full_number(optima_id)
                     self.optima_id = optima_id
+                    self.full_number = full_number
                     self.exported = True
                     super().save()
                     if self.optima_id:
@@ -198,6 +200,10 @@ class ServiceOrder(OptimaModel):
                     self.warehouse = self.device.document_type.warehouse
         if self.document_type and not self.number_scheme:
             self.number_scheme = self.document_type.format_numbering_scheme()
+        if not self.contractor_name1 and self.contractor:
+            self.contractor_name1 = self.contractor.name1
+            self.contractor_name2 = self.contractor.name2
+            self.contractor_name3 = self.contractor.name3
         super().save(fields_changed, with_optima_update, *args, **kwargs)
         if default_stage:
             StageDuration.objects.create(stage=default_stage, start=datetime.datetime.now(), service_order=self)
