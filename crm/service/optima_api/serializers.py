@@ -60,6 +60,14 @@ class DeviceSerializer(BaseOptimaSerializer):
 
 class NoteSerializer(BaseOptimaSerializer):
     model = apps.get_model("service", "Note")
+    fields_mapping = {
+        "date": [
+            "SrN_DataDok",
+        ],
+        "description": [
+            "SrN_Tresc",
+        ],
+    }
 
     def _get_user(self):
         try:
@@ -159,6 +167,11 @@ class AttributeDefinitionItemSerializer(BaseOptimaSerializer):
 class AttributeSerializer(BaseOptimaSerializer):
     model = apps.get_model("service", "Attribute")
     required_fields = ["DAt_SrZId", "DAt_DeAId", "DAt_Kod"]
+    fields_mapping = {
+        "value": [
+            "DAt_WartoscTxt",
+        ]
+    }
 
     def _get_attribute_definition(self):
         try:
@@ -455,6 +468,71 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
 
 class ServiceOrderSerializer(BaseOptimaSerializer):
     model = apps.get_model("service", "ServiceOrder")
+    fields_mapping = {
+        "category": [
+            "SrZ_KatID",
+        ],
+        "status": [
+            "SrZ_Bufor",
+        ],
+        "state": [
+            "SrZ_Stan",
+        ],
+        "contractor_name": [
+            "SrZ_PodNazwa1",
+            "SrZ_PodNazwa2",
+            "SrZ_PodNazwa3",
+            "SrZ_OdbNazwa1",
+            "SrZ_OdbNazwa2",
+            "SrZ_OdbNazwa3",
+        ],
+        "user": [
+            "SrZ_OpeModId",
+            "SrZ_OpeModKod",
+            "SrZ_OpeModNazwisko",
+            "SrZ_ProwadzacyId",
+        ],
+        "acceptance_date": [
+            "SrZ_DataPrzyjecia",
+        ],
+        "realization_date": [
+            "SrZ_DataRealizacji",
+        ],
+        "closing_date": [
+            "SrZ_DataZamkniecia",
+        ],
+        "warehouse": [
+            "SrZ_MagId",
+        ],
+        "stage": [
+            "SrZ_EtapId",
+            "SrZ_EtapOpis",
+        ],
+        "net_value": [
+            "SrZ_WartoscNetto",
+            "SrZ_WartoscNettoPLN",
+            "SrZ_WartoscNettoDoFA",
+            "SrZ_WartoscNettoDoFAPLN",
+        ],
+        "gross_value": [
+            "SrZ_WartoscBrutto",
+            "SrZ_WartoscBruttoPLN",
+            "SrZ_WartoscBruttoDoFA",
+            "SrZ_WartoscBruttoDoFAPLN",
+        ],
+        "description": [
+            "SrZ_Opis",
+        ],
+        "device": [
+            "SrZ_SrUId",
+        ],
+        "email": [
+            "SrZ_Email",
+        ],
+        "phone_number": [
+            "SrZ_Telefon",
+        ],
+    }
 
     def _get_document_type(self):
         try:

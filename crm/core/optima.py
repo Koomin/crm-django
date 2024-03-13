@@ -10,6 +10,8 @@ from crm.crm_config.models import GeneralSettings, Log
 
 class BaseOptimaSerializer:
     required_fields = []
+    fields_mapping = {}
+    _fields_updated = []
     model = None
     default_datetime = datetime.datetime(year=1899, month=12, day=30, hour=0, minute=0, second=0, microsecond=0)
 
@@ -21,6 +23,7 @@ class BaseOptimaSerializer:
         self.obj = obj
         if isinstance(obj, self.model):
             self._fields_updated = fields_updated
+            self.required_fields = fields_updated
             self._deserialization = False
         else:
             self._valid = True
@@ -61,6 +64,13 @@ class BaseOptimaSerializer:
             self._valid = True
         return self._valid
 
+    def _get_updated_serializer(self):
+        _updated_serializer = {}
+        for updated_field in self._fields_updated:
+            for field in self.fields_mapping[updated_field]:
+                _updated_serializer[field] = self._data[field]
+        return _updated_serializer
+
     @property
     def _default_db_values(self) -> dict:
         return {}
@@ -69,8 +79,10 @@ class BaseOptimaSerializer:
     def data(self):
         if not self._deserialization:
             if self._data and self._valid:
-                if self._default_db_values:
+                if self._default_db_values and not self._fields_updated:
                     return {**self._data, **self._default_db_values}
+                elif self._fields_updated:
+                    return self._get_updated_serializer()
                 else:
                     return self._data
             else:
