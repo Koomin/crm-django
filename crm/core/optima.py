@@ -45,7 +45,9 @@ class BaseOptimaSerializer:
                     if self._data[field] is not None:
                         pass
                     else:
+                        self._errors.append(f'Field "{field}" is required.')
                         self._data = None
+                        return self._valid
                 except KeyError:
                     self._errors.append(f'Field "{field}" is required.')
                     self._data = None
