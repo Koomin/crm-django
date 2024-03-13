@@ -204,6 +204,10 @@ class ServiceOrder(OptimaModel):
         super().save(fields_changed, with_optima_update, *args, **kwargs)
         if default_stage:
             StageDuration.objects.create(stage=default_stage, start=datetime.datetime.now(), service_order=self)
+        if "stage" in fields_changed:
+            from crm.service.tasks import email_send
+
+            email_send.apply_async(args=[str(self.pk)])
 
 
 class Note(OptimaModel):
@@ -334,3 +338,29 @@ class EmailSent(BaseModel):
     message = models.TextField()
     date_of_sent = models.DateTimeField(null=True, blank=True)
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name="emails_sent")
+    sent = models.BooleanField(default=False)
+
+    def _format_message(self):
+        if self.email_template and self.service_order:
+            import re
+
+            template = self.email_template.template
+            attrs = re.findall(r"{{(.*?)}}", template)
+            for attr in attrs:
+                try:
+                    template = template.replace(f"{{{{ {attr} }}}}", getattr(self.service_order, attr))
+                except Exception as e:
+                    Log.objects.create(
+                        exception_traceback=e,
+                        method_name="_format_message",
+                        model_name=self.__class__.__name__,
+                        object_uuid=self.uuid,
+                    )
+                    return None
+            return template
+        return None
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.message = self._format_message()
+        super().save(*args, **kwargs)

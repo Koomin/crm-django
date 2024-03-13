@@ -1,3 +1,6 @@
+import datetime
+
+from django.core.mail import send_mail
 from django.db.utils import IntegrityError
 
 from config import celery_app
@@ -227,3 +230,55 @@ def create_attributes(service_order_pk):
         Attribute.objects.create(
             attribute_definition=attribute, code=attribute.code, value="", service_order=service_order
         )
+    return
+
+
+@celery_app.task()
+def email_send(service_order_pk):
+    try:
+        service_order = ServiceOrder.objects.get(pk=service_order_pk)
+    except ServiceOrder.DoesNotExist as e:
+        Log.objects.create(
+            exception_traceback=e,
+            method_name="email_send",
+            model_name="ServiceOrder",
+            object_serialized=f"service_order_pk: {service_order_pk}",
+        )
+        return
+    current_stage = service_order.stage
+    if service_order.emails_sent.filter(stage=current_stage).exists():
+        return
+    email_template = current_stage.email_template
+    try:
+        from service.models import EmailSent
+    except ModuleNotFoundError:
+        from crm.service.models import EmailSent
+    email, created = EmailSent.objects.create(
+        service_order=service_order,
+        stage=current_stage,
+        email_template=email_template,
+        subject=email_template.subject,
+        email=service_order.email,
+    )
+    if created and email.message:
+        try:
+            sent = send_mail(
+                html_message=email.message,
+                recipient_list=[
+                    email.email,
+                ],
+                subject=email.subject,
+            )
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="email_send",
+                model_name="EmailSent",
+                object_uuid=email.uuid,
+            )
+        else:
+            if sent:
+                email.sent = sent
+                email.date_of_sent = datetime.datetime.now()
+                email.save()
+    return
