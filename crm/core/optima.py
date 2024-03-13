@@ -35,6 +35,7 @@ class BaseOptimaSerializer:
 
     def is_valid(self, safe=True) -> bool:
         self._data = self._serialize()
+        print(self._data)
         if safe:
             if self.required_fields != "__all__":
                 _fields_to_check = self.required_fields
