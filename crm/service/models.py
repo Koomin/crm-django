@@ -141,7 +141,9 @@ class ServiceOrder(OptimaModel):
                     self.full_number = full_number
                     self.exported = True
                     super().save()
-                    transaction.on_commit(lambda: create_attributes.apply_async(args=[str(self.pk)], countdown=10))
+                    transaction.on_commit(
+                        lambda: create_attributes.apply_async(kwargs={"service_order_pk": str(self.pk)}, countdown=10)
+                    )
 
                     # No need to synchronize since Attributes are not created by Optima itself
                     # synchronize_order.apply_async(args=[str(self.optima_id)])
