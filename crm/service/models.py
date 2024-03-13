@@ -1,7 +1,7 @@
 import datetime
 
 from django.core.exceptions import MultipleObjectsReturned
-from django.db import models
+from django.db import models, transaction
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
@@ -141,8 +141,8 @@ class ServiceOrder(OptimaModel):
                     self.full_number = full_number
                     self.exported = True
                     super().save()
-                    if self.optima_id:
-                        create_attributes.apply_async(args=[str(self.pk)])
+                    transaction.on_commit(create_attributes.apply_async(args=[str(self.pk)]))
+
                     # No need to synchronize since Attributes are not created by Optima itself
                     # synchronize_order.apply_async(args=[str(self.optima_id)])
                 return created, response, serializer.data

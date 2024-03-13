@@ -160,10 +160,6 @@ class AttributeSerializer(BaseOptimaSerializer):
     model = apps.get_model("service", "Attribute")
     required_fields = ["DAt_SrZId", "DAt_DeAId", "DAt_Kod"]
 
-    def __init__(self, obj, fields_updated=None, order_id=None):
-        self._order_id = order_id
-        super().__init__(obj, fields_updated)
-
     def _get_attribute_definition(self):
         try:
             attribute_definition = self.model.objects.get(optima_id=self.obj[2])
@@ -199,7 +195,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _serialize_service_order(self):
         try:
-            return self._order_id if self._order_id else self.obj.servicer_order.optima_id
+            return self.obj.servicer_order.optima_id
         except AttributeError:
             self._valid = False
             return None
