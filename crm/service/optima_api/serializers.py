@@ -472,7 +472,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
         "category": [
             "SrZ_KatID",
         ],
-        "status": [
+        "in_buffer": [
             "SrZ_Bufor",
         ],
         "state": [
@@ -669,8 +669,8 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
-    def _serialize_bufor(self):
-        return 1 if self.obj.status else 0
+    def _serialize_buffer(self):
+        return 1 if self.obj.in_buffer else 0
 
     def _deserialize(self) -> dict:
         return {
@@ -679,7 +679,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "category": self._get_category(),
             "number_scheme": self.obj[3],
             "number": self.obj[4],
-            "status": self._get_status(),
+            "in_buffer": self._get_status(),
             "state": self.obj[6],
             "contractor": self._get_contractor(),
             "user": self._get_user(),
@@ -717,7 +717,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_KatID": self._serialize_category(),
             "SrZ_NumerString": self.obj.number_scheme,
             "SrZ_NumerNr": self.obj.number,
-            "SrZ_Bufor": self._serialize_bufor(),
+            "SrZ_Bufor": self._serialize_buffer(),
             "SrZ_Stan": self.obj.state,
             "SrZ_PodmiotId": self._serialize_contractor(),
             "SrZ_OdbId": self._serialize_contractor(),
