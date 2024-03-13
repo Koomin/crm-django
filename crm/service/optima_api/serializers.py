@@ -158,6 +158,7 @@ class AttributeDefinitionItemSerializer(BaseOptimaSerializer):
 
 class AttributeSerializer(BaseOptimaSerializer):
     model = apps.get_model("service", "Attribute")
+    required_fields = ["DAt_SrZId", "DAt_DeAId", "DAt_Kod"]
 
     def _get_attribute_definition(self):
         try:

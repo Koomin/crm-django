@@ -249,7 +249,7 @@ class Attribute(OptimaModel):
             from crm.service.optima_api.views import AttributeObject
 
         serializer = AttributeSerializer(self)
-        if serializer.is_valid(safe=False):
+        if serializer.is_valid():
             optima_object = AttributeObject()
             created, response = optima_object.post(serializer.data)
             if created and response:
