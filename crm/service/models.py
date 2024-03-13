@@ -114,7 +114,8 @@ class ServiceOrder(OptimaModel):
     def _export_to_optima(self) -> (bool, str, dict):
         from service.optima_api.serializers import ServiceOrderSerializer
         from service.optima_api.views import ServiceOrderObject
-        from service.tasks import create_attributes
+
+        from crm.service.tasks import create_attributes
 
         if self.state != self.States.NEW:
             if not self.number:
