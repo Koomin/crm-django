@@ -217,6 +217,12 @@ class OptimaObject:
                 return False, e
             else:
                 self.connection.commit()
+                Log.objects.create(
+                    status=Log.Status.INFO,
+                    method_name="post",
+                    model_name=self.__class__.__name__,
+                    object_serialized=insert_queryset,
+                )
             return True, optima_id
         elif self._synchronize and not self.connection:
             return False, self._connection_error
@@ -234,6 +240,12 @@ class OptimaObject:
                 return False, e
             else:
                 self.connection.commit()
+                Log.objects.create(
+                    status=Log.Status.INFO,
+                    method_name="put",
+                    model_name=self.__class__.__name__,
+                    object_serialized=update_queryset,
+                )
             return True, "Updated"
         elif self._synchronize and not self.connection:
             return False, self._connection_error
