@@ -231,7 +231,10 @@ class OptimaObject:
             try:
                 self.connection.execute(update_queryset, values)
             except Exception as e:
+                self.connection.rollback()
                 return False, e
+            else:
+                self.connection.commit()
             return True, "Updated"
         elif self._synchronize and not self.connection:
             return False, self._connection_error
