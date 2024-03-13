@@ -201,19 +201,20 @@ class AttributeSerializer(BaseOptimaSerializer):
             return None
 
     def _serialize_value(self):
-        try:
-            val_format = self.obj.attribute_definition.format
-        except AttributeError:
-            self._valid = False
-            return None
-        if val_format == 4 and self.obj.value:
-            delta = (
-                datetime.datetime.strptime(self.obj.value, "%Y-%m-%d")
-                - datetime.datetime(year=1800, month=12, day=28).date
-            )
-            return delta.days
-        else:
-            return self.obj.value or ""
+        # try:
+        #     val_format = self.obj.attribute_definition.format
+        # except AttributeError:
+        #     self._valid = False
+        #     return None
+        # if val_format == 4 and self.obj.value:
+        #     delta = (
+        #         datetime.datetime.strptime(self.obj.value, "%Y-%m-%d")
+        #         - datetime.datetime(year=1800, month=12, day=28).date
+        #     )
+        #     return delta.days
+        # else:
+        #     return self.obj.value or ""
+        return ""
 
     def _deserialize(self) -> dict:
         return {
