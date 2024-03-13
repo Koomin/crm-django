@@ -221,7 +221,7 @@ class OptimaObject:
                     status=Log.Status.INFO,
                     method_name="post",
                     model_name=self.__class__.__name__,
-                    object_serialized=insert_queryset,
+                    object_serialized=insert_queryset + " ,".join(str(_) for _ in obj.values()),
                 )
             return True, optima_id
         elif self._synchronize and not self.connection:
@@ -244,7 +244,7 @@ class OptimaObject:
                     status=Log.Status.INFO,
                     method_name="put",
                     model_name=self.__class__.__name__,
-                    object_serialized=update_queryset,
+                    object_serialized=update_queryset + " ,".join(str(_) for _ in values),
                 )
             return True, "Updated"
         elif self._synchronize and not self.connection:
