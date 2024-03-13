@@ -40,12 +40,17 @@ class GeneralSettings(BaseModel):
 
 
 class Log(BaseModel):
+    class Status(models.IntegerChoices):
+        ERROR = 0, "Error"
+        INFO = 1, "Info"
+
     number = models.IntegerField(unique=True)
     exception_traceback = models.TextField(null=True, blank=True)
     method_name = models.CharField(max_length=255)
     model_name = models.CharField(max_length=255, null=True)
     object_uuid = models.UUIDField(null=True)
     object_serialized = models.TextField(null=True, blank=True)
+    status = models.IntegerField(choices=Status.choices, default=Status.ERROR)
 
     def save(self, *args, **kwargs):
         if not self.pk:

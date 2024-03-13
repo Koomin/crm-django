@@ -197,7 +197,7 @@ class ServiceOrderSerializer(OptimaSerializer):
             "number_scheme",
             "number",
             "full_number",
-            "status",
+            "in_buffer",
             "state",
             "contractor",
             "contractor_name",

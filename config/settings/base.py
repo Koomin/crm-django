@@ -71,6 +71,7 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
+    "drf_api_logger",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",
@@ -148,6 +149,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware",
     "allauth.account.middleware.AccountMiddleware",
 ]
 
@@ -351,3 +353,6 @@ OPTIMA_DB = {
     "UID": env("OPTIMA_USER", default=None),
     "PASSWORD": env("OPTIMA_PASSWORD", default=None),
 }
+
+# drf-api-logger
+DRF_API_LOGGER_DATABASE = True
