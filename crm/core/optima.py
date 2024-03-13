@@ -27,6 +27,10 @@ class BaseOptimaSerializer:
             self._deserialization = True
             self._data = self._deserialize()
 
+    @property
+    def errors(self):
+        return self._errors if not self._valid else 0
+
     def _serialize(self) -> dict:
         pass
 

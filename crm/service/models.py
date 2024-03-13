@@ -1,7 +1,7 @@
 import datetime
 
 from django.core.exceptions import MultipleObjectsReturned
-from django.db import models, transaction
+from django.db import models
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
@@ -105,11 +105,14 @@ class ServiceOrder(OptimaModel):
     order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True, blank=True)
     purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
 
+    def _create_attributes(self):
+        attributes_to_create = AttributeDefinition.objects.filter(is_active=True)
+        for attribute in attributes_to_create:
+            Attribute.objects.create(attribute_definition=attribute, code=attribute.code, value="", service_order=self)
+
     def _export_to_optima(self) -> (bool, str, dict):
         from service.optima_api.serializers import ServiceOrderSerializer
         from service.optima_api.views import ServiceOrderObject
-
-        from crm.service.tasks import create_attributes
 
         if self.state != self.States.NEW:
             if not self.number:
@@ -141,10 +144,7 @@ class ServiceOrder(OptimaModel):
                     self.full_number = full_number
                     self.exported = True
                     super().save()
-                    transaction.on_commit(
-                        lambda: create_attributes.apply_async(kwargs={"service_order_pk": str(self.pk)}, countdown=10)
-                    )
-
+                    self._create_attributes()
                     # No need to synchronize since Attributes are not created by Optima itself
                     # synchronize_order.apply_async(args=[str(self.optima_id)])
                 return created, response, serializer.data
