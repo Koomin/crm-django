@@ -19,3 +19,11 @@ OPTIMA_DB=
 OPTIMA_SERVER=tcp:192.168.0.239
 OPTIMA_USER=sa
 OPTIMA_PASSWORD=
+
+# Email
+# ------------------------------------------------------------------------------
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+DEFAULT_FROM_EMAIL=

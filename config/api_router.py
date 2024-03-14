@@ -18,6 +18,7 @@ from crm.service.api.views import (
     CategoryViewSet,
     DeviceTypeViewSet,
     DeviceViewSet,
+    EmailSentViewSet,
     NewServiceOrderViewSet,
     NoteViewSet,
     OrderTypeViewSet,
@@ -60,6 +61,7 @@ router.register("email-templates", EmailTemplateViewSet)
 router.register("general-settings", GeneralSettingsViewSet)
 router.register("logs", LogViewSet)
 router.register("log-entries", LogEntryViewSet)
+router.register("emails-sent", EmailSentViewSet)
 
 app_name = "api"
 urlpatterns = router.urls
