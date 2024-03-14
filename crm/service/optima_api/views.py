@@ -103,6 +103,8 @@ class ServiceOrderObject(ServiceOptimaObject):
 
 
 class NoteObject(ServiceOptimaObject):
+    table_name = "CDN.SrsNotatki"
+    id_field = "SrN_SrNId"
     get_queryset = (
         "SELECT SRS.SrN_SrNId, SRS.SrN_Lp, SRS.SrN_SerwisantTyp, SRS.SrN_SerwisantId, SRS.SrN_DataDok, SRS.SrN_Tresc, "
         "SRS.SrN_SrZId "

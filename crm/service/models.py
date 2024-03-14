@@ -219,6 +219,25 @@ class Note(OptimaModel):
     description = models.TextField(max_length=1024)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
+    def _export_to_optima(self):
+        try:
+            from service.optima_api.serializers import NoteSerializer
+            from service.optima_api.views import NoteObject
+        except ModuleNotFoundError:
+            from crm.service.optima_api.serializers import NoteSerializer
+            from crm.service.optima_api.views import NoteObject
+
+        serializer = NoteSerializer(self)
+        if serializer.is_valid():
+            optima_object = NoteObject()
+            created, response = optima_object.post(serializer.data)
+            if created and response:
+                self.optima_id = response
+                self.exported = True
+                super().save()
+            return created, response, serializer.data
+        return False, serializer.errors, {}
+
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         if not self.date:
             self.date = timezone.now()
