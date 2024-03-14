@@ -148,7 +148,8 @@ class AttributeDefinitionItemSerializer(BaseOptimaSerializer):
 
     def _get_attribute_definition(self):
         try:
-            attribute_definition = self.model.objects.get(optima_id=self.obj[3])
+            AttributeDefinition = apps.get_model("service", "AttributeDefinition")
+            attribute_definition = AttributeDefinition.objects.get(optima_id=self.obj[3])
         except ObjectDoesNotExist:
             self._valid = False
             return None

@@ -102,8 +102,13 @@ def import_attributes_definition():
                 AttributeDefinitionItem.objects.update_or_create(
                     optima_id=serializer.data.get("optima_id"), defaults=serializer.data
                 )
-            except IntegrityError:
-                pass
+            except IntegrityError as e:
+                Log.objects.create(
+                    exception_traceback=e,
+                    method_name="import_attributes_definition",
+                    model_name="AttributeDefinitionItem",
+                    object_serialized=serializer.data,
+                )
 
 
 @celery_app.task()
