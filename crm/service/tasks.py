@@ -253,22 +253,26 @@ def email_send(service_order_pk):
         from service.models import EmailSent
     except ModuleNotFoundError:
         from crm.service.models import EmailSent
-    email, created = EmailSent.objects.create(
+    email = EmailSent.objects.create(
         service_order=service_order,
         stage=current_stage,
         email_template=email_template,
         subject=email_template.subject,
         email=service_order.email,
     )
-    if created and email.message:
+    if email and email.message:
         try:
             sent = send_mail(
                 html_message=email.message,
+                message=email.message,
+                from_email="no-reply@wagner-polska.com.pl",
                 recipient_list=[
                     email.email,
                 ],
                 subject=email.subject,
+                fail_silently=False,
             )
+            print(sent)
         except Exception as e:
             Log.objects.create(
                 exception_traceback=e,

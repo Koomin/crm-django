@@ -16,6 +16,7 @@ from crm.service.api.serializers import (
     CategorySerializer,
     DeviceSerializer,
     DeviceTypeSerializer,
+    EmailSentSerializer,
     NewServiceOrderSerializer,
     NoteSerializer,
     OrderTypeSerializer,
@@ -32,6 +33,7 @@ from crm.service.models import (
     Category,
     Device,
     DeviceType,
+    EmailSent,
     Note,
     OrderType,
     ServiceActivity,
@@ -68,10 +70,14 @@ class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseVi
     serializer_class = DeviceSerializer
 
 
-class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, BaseViewSet):
+class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, CreateModelMixin, BaseViewSet):
     queryset = Note.objects.all().order_by("-date")
     serializer_class = NoteSerializer
     filterset_fields = ["uuid", "service_order__uuid"]
+
+    def create(self, request, *args, **kwargs):
+        request.data["user"] = self.request.user.pk
+        return super().create(request, *args, **kwargs)
 
 
 class OrderTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
@@ -85,17 +91,21 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
     serializer_class = ServiceOrderSerializer
     filterset_fields = ["uuid", "state"]
 
-    def synchronize(self, uuid):
+    @action(detail=True, methods=["post"])
+    def synchronize(self, request, uuid):
         try:
-            order = self.queryset.filter(uuid=uuid)
+            order = self.queryset.get(uuid=uuid)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             from crm.service.tasks import synchronize_order
 
-            synchronize_order.apply_async(args=[order.optima_id])
-            return Response(status=status.HTTP_200_OK)
+            if order.optima_id:
+                synchronize_order.apply_async(args=[order.optima_id])
+                return Response(status=status.HTTP_200_OK)
+            return Response(data="Zlecenie nie wyeksportowane do Optima", status=status.HTTP_404_NOT_FOUND)
 
+    @action(detail=False, methods=["post"])
     def export(self, uuid):
         try:
             order = self.queryset.filter(uuid=uuid)
@@ -285,3 +295,9 @@ class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, OptimaUpdateModel
         )
         request.data["number"] = last_number + 1
         return super().create(request, *args, **kwargs)
+
+
+class EmailSentViewSet(ListModelMixin, BaseViewSet):
+    queryset = EmailSent.objects.all()
+    serializer_class = EmailSentSerializer
+    filterset_fields = ["uuid", "service_order__uuid"]

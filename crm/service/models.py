@@ -2,6 +2,7 @@ import datetime
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
+from django.utils import timezone
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
@@ -203,20 +204,29 @@ class ServiceOrder(OptimaModel):
             self.contractor_name3 = self.contractor.name3
         super().save(fields_changed, with_optima_update, *args, **kwargs)
         if default_stage:
-            StageDuration.objects.create(stage=default_stage, start=datetime.datetime.now(), service_order=self)
+            StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
         if "stage" in fields_changed:
             from crm.service.tasks import email_send
 
-            email_send.apply_async(args=[str(self.pk)])
+            email_send.apply_async(args=[str(self.pk)], countdown=20)
 
 
 class Note(OptimaModel):
     # Optima table - CDN.SrsNotatki
-    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
-    number = models.IntegerField()
-    date = models.DateTimeField()
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name="notes")
+    number = models.IntegerField(null=True, blank=True)
+    date = models.DateTimeField(null=True, blank=True)
     description = models.TextField(max_length=1024)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
+        if not self.date:
+            self.date = timezone.now()
+        if not self.number:
+            last_number = self.service_order.notes.filter(number__isnull=False).values_list("number", flat=True)
+            last_number = max(last_number) if last_number else 0
+            self.number = last_number + 1
+        super().save(fields_changed, with_optima_update, *args, **kwargs)
 
 
 class AttributeDefinition(OptimaModel):
@@ -269,8 +279,8 @@ class StageDuration(BaseModel):
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        if self.start and self.end:
-            self.duration = self.end - self.start
+        # if self.start and self.end:
+        #     self.duration = self.end - self.start
         super().save(*args, **kwargs)
 
 
@@ -342,13 +352,18 @@ class EmailSent(BaseModel):
 
     def _format_message(self):
         if self.email_template and self.service_order:
+            context = {
+                "stage": self.stage.description,
+                "device": self.service_order.device.name,
+                "uuid": str(self.service_order.uuid),
+            }
             import re
 
             template = self.email_template.template
             attrs = re.findall(r"{{(.*?)}}", template)
             for attr in attrs:
                 try:
-                    template = template.replace(f"{{{{ {attr} }}}}", getattr(self.service_order, attr))
+                    template = template.replace(f"{{{{{attr}}}}}", context.get(attr))
                 except Exception as e:
                     Log.objects.create(
                         exception_traceback=e,

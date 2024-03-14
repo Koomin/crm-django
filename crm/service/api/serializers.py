@@ -14,6 +14,7 @@ from crm.service.models import (
     Category,
     Device,
     DeviceType,
+    EmailSent,
     FormFile,
     Note,
     OrderType,
@@ -364,4 +365,22 @@ class StageDurationSerializer(serializers.ModelSerializer):
             "stage",
             "stage_code",
             "service_order",
+        ]
+
+
+class EmailSentSerializer(serializers.ModelSerializer):
+    stage = serializers.CharField(source="stage.code", read_only=True)
+    service_order = serializers.CharField(source="service_order.full_number", read_only=True)
+
+    class Meta:
+        model = EmailSent
+        fields = [
+            "uuid",
+            "stage",
+            "subject",
+            "message",
+            "date_of_sent",
+            "service_order",
+            "sent",
+            "email",
         ]
