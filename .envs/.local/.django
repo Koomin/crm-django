@@ -27,3 +27,8 @@ EMAIL_PORT=
 EMAIL_HOST_USER=
 EMAIL_HOST_PASSWORD=
 DEFAULT_FROM_EMAIL=
+
+# GUS
+# ------------------------------------------------------------------------------
+BIR_ENDPOINT=
+BIR_API_KEY=

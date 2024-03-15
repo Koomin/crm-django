@@ -356,3 +356,8 @@ OPTIMA_DB = {
 
 # drf-api-logger
 DRF_API_LOGGER_DATABASE = True
+
+# BIR
+# ------------------------------------------------------------------------------
+BIR_API_KEY = env("BIR_API_KEY")
+BIR_ENDPOINT = env("BIR_ENDPOINT")
