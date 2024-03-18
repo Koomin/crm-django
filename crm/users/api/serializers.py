@@ -15,27 +15,7 @@ class TokenWithUserObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         data["user"] = {"first_name": self.user.first_name, "last_name": self.user.last_name}
         # data['permissions'] = self.user.get_permission_table()
-        data["permissions"] = json.dumps(
-            {
-                "models": [
-                    "Dashboard",
-                    "NewCustomers",
-                    "Customers",
-                    "ServiceOrders",
-                    "AcceptedServiceOrders",
-                    "OngoingServiceOrders",
-                    "RejectedServiceOrders",
-                    "ClosedServiceOrders",
-                    "Users",
-                    "Settings",
-                    "Connections",
-                    "Mailing",
-                    "GeneralSettings",
-                    "Logging",
-                ],
-                "actions": {},
-            }
-        )
+        data["permissions"] = json.dumps(self.user.get_permissions())
         return data
 
 
@@ -43,23 +23,7 @@ class TokenWithUserRefreshSerializer(TokenRefreshSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         # data['user'] = {'first_name': self.user.first_name, 'last_name': self.user.last_name}
-        # data['permissions'] = self.user.get_permission_table()
-        data["permissions"] = json.dumps(
-            {
-                "models": [
-                    "Dashboard",
-                    "Customers",
-                    "ServiceOrders",
-                    "NewServiceOrders",
-                    "OngoingServiceOrders",
-                    "RejectedServiceOrders",
-                    "ClosedServiceOrders",
-                    "Users",
-                    "Settings",
-                ],
-                "actions": {},
-            }
-        )
+        data["permissions"] = json.dumps(self.user.get_permissions())
         return data
 
 
