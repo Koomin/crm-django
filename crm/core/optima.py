@@ -31,9 +31,11 @@ class BaseOptimaSerializer:
 
     def _override_required_fields(self):
         new_required_fields = []
-        for field in self._fields_updated:
-            new_required_fields.extend(self.fields_mapping[field])
-        return new_required_fields
+        if self._fields_updated:
+            for field in self._fields_updated:
+                new_required_fields.extend(self.fields_mapping[field])
+            return new_required_fields
+        return self.required_fields
 
     @property
     def errors(self):

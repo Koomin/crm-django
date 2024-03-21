@@ -7,6 +7,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from zeep import Client
 
+from crm.crm_config.api.serializers import CountrySerializer, StateSerializer
+from crm.crm_config.models import Country, State
+
 
 @api_view(http_method_names=["GET"])
 @permission_classes(
@@ -30,13 +33,30 @@ def gus_data_by_tax_id(request, tax_id):
             data = xmltodict.parse(response)
             if data:
                 data = data.get("root").get("dane")
+                state = data.get("Wojewodztwo")
+                country = "POLSKA"
+                try:
+                    state_obj = State.objects.get(name=state)
+                except State.DoesNotExist:
+                    state_obj = ""
+                else:
+                    state_obj = StateSerializer(state_obj).data
+                try:
+                    country_obj = Country.objects.get(name=country)
+                except Country.DoesNotExist:
+                    country_obj = ""
+                else:
+                    country_obj = CountrySerializer(country_obj).data
                 serialized = {
-                    "customer_city": data.get("Miejscowosc"),
-                    "customer_country": "POLSKA",
-                    "customer_street": f"{data.get('Ulica')} {data.get('NrNieruchomosci')}",
-                    "customer_home_number": data.get("NrLokalu"),
-                    "customer_postal_code": data.get("KodPocztowy"),
-                    "customer_name": data.get("Nazwa"),
+                    "contractor_city": data.get("Miejscowosc"),
+                    "contractor_country_obj": country_obj,
+                    "contractor_country": country,
+                    "contractor_street": f"{data.get('Ulica')} {data.get('NrNieruchomosci')}",
+                    "contractor_home_number": data.get("NrLokalu"),
+                    "contractor_postal_code": data.get("KodPocztowy"),
+                    "contractor_name": data.get("Nazwa"),
+                    "contractor_state_obj": state_obj,
+                    "contractor_state": state,
                 }
                 return Response(serialized, status=status.HTTP_200_OK)
-    return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response({}, status=status.HTTP_404_NOT_FOUND)

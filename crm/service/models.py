@@ -205,7 +205,7 @@ class ServiceOrder(OptimaModel):
         super().save(fields_changed, with_optima_update, *args, **kwargs)
         if default_stage:
             StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
-        if "stage" in fields_changed:
+        if fields_changed and "stage" in fields_changed:
             from crm.service.tasks import email_send
 
             email_send.apply_async(args=[str(self.pk)], countdown=20)

@@ -208,8 +208,8 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
 
     def create(self, request, *args, **kwargs):
         # TODO ADD STAGE WHILE CREATING NEW ORDER
-        data = request.data
-        if data.get("tax_number", None):
+        data = request.data.copy()
+        if data.get("tax_number", None) and data.get("tax_number") != "":
             customer_dict = {}
             for k, v in data.items():
                 if "contractor_" in k:
@@ -259,7 +259,9 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             return Response("Nie znaleziono typu zgłoszenia.", status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        return super().create(request, *args, **kwargs)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class AttributeViewSet(ListModelMixin, OptimaUpdateModelMixin, BaseViewSet):
