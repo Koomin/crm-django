@@ -4,8 +4,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_api_key.permissions import HasAPIKey
 
 from crm.contractors.models import Contractor
 from crm.core.api.mixins import OptimaUpdateModelMixin
@@ -66,7 +67,7 @@ class DeviceTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
 class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = Device.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated | HasAPIKey]
     serializer_class = DeviceSerializer
 
 
@@ -81,7 +82,7 @@ class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, Cr
 
 
 class OrderTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated | HasAPIKey]
     queryset = OrderType.objects.all()
     serializer_class = OrderTypeSerializer
 
@@ -204,7 +205,7 @@ class PurchaseDocumentViewSet(ListModelMixin, BaseViewSet):
 class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
     queryset = ServiceOrder.objects.filter(state=99)
     serializer_class = NewServiceOrderSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
     def create(self, request, *args, **kwargs):
         # TODO ADD STAGE WHILE CREATING NEW ORDER

@@ -26,6 +26,7 @@ drf-spectacular==0.26.5  # https://github.com/tfranzel/drf-spectacular
 django-filter==23.5
 djangorestframework-simplejwt==5.3.1
 drf-api-logger==1.1.15
+djangorestframework-api-key==2.3.0
 
 #Optima
 # ------------------------------------------------------------------------------
