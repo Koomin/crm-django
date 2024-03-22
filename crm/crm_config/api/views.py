@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework_api_key.permissions import HasAPIKey
 
 from crm.core.api.views import BaseViewSet
 from crm.crm_config.api.serializers import (
@@ -20,13 +21,13 @@ from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, 
 class CountryViewSet(ListModelMixin, BaseViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
 
 class StateViewSet(ListModelMixin, BaseViewSet):
     queryset = State.objects.all()
     serializer_class = StateSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
 
 class EmailTemplateViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, BaseViewSet):
@@ -38,7 +39,6 @@ class EmailTemplateViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, B
 class GeneralSettingsViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = GeneralSettings.objects.all()
     serializer_class = GeneralSettingsSerializer
-    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         queryset = GeneralSettings.objects.all().first()
@@ -49,16 +49,13 @@ class GeneralSettingsViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
 class LogViewSet(ListModelMixin, BaseViewSet):
     queryset = Log.objects.all()
     serializer_class = LogSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class LogEntryViewSet(ListModelMixin, viewsets.GenericViewSet):
     queryset = LogEntry.objects.all()
     serializer_class = LogEntrySerializer
-    permission_classes = [IsAuthenticated]
 
 
 class TaxPercentageViewSet(ListModelMixin, BaseViewSet):
     queryset = TaxPercentage.objects.all()
     serializer_class = TaxPercentageSerializer
-    permission_classes = [IsAuthenticated]
