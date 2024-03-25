@@ -115,7 +115,7 @@ class OptimaConnection:
                 f"pwd={settings.OPTIMA_DB['PASSWORD']}",
                 autocommit=False,
             )
-        except pyodbc.OperationalError as e:
+        except Exception as e:
             self.cnxn = None
             self.cursor = None
             Log.objects.create(
@@ -143,6 +143,12 @@ class OptimaObject:
             except Exception as e:
                 self._connection_error = e
                 self.connection = None
+                Log.objects.create(
+                    exception_traceback=e,
+                    method_name="__init__",
+                    model_name=self.__class__.__name__,
+                    object_serialized="",
+                )
         else:
             self.connection = None
 
