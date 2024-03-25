@@ -1,5 +1,6 @@
 import datetime
 
+from django.apps import apps
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.utils import timezone
@@ -206,9 +207,15 @@ class ServiceOrder(OptimaModel):
         if default_stage:
             StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
         if fields_changed and "stage" in fields_changed:
-            from crm.service.tasks import email_send
+            general_settings_model = apps.get_model("crm_config", "GeneralSettings")
+            try:
+                general_settings = general_settings_model.objects.first()
+            except general_settings_model.DoesNotExist:
+                general_settings = None
+            if general_settings and general_settings.mailing:
+                from crm.service.tasks import email_send
 
-            email_send.apply_async(args=[str(self.pk)], countdown=20)
+                email_send.apply_async(args=[str(self.pk)], countdown=20)
 
 
 class Note(OptimaModel):
