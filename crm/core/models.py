@@ -12,6 +12,9 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    def save_without_update(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
 
 class OptimaModel(BaseModel):
     optima_id = models.IntegerField(null=True, blank=True, unique=True)
