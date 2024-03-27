@@ -42,6 +42,7 @@ from crm.service.models import (
     Stage,
     StageDuration,
 )
+from crm.shipping.models import Shipping, ShippingAddress
 
 
 class CategoryViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
@@ -209,7 +210,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
 
     def create(self, request, *args, **kwargs):
         # TODO ADD STAGE WHILE CREATING NEW ORDER
-        data = request.data.copy()
+        data = request.data
         if data.get("tax_number", None) and data.get("tax_number") != "":
             customer_dict = {}
             for k, v in data.items():
@@ -246,11 +247,39 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             f'data sprzedaży: {data.get("purchase_date")}\n'
         )
         description += purchase_data
-        address = (
-            f'Adres do wysyłki: ul.{data.get("contractor_street")} {data.get("contractor_home_number")}\n'
-            f'{data.get("contractor_postal_code")} {data.get("contractor_city")}\n'
-            f'{data.get("contractor_country")}\n'
-        )
+        shipping = Shipping()
+        shipping_address = ShippingAddress()
+        if data.get("shipping") == "delivery_company":
+            shipping.default_send = True
+            address = (
+                f'Adres do wysyłki: ul.{data.get("shipping_street")} {data.get("shipping_home_number")}\n'
+                f'{data.get("shipping_postal_code")} {data.get("shipping_city")}\n'
+                f'{data.get("shipping_country")}\n'
+            )
+            shipping_address.city = data.get("shipping_city")
+            shipping_address.country = data.get("shipping_country")
+            shipping_address.country_code = data.get("shipping_country_code")
+            shipping_address.home_number = data.get("shipping_home_number")
+            shipping_address.postal_code = data.get("shipping_postal_code")
+            shipping_address.street = data.get("shipping_street")
+            shipping_address.street_number = data.get("shipping_street_number")
+            shipping_address.name = data.get("contractor_name")
+        else:
+            address = (
+                f'Adres do wysyłki: ul.{data.get("contractor_street")} {data.get("contractor_home_number")}\n'
+                f'{data.get("contractor_postal_code")} {data.get("contractor_city")}\n'
+                f'{data.get("contractor_country")}\n'
+            )
+            shipping_address.city = data.get("contractor_city")
+            shipping_address.country = data.get("contractor_country")
+            shipping_address.country_code = data.get("contractor_country_code")
+            shipping_address.home_number = data.get("contractor_home_number")
+            shipping_address.postal_code = data.get("contractor_postal_code")
+            shipping_address.street = data.get("contractor_street")
+            shipping_address.street_number = data.get("contractor_street_number")
+            shipping_address.name = data.get("contractor_name")
+        shipping_address.save()
+        shipping.address = shipping_address
         description += address
         data["description"] = description
         data["document_date"] = datetime.datetime.now()
@@ -260,7 +289,9 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             return Response("Nie znaleziono typu zgłoszenia.", status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        instance = serializer.save()
+        shipping.service_order = instance
+        shipping.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
