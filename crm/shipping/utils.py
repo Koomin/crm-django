@@ -34,15 +34,15 @@ class GLSClient:
         street = address.street + str(address.street_number) if address.street_number else address.street
         street = street + str(address.home_number) if address.home_number else street
         return {
-            "rname1": obj.name,
+            "rname1": address.name,
             # 'rname2': 'Jan (2)',
             # 'rname3': 'Kowalski (3)',
             "rcountry": address.country.code,
             "rzipcode": address.postal_code,
             "rcity": address.city,
             "rstreet": street,
-            "rphone": obj.phone_number,
-            "rcontact": obj.email,
+            "rphone": obj.service_order.phone_number,
+            "rcontact": obj.service_order.email,
             "references": "crm_service",
             "notes": "Notatka",
             "weight": 1.2,
