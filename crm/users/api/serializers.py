@@ -32,6 +32,8 @@ class TokenWithUserObtainPairSerializer(TokenObtainPairSerializer):
                     "Mailing",
                     "GeneralSettings",
                     "Logging",
+                    "ShipmentsCompleted",
+                    "ShipmentsAwaiting",
                 ],
                 "actions": {},
             }

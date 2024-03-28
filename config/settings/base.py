@@ -94,6 +94,7 @@ LOCAL_APPS = [
     "crm.warehouses",
     "crm.crm_config",
     "crm.products",
+    "crm.shipping",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -362,3 +363,9 @@ DRF_API_LOGGER_DATABASE = True
 # ------------------------------------------------------------------------------
 BIR_API_KEY = env("BIR_API_KEY")
 BIR_ENDPOINT = env("BIR_ENDPOINT")
+
+# GLS
+# ------------------------------------------------------------------------------
+GLS_USERNAME = env("GLS_USERNAME")
+GLS_PASSWORD = env("GLS_PASSWORD")
+GLS_URL = env("GLS_URL")
