@@ -112,7 +112,7 @@ class GLSClient:
             track_ids = []
             parcels = parcel_data.parcels.items
             for parcel in parcels:
-                track_ids.append(parcel.get("number"))
+                track_ids.append(parcel["number"])
             shipping_obj.track_ids = track_ids
             shipping_obj.save().save_without_update()
             return True
