@@ -114,7 +114,7 @@ class GLSClient:
             for parcel in parcels:
                 track_ids.append(parcel["number"])
             shipping_obj.track_ids = track_ids
-            shipping_obj.save().save_without_update()
+            shipping_obj.save_without_update()
             return True
 
     def confirm_shipping(self, shipping_obj):
