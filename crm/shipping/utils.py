@@ -31,8 +31,8 @@ class GLSClient:
 
     def _serializer(self, obj) -> dict:
         address = obj.address
-        street = address.street + address.street_number if address.street_number else address.street
-        street = street + address.home_number if address.home_number else street
+        street = address.street + str(address.street_number) if address.street_number else address.street
+        street = street + str(address.home_number) if address.home_number else street
         return {
             "rname1": obj.name,
             # 'rname2': 'Jan (2)',
