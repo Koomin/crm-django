@@ -28,7 +28,7 @@ from crm.service.api.views import (
     StageDurationViewSet,
     StageViewSet,
 )
-from crm.shipping.api.views import ShippingViewSet
+from crm.shipping.api.views import ShippingAddressViewSet, ShippingViewSet
 from crm.users.api.views import OptimaUserViewSet, UserViewSet
 from crm.warehouses.api.views import WarehouseViewSet
 
@@ -64,6 +64,7 @@ router.register("logs", LogViewSet)
 router.register("log-entries", LogEntryViewSet)
 router.register("emails-sent", EmailSentViewSet)
 router.register("shipping", ShippingViewSet)
+router.register("shipping-address", ShippingAddressViewSet)
 
 app_name = "api"
 urlpatterns = router.urls

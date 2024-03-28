@@ -11,6 +11,7 @@ from rest_framework_api_key.permissions import HasAPIKey
 from crm.contractors.models import Contractor
 from crm.core.api.mixins import OptimaUpdateModelMixin
 from crm.core.api.views import BaseViewSet
+from crm.crm_config.models import Country
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
     AttributeSerializer,
@@ -211,6 +212,13 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
     def create(self, request, *args, **kwargs):
         # TODO ADD STAGE WHILE CREATING NEW ORDER
         data = request.data
+        try:
+            contractor_country = Country.objects.get(uuid=data.get("contractor_country"))
+        except Country.DoesNotExist:
+            contractor_country = None
+            data["contractor_country"] = ""
+        else:
+            data["contractor_country"] = contractor_country.name
         if data.get("tax_number", None) and data.get("tax_number") != "":
             customer_dict = {}
             for k, v in data.items():
@@ -250,29 +258,20 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         shipping = Shipping()
         shipping_address = ShippingAddress()
         if data.get("shipping") == "delivery_company":
+            try:
+                shipping_address.country = Country.objects.get(uuid=data.get("shipping_country"))
+            except Country.DoesNotExist:
+                shipping_address.country = None
             shipping.default_send = True
-            address = (
-                f'Adres do wysyłki: ul.{data.get("shipping_street")} {data.get("shipping_home_number")}\n'
-                f'{data.get("shipping_postal_code")} {data.get("shipping_city")}\n'
-                f'{data.get("shipping_country")}\n'
-            )
             shipping_address.city = data.get("shipping_city")
-            shipping_address.country = data.get("shipping_country")
-            shipping_address.country_code = data.get("shipping_country_code")
             shipping_address.home_number = data.get("shipping_home_number")
             shipping_address.postal_code = data.get("shipping_postal_code")
             shipping_address.street = data.get("shipping_street")
             shipping_address.street_number = data.get("shipping_street_number")
             shipping_address.name = data.get("contractor_name")
         else:
-            address = (
-                f'Adres do wysyłki: ul.{data.get("contractor_street")} {data.get("contractor_home_number")}\n'
-                f'{data.get("contractor_postal_code")} {data.get("contractor_city")}\n'
-                f'{data.get("contractor_country")}\n'
-            )
             shipping_address.city = data.get("contractor_city")
-            shipping_address.country = data.get("contractor_country")
-            shipping_address.country_code = data.get("contractor_country_code")
+            shipping_address.country = contractor_country
             shipping_address.home_number = data.get("contractor_home_number")
             shipping_address.postal_code = data.get("contractor_postal_code")
             shipping_address.street = data.get("contractor_street")
@@ -280,6 +279,10 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             shipping_address.name = data.get("contractor_name")
         shipping_address.save()
         shipping.address = shipping_address
+        address = (
+            f"Adres do wysyłki: ul.{shipping_address.street} {shipping_address.home_number}\n"
+            f"{shipping_address.postal_code} {shipping_address.city}\n{shipping_address.country}\n"
+        )
         description += address
         data["description"] = description
         data["document_date"] = datetime.datetime.now()

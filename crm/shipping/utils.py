@@ -37,7 +37,7 @@ class GLSClient:
             "rname1": obj.name,
             # 'rname2': 'Jan (2)',
             # 'rname3': 'Kowalski (3)',
-            "rcountry": address.country_code,
+            "rcountry": address.country.code,
             "rzipcode": address.postal_code,
             "rcity": address.city,
             "rstreet": street,
@@ -134,3 +134,6 @@ class GLSClient:
             shipping_obj.confirmation_id = confirmed_id
             shipping_obj.save_without_update()
             return True
+
+    def logout(self):
+        self._client.service.adeLogout(**{"session": self._session})

@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from crm.core.models import BaseModel
+from crm.crm_config.models import Country
 from crm.service.models import ServiceOrder
 from crm.shipping.utils import GLSClient
 
@@ -9,8 +10,7 @@ from crm.shipping.utils import GLSClient
 class ShippingAddress(BaseModel):
     name = models.CharField(max_length=1024, null=True, blank=True)
     city = models.CharField(max_length=120, null=True, blank=True)
-    country = models.CharField(max_length=50, null=True, blank=True)
-    country_code = models.CharField(max_length=5, null=False, blank=False)
+    country = models.ForeignKey(Country, null=True, blank=True, on_delete=models.CASCADE)
     street = models.CharField(max_length=200, null=True, blank=True)
     street_number = models.CharField(max_length=12, null=True, blank=True)
     home_number = models.IntegerField(null=True, blank=True)
@@ -40,5 +40,7 @@ class Shipping(BaseModel):
                 if confirmed:
                     self.is_sent = True
                     self.save_without_update()
+                    client.logout()
                     return True
+        client.logout()
         return False
