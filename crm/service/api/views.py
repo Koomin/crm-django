@@ -211,7 +211,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
 
     def create(self, request, *args, **kwargs):
         # TODO ADD STAGE WHILE CREATING NEW ORDER
-        data = request.data
+        data = request.data.copy()
         try:
             contractor_country = Country.objects.get(uuid=data.get("contractor_country"))
         except Country.DoesNotExist:
