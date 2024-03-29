@@ -36,19 +36,23 @@ class Contractor(OptimaModel):
             else:
                 self.name1 = self.name
 
+    def _export_to_optima(self) -> (bool, str, dict):
+        from crm.contractors.optima_api.serializers import ContractorSerializer
+        from crm.contractors.optima_api.views import ContractorObject
+
+        serializer = ContractorSerializer(self)
+        if serializer.is_valid():
+            connection = ContractorObject()
+            created, optima_id = connection.post(serializer.data)
+            if created and optima_id:
+                self.optima_id = optima_id
+                self.exported = True
+                super().save()
+            return created, optima_id, serializer.data
+        return False, serializer.errors, {}
+
     def save(self, *args, **kwargs):
         self._split_contractor_name()
+        if not self.code:
+            self.code = self.tax_number
         super().save(*args, **kwargs)
-        if self.confirmed and not self.exported:
-            from crm.contractors.optima_api.serializers import ContractorSerializer
-            from crm.contractors.optima_api.views import ContractorObject
-
-            serializer = ContractorSerializer(self)
-            if serializer.is_valid():
-                connection = ContractorObject()
-                created, optima_id = connection.post(serializer.data)
-                if created and optima_id:
-                    self.optima_id = optima_id
-                    self.code = self.tax_number
-                    self.exported = True
-                    super().save()

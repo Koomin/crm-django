@@ -47,17 +47,18 @@ def gus_data_by_tax_id(request, tax_id):
                     country_obj = ""
                 else:
                     country_obj = CountrySerializer(country_obj).data
-                serialized = {
-                    "contractor_city": data.get("Miejscowosc"),
-                    "contractor_country_obj": country_obj,
-                    "contractor_country": country_obj.get("uuid"),
-                    "contractor_country_name": country,
-                    "contractor_street": f"{data.get('Ulica')} {data.get('NrNieruchomosci')}",
-                    "contractor_home_number": data.get("NrLokalu"),
-                    "contractor_postal_code": data.get("KodPocztowy"),
-                    "contractor_name": data.get("Nazwa"),
-                    "contractor_state_obj": state_obj,
-                    "contractor_state": state,
-                }
-                return Response(serialized, status=status.HTTP_200_OK)
+                if name := data.get("Nazwa"):
+                    serialized = {
+                        "contractor_city": data.get("Miejscowosc"),
+                        "contractor_country_obj": country_obj,
+                        "contractor_country": country_obj.get("uuid"),
+                        "contractor_country_name": country,
+                        "contractor_street": f"{data.get('Ulica')} {data.get('NrNieruchomosci')}",
+                        "contractor_home_number": data.get("NrLokalu"),
+                        "contractor_postal_code": data.get("KodPocztowy"),
+                        "contractor_name": name,
+                        "contractor_state_obj": state_obj,
+                        "contractor_state": state,
+                    }
+                    return Response(serialized, status=status.HTTP_200_OK)
     return Response({}, status=status.HTTP_404_NOT_FOUND)
