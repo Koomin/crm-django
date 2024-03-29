@@ -50,7 +50,8 @@ def gus_data_by_tax_id(request, tax_id):
                 serialized = {
                     "contractor_city": data.get("Miejscowosc"),
                     "contractor_country_obj": country_obj,
-                    "contractor_country": country,
+                    "contractor_country": country_obj.get("uuid"),
+                    "contractor_country_name": country,
                     "contractor_street": f"{data.get('Ulica')} {data.get('NrNieruchomosci')}",
                     "contractor_home_number": data.get("NrLokalu"),
                     "contractor_postal_code": data.get("KodPocztowy"),
