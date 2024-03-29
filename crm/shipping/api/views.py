@@ -26,7 +26,7 @@ class ShippingViewSet(ListModelMixin, BaseViewSet):
 
     @action(detail=False)
     def awaiting(self, request):
-        qs = self.queryset.filter(is_sent=False)
+        qs = self.queryset.filter(is_sent=False, service_order__full_number__isnull=False)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
