@@ -2,8 +2,8 @@ from rest_framework import serializers
 
 from crm.crm_config.api.serializers import CountrySerializer
 from crm.crm_config.models import Country
-from crm.service.api.serializers import ServiceOrderSerializer
-from crm.shipping.models import Shipping, ShippingAddress
+from crm.service.api.serializers import AttributeDefinition, ServiceOrderSerializer
+from crm.shipping.models import Shipping, ShippingAddress, Status
 
 
 class ShippingAddressSerializer(serializers.ModelSerializer):
@@ -29,3 +29,13 @@ class ShippingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shipping
         fields = ["uuid", "service_order", "label", "track_ids", "default_send", "address", "is_sent"]
+
+
+class StatusSerializer(serializers.ModelSerializer):
+    attribute = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
+    )
+
+    class Meta:
+        model = Status
+        fields = ["uuid", "code", "name", "attribute"]

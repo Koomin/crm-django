@@ -3,7 +3,7 @@ from django.db import models
 
 from crm.core.models import BaseModel
 from crm.crm_config.models import Country
-from crm.service.models import ServiceOrder
+from crm.service.models import AttributeDefinition, ServiceOrder
 from crm.shipping.utils import GLSClient
 
 
@@ -27,6 +27,7 @@ class Shipping(BaseModel):
     track_ids = ArrayField(models.CharField(max_length=12, null=True, blank=True), null=True, blank=True)
     default_send = models.BooleanField(default=False)
     is_sent = models.BooleanField(default=False)
+    delivered = models.BooleanField(default=False)
 
     def send(self):
         if self.is_sent:
@@ -44,3 +45,15 @@ class Shipping(BaseModel):
                     return True
         client.logout()
         return False
+
+
+class Status(BaseModel):
+    code = models.CharField(max_length=25)
+    name = models.CharField(max_length=25)
+    attribute = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class ShippingStatus(BaseModel):
+    status = models.ForeignKey(Status, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True)
+    shipping = models.ForeignKey(Shipping, on_delete=models.CASCADE, related_name="status")
