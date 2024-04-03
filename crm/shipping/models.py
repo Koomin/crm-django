@@ -1,8 +1,11 @@
+import datetime
+
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 
 from crm.core.models import BaseModel
-from crm.crm_config.models import Country
+from crm.crm_config.models import Country, Log
 from crm.service.models import AttributeDefinition, ServiceOrder
 from crm.shipping.utils import GLSClient
 
@@ -55,5 +58,23 @@ class Status(BaseModel):
 
 class ShippingStatus(BaseModel):
     status = models.ForeignKey(Status, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
     shipping = models.ForeignKey(Shipping, on_delete=models.CASCADE, related_name="status")
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.date = datetime.date.today()
+            if self.status.attribute:
+                try:
+                    attribute = self.shipping.service_order.attributes.get(attribute_definition=self.status.attribute)
+                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                    Log.objects.create(
+                        exception_traceback=e,
+                        method_name="save",
+                        model_name=self.__class__.__name__,
+                        object_uuid=self.uuid,
+                    )
+                else:
+                    attribute.value = self.date
+                    attribute.save()
+        super().save(*args, **kwargs)

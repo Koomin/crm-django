@@ -275,7 +275,7 @@ class Attribute(OptimaModel):
     attribute_definition = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE)
     code = models.CharField(max_length=150)
     value = models.CharField(max_length=1024)
-    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, null=True)
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, null=True, related_name="attributes")
 
     def _export_to_optima(self):
         try:
@@ -295,6 +295,21 @@ class Attribute(OptimaModel):
                 super().save()
             return created, response, serializer.data
         return False, serializer.errors, {}
+
+    def _update_optima_obj(self, fields_changed):
+        try:
+            from service.optima_api.serializers import AttributeSerializer
+            from service.optima_api.views import AttributeObject
+        except ModuleNotFoundError:
+            from crm.service.optima_api.serializers import AttributeSerializer
+            from crm.service.optima_api.views import AttributeObject
+
+            serializer = AttributeSerializer(self, fields_changed)
+            if serializer.is_valid():
+                optima_object = AttributeObject()
+                updated, response = optima_object.put(serializer.data, self.optima_id)
+                return updated, response, serializer.data
+            return False, serializer.errors, {}
 
 
 class StageDuration(BaseModel):
