@@ -14,6 +14,7 @@ from crm.core.api.views import BaseViewSet
 from crm.crm_config.models import Country
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
+    AttributeDefinitionSerializer,
     AttributeSerializer,
     CategorySerializer,
     DeviceSerializer,
@@ -31,6 +32,7 @@ from crm.service.api.serializers import (
 )
 from crm.service.models import (
     Attribute,
+    AttributeDefinition,
     AttributeDefinitionItem,
     Category,
     Device,
@@ -309,6 +311,17 @@ class AttributeDefinitionItemViewSet(ListModelMixin, BaseViewSet):
     queryset = AttributeDefinitionItem.objects.all()
     serializer_class = AttributeDefinitionItemSerializer
     filterset_fields = ["uuid", "attribute_definition__uuid"]
+
+
+class AttributeDefinitionViewSet(ListModelMixin, BaseViewSet):
+    queryset = AttributeDefinition.objects.all()
+    serializer_class = AttributeDefinitionSerializer
+
+    @action(detail=False, methods=["get"])
+    def active(self, request):
+        queryset = self.get_queryset().filter(is_active=True)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(data=serializer.data)
 
 
 class StageDurationViewSet(ListModelMixin, BaseViewSet):

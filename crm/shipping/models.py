@@ -1,9 +1,12 @@
+import datetime
+
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 
 from crm.core.models import BaseModel
-from crm.crm_config.models import Country
-from crm.service.models import ServiceOrder
+from crm.crm_config.models import Country, Log
+from crm.service.models import AttributeDefinition, ServiceOrder
 from crm.shipping.utils import GLSClient
 
 
@@ -27,6 +30,7 @@ class Shipping(BaseModel):
     track_ids = ArrayField(models.CharField(max_length=12, null=True, blank=True), null=True, blank=True)
     default_send = models.BooleanField(default=False)
     is_sent = models.BooleanField(default=False)
+    delivered = models.BooleanField(default=False)
 
     def send(self):
         if self.is_sent:
@@ -44,3 +48,33 @@ class Shipping(BaseModel):
                     return True
         client.logout()
         return False
+
+
+class Status(BaseModel):
+    code = models.CharField(max_length=25)
+    name = models.CharField(max_length=25)
+    attribute = models.ForeignKey(AttributeDefinition, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class ShippingStatus(BaseModel):
+    status = models.ForeignKey(Status, on_delete=models.CASCADE)
+    date = models.DateField()
+    shipping = models.ForeignKey(Shipping, on_delete=models.CASCADE, related_name="status")
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.date = datetime.date.today()
+            if self.status.attribute:
+                try:
+                    attribute = self.shipping.service_order.attributes.get(attribute_definition=self.status.attribute)
+                except (ObjectDoesNotExist, MultipleObjectsReturned) as e:
+                    Log.objects.create(
+                        exception_traceback=e,
+                        method_name="save",
+                        model_name=self.__class__.__name__,
+                        object_uuid=self.uuid,
+                    )
+                else:
+                    attribute.value = self.date
+                    attribute.save()
+        super().save(*args, **kwargs)

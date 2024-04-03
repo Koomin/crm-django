@@ -331,6 +331,12 @@ class AttributeSerializer(OptimaSerializer):
         ]
 
 
+class AttributeDefinitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttributeDefinition
+        fields = ["uuid", "code", "type", "format", "is_active"]
+
+
 class AttributeDefinitionItemSerializer(serializers.ModelSerializer):
     attribute_definition = serializers.SlugRelatedField(
         slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False

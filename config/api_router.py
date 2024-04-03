@@ -14,6 +14,7 @@ from crm.documents.api.views import DocumentTypeViewSet
 from crm.products.api.views import ProductViewSet
 from crm.service.api.views import (
     AttributeDefinitionItemViewSet,
+    AttributeDefinitionViewSet,
     AttributeViewSet,
     CategoryViewSet,
     DeviceTypeViewSet,
@@ -28,7 +29,7 @@ from crm.service.api.views import (
     StageDurationViewSet,
     StageViewSet,
 )
-from crm.shipping.api.views import ShippingAddressViewSet, ShippingViewSet
+from crm.shipping.api.views import ShippingAddressViewSet, ShippingStatusViewSet, ShippingViewSet, StatusViewSet
 from crm.users.api.views import OptimaUserViewSet, UserViewSet
 from crm.warehouses.api.views import WarehouseViewSet
 
@@ -54,6 +55,7 @@ router.register("order-types", OrderTypeViewSet)
 router.register("states", StateViewSet)
 router.register("countries", CountryViewSet)
 router.register("attributes", AttributeViewSet)
+router.register("attributes-definition", AttributeDefinitionViewSet)
 router.register("attributes-definition-items", AttributeDefinitionItemViewSet)
 router.register("stage-durations", StageDurationViewSet)
 router.register("service-activities", ServiceActivityViewSet)
@@ -64,7 +66,9 @@ router.register("logs", LogViewSet)
 router.register("log-entries", LogEntryViewSet)
 router.register("emails-sent", EmailSentViewSet)
 router.register("shipping", ShippingViewSet)
-router.register("shipping-address", ShippingAddressViewSet)
+router.register("shipping-addresses", ShippingAddressViewSet)
+router.register("shipping-statuses", ShippingStatusViewSet)
+router.register("statuses", StatusViewSet)
 
 app_name = "api"
 urlpatterns = router.urls

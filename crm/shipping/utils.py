@@ -1,5 +1,6 @@
 import base64
 
+import requests
 from django.conf import settings
 from django.core.files.base import ContentFile
 from zeep import Client
@@ -137,3 +138,57 @@ class GLSClient:
 
     def logout(self):
         self._client.service.adeLogout(**{"session": self._session})
+
+
+class GLSTracking:
+    def __init__(self, obj):
+        self._tracking_numbers = obj.track_ids
+        self._url = settings.GLS_TRACKING_URL
+
+    def _get_status(self, response):
+        data = response.json()
+        try:
+            data = data["tuStatus"][0]["progressBar"]["statusBar"]
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="_get_current_status",
+                model_name=self.__class__.__name__,
+                object_serialized=data,
+            )
+            return None
+        else:
+            return data
+
+    def _get_last_closed(self, response):
+        last_completed = None
+        if response.status_code == 200:
+            data = self._get_status(response)
+            for stage in data:
+                if stage["imageStatus"] == "COMPLETE":
+                    last_completed = stage["status"]
+        return last_completed
+
+    def _get_current_status(self, response):
+        if response.status_code == 200:
+            data = self._get_status(response)
+            for stage in data:
+                if stage["imageStatus"] == "CURRENT":
+                    return stage["status"]
+        return None
+
+    @property
+    def current_status(self):
+        status = {}
+        for number in self._tracking_numbers:
+            response = requests.get(self._url + number)
+            status[number] = self._get_current_status(response)
+        return status
+
+    @property
+    def last_closed(self):
+        status = {}
+        for number in self._tracking_numbers:
+            response = requests.get(self._url + number)
+            status[number] = self._get_last_closed(response)
+        return status
