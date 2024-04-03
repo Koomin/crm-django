@@ -6,8 +6,13 @@ from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 from rest_framework.response import Response
 
 from crm.core.api.views import BaseViewSet
-from crm.shipping.api.serializers import ShippingAddressUpdateSerializer, ShippingSerializer
-from crm.shipping.models import Shipping, ShippingAddress
+from crm.shipping.api.serializers import (
+    ShippingAddressUpdateSerializer,
+    ShippingSerializer,
+    ShippingStatusSerializer,
+    StatusSerializer,
+)
+from crm.shipping.models import Shipping, ShippingAddress, ShippingStatus, Status
 
 
 class ShippingViewSet(ListModelMixin, BaseViewSet):
@@ -56,6 +61,16 @@ class ShippingViewSet(ListModelMixin, BaseViewSet):
         return response
 
 
-class ShippingAddressViewSet(UpdateModelMixin, BaseViewSet):
+class ShippingAddressViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = ShippingAddress.objects.all()
     serializer_class = ShippingAddressUpdateSerializer
+
+
+class StatusViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
+    queryset = Status.objects.all()
+    serializer_class = StatusSerializer
+
+
+class ShippingStatusViewSet(ListModelMixin, BaseViewSet):
+    queryset = ShippingStatus.objects.all()
+    serializer_class = ShippingStatusSerializer
