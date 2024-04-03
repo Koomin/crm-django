@@ -232,9 +232,10 @@ def create_attributes(service_order_pk):
         return
     attributes_to_create = AttributeDefinition.objects.filter(is_active=True)
     for attribute in attributes_to_create:
-        Attribute.objects.create(
-            attribute_definition=attribute, code=attribute.code, value="", service_order=service_order
-        )
+        if not service_order.attributes.filter(attribute_definition=attribute).exists():
+            Attribute.objects.create(
+                attribute_definition=attribute, code=attribute.code, value="", service_order=service_order
+            )
     return
 
 
