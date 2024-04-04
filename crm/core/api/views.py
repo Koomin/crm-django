@@ -14,6 +14,7 @@ class BasePagination(PageNumberPagination):
 class BaseViewSet(viewsets.GenericViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = "uuid"
+    lookup_url_kwarg = "uuid"
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ["uuid"]
     pagination_class = BasePagination
