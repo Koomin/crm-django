@@ -84,6 +84,7 @@ EMAIL_SUBJECT_PREFIX = env(
     default="[CRM] ",
 )
 
+
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL regex.

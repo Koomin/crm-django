@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
+from crm.users.models import OptimaUser
 from crm.users.models import User as UserType
 
 User = get_user_model()
@@ -26,6 +27,13 @@ class TokenWithUserObtainPairSerializer(TokenObtainPairSerializer):
                     "RejectedServiceOrders",
                     "ClosedServiceOrders",
                     "Users",
+                    "Settings",
+                    "Connections",
+                    "Mailing",
+                    "GeneralSettings",
+                    "Logging",
+                    "ShipmentsCompleted",
+                    "ShipmentsAwaiting",
                 ],
                 "actions": {},
             }
@@ -49,6 +57,7 @@ class TokenWithUserRefreshSerializer(TokenRefreshSerializer):
                     "RejectedServiceOrders",
                     "ClosedServiceOrders",
                     "Users",
+                    "Settings",
                 ],
                 "actions": {},
             }
@@ -56,12 +65,31 @@ class TokenWithUserRefreshSerializer(TokenRefreshSerializer):
         return data
 
 
-class UserSerializer(
-    serializers.ModelSerializer[UserType],
-):
+class OptimaUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OptimaUser
+        fields = ["uuid", "name", "code"]
+
+
+class UserSerializer(serializers.ModelSerializer[UserType]):
+    optima_user = serializers.SlugRelatedField(slug_field="uuid", queryset=OptimaUser.objects.all(), read_only=False)
+    optima_user_name = serializers.CharField(source="optima_user.name", read_only=True)
+    optima_user_code = serializers.CharField(source="optima_user.code", read_only=True)
+    optima_user_full = OptimaUserSerializer(source="optima_user", read_only=True)
+
     class Meta:
         model = User
-        fields = ["uuid", "username", "first_name", "last_name", "url"]
+        fields = [
+            "uuid",
+            "username",
+            "first_name",
+            "last_name",
+            "url",
+            "optima_user",
+            "optima_user_code",
+            "optima_user_name",
+            "optima_user_full",
+        ]
 
         extra_kwargs = {
             "url": {"view_name": "api:user-detail", "lookup_field": "uuid"},

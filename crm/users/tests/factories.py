@@ -2,14 +2,33 @@ from collections.abc import Sequence
 from typing import Any
 
 from django.contrib.auth import get_user_model
-from factory import Faker, post_generation
+from factory import Faker, SubFactory, post_generation
 from factory.django import DjangoModelFactory
+
+from crm.users.models import OptimaUser
+
+
+class OptimaUserFactory(DjangoModelFactory):
+    uuid = Faker("uuid4")
+    optima_id = Faker("random_number")
+    name = Faker("name")
+    code = Faker("pystr", max_chars=50)
+    exported = Faker("pybool")
+    created = Faker("date_time_this_year")
+    modified = Faker("date_time_this_year")
+
+    class Meta:
+        model = OptimaUser
 
 
 class UserFactory(DjangoModelFactory):
+    uuid = Faker("uuid4")
     username = Faker("user_name")
     email = Faker("email")
-    name = Faker("name")
+    first_name = Faker("first_name")
+    last_name = Faker("first_name")
+    optima_user = SubFactory(OptimaUserFactory)
+    created = Faker("date_time_this_year")
 
     @post_generation
     def password(self, create: bool, extracted: Sequence[Any], **kwargs):
