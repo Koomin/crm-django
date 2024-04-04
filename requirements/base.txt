@@ -25,7 +25,12 @@ django-cors-headers==4.3.1  # https://github.com/adamchainz/django-cors-headers
 drf-spectacular==0.26.5  # https://github.com/tfranzel/drf-spectacular
 django-filter==23.5
 djangorestframework-simplejwt==5.3.1
+drf-api-logger==1.1.15
+djangorestframework-api-key==2.3.0
 
 #Optima
 # ------------------------------------------------------------------------------
 pyodbc==5.0.1
+
+zeep==4.2.1
+xmltodict==0.13.0

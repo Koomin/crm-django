@@ -13,7 +13,7 @@ class ContractorViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, Ba
 
     @action(detail=False)
     def confirmed(self, request):
-        qs = self.queryset.filter(confirmed=True)
+        qs = self.get_queryset().filter(confirmed=True)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -23,7 +23,7 @@ class ContractorViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, Ba
 
     @action(detail=False)
     def unconfirmed(self, request):
-        qs = self.queryset.filter(confirmed=False)
+        qs = self.get_queryset().filter(confirmed=False)
         page = self.paginate_queryset(qs)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

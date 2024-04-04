@@ -7,7 +7,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from crm.core.api.views import BaseViewSet
 
-from .serializers import TokenWithUserObtainPairSerializer, TokenWithUserRefreshSerializer, UserSerializer
+from ..models import OptimaUser
+from .serializers import (
+    OptimaUserSerializer,
+    TokenWithUserObtainPairSerializer,
+    TokenWithUserRefreshSerializer,
+    UserSerializer,
+)
 
 User = get_user_model()
 
@@ -16,14 +22,15 @@ class UserViewSet(CreateModelMixin, RetrieveModelMixin, ListModelMixin, UpdateMo
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
-    # def get_queryset(self, *args, **kwargs):
-    #     assert isinstance(self.request.user.id, int)
-    #     return self.queryset.filter(id=self.request.user.id)
-
     @action(detail=False)
     def me(self, request):
         serializer = UserSerializer(request.user, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+class OptimaUserViewSet(ListModelMixin, BaseViewSet):
+    serializer_class = OptimaUserSerializer
+    queryset = OptimaUser.objects.all()
 
 
 class TokenWithUserObtainPairView(TokenObtainPairView):
