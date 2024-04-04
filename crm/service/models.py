@@ -81,7 +81,7 @@ class ServiceOrder(OptimaModel):
     contractor_name2 = models.CharField(max_length=1024, null=True, blank=True)
     contractor_name3 = models.CharField(max_length=1024, null=True, blank=True)
     contractor_city = models.CharField(max_length=120, null=True, blank=True)
-    contractor_country = models.CharField(max_length=50, null=True, blank=True)
+    contractor_country = models.CharField(max_length=250, null=True, blank=True)
     contractor_street = models.CharField(max_length=200, null=True, blank=True)
     contractor_street_number = models.CharField(max_length=12, null=True, blank=True)
     contractor_home_number = models.IntegerField(null=True, blank=True)
