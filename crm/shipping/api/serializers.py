@@ -32,7 +32,7 @@ class ShippingStatusRelatedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShippingStatus
-        fields = ["uuid", "status", "status_code", "status_name", "status_attribute"]
+        fields = ["uuid", "status", "status_code", "status_name", "status_attribute", "date"]
 
 
 class ShippingAddressSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class ShippingAddressUpdateSerializer(serializers.ModelSerializer):
 class ShippingSerializer(serializers.ModelSerializer):
     address = ShippingAddressSerializer(read_only=True)
     service_order = ServiceOrderSerializer(read_only=True)
-    status = ShippingStatusRelatedSerializer(read_only=True)
+    status = ShippingStatusRelatedSerializer(many=True, read_only=True)
 
     class Meta:
         model = Shipping
