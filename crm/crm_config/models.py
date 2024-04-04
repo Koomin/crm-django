@@ -35,8 +35,8 @@ class GeneralSettings(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.pk and GeneralSettings.objects.exists():
-            return ValidationError("Only one settings can be saved")
-        return super().save(*args, **kwargs)
+            raise ValidationError("Only one settings can be saved")
+        super().save(*args, **kwargs)
 
 
 class Log(BaseModel):
@@ -58,5 +58,4 @@ class Log(BaseModel):
                 self.number = Log.objects.last().number + 1
             else:
                 self.number = 1
-
         super().save(*args, **kwargs)

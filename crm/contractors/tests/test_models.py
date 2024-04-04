@@ -25,7 +25,7 @@ class ContractorTest(TestCase):
         return contractor
 
     def test_split_name_contractor(self):
-        lengths = [10, 49, 50, 75, 100, 125]
+        lengths = [10, 49, 50, 51, 75, 100, 125]
         for i in lengths:
             name = self.random_name(i)
             contractor = self.create_contractor_name(name)
