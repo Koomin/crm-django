@@ -9,6 +9,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 
 from crm.users.api.views import TokenWithUserObtainPairView, TokenWithUserRefreshView
+from crm.utils.views import gus_data_by_tax_id
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
@@ -33,6 +34,7 @@ urlpatterns += [
     path("api/v1/token/", TokenWithUserObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/v1/token/refresh/", TokenWithUserRefreshView.as_view(), name="token_refresh"),
     path("api/v1/schema/", SpectacularAPIView.as_view(), name="api-schema"),
+    path("api/v1/gus/<int:tax_id>/", gus_data_by_tax_id, name="gus"),
     path(
         "api/v1/docs/",
         SpectacularSwaggerView.as_view(url_name="api-schema"),

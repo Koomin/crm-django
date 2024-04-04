@@ -20,4 +20,5 @@ def import_users():
     users = user_object.get()
     for obj in users:
         serializer = UserOptimaSerializer(obj)
-        OptimaUser.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
+        if serializer.data:
+            OptimaUser.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
