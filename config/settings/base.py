@@ -71,6 +71,7 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
+    "drf_api_logger",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",
@@ -79,16 +80,21 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
     "rest_framework",
     "rest_framework.authtoken",
+    "rest_framework_api_key",
     "corsheaders",
     "drf_spectacular",
 ]
 
 LOCAL_APPS = [
+    "crm.core",
     "crm.users",
     "crm.contractors",
     "crm.documents",
     "crm.service",
     "crm.warehouses",
+    "crm.crm_config",
+    "crm.products",
+    "crm.shipping",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -145,6 +151,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware",
     "allauth.account.middleware.AccountMiddleware",
 ]
 
@@ -287,10 +294,10 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#task-time-limit
 # TODO: set to whatever value is adequate in your circumstances
-CELERY_TASK_TIME_LIMIT = 5 * 60
+CELERY_TASK_TIME_LIMIT = 120 * 60
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#task-soft-time-limit
 # TODO: set to whatever value is adequate in your circumstances
-CELERY_TASK_SOFT_TIME_LIMIT = 60
+CELERY_TASK_SOFT_TIME_LIMIT = 60 * 60
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#beat-scheduler
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-send-task-events
@@ -322,6 +329,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -329,6 +337,7 @@ REST_FRAMEWORK = {
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
 CORS_URLS_REGEX = r"^/api/.*$"
+CORS_ORIGIN_ALLOW_ALL = True
 
 # By Default swagger ui is available only to admin user(s). You can change permission classes to change that
 # See more configuration options at https://drf-spectacular.readthedocs.io/en/latest/settings.html#settings
@@ -340,3 +349,24 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+OPTIMA_DB = {
+    "SERVER": env("OPTIMA_SERVER", default=None),
+    "DATABASE": env("OPTIMA_DB", default=None),
+    "UID": env("OPTIMA_USER", default=None),
+    "PASSWORD": env("OPTIMA_PASSWORD", default=None),
+}
+
+# drf-api-logger
+DRF_API_LOGGER_DATABASE = True
+
+# BIR
+# ------------------------------------------------------------------------------
+BIR_API_KEY = env("BIR_API_KEY")
+BIR_ENDPOINT = env("BIR_ENDPOINT")
+
+# GLS
+# ------------------------------------------------------------------------------
+GLS_USERNAME = env("GLS_USERNAME")
+GLS_PASSWORD = env("GLS_PASSWORD")
+GLS_URL = env("GLS_URL")
+GLS_TRACKING_URL = env("GLS_TRACKING_URL")
