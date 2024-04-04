@@ -24,6 +24,17 @@ class ShippingStatusSerializer(serializers.ModelSerializer):
         fields = ["uuid", "status", "date"]
 
 
+class ShippingStatusRelatedSerializer(serializers.ModelSerializer):
+    status = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
+    status_code = serializers.CharField(source="status.code", read_only=True)
+    status_name = serializers.CharField(source="status.name", read_only=True)
+    status_attribute = serializers.CharField(source="status.attribute.uuid", read_only=True)
+
+    class Meta:
+        model = ShippingStatus
+        fields = ["uuid", "status", "status_code", "status_name", "status_attribute"]
+
+
 class ShippingAddressSerializer(serializers.ModelSerializer):
     country = CountrySerializer(read_only=False)
 
@@ -43,7 +54,7 @@ class ShippingAddressUpdateSerializer(serializers.ModelSerializer):
 class ShippingSerializer(serializers.ModelSerializer):
     address = ShippingAddressSerializer(read_only=True)
     service_order = ServiceOrderSerializer(read_only=True)
-    status = ShippingStatusSerializer(read_only=True)
+    status = ShippingStatusRelatedSerializer(read_only=True)
 
     class Meta:
         model = Shipping
