@@ -12,3 +12,30 @@ REDIS_URL=redis://redis:6379/0
 # Flower
 CELERY_FLOWER_USER=FTQODpZuzoYCKhiIutjtbDCiJXhoCyMN
 CELERY_FLOWER_PASSWORD=rarsBTWErezBjy2AJw0n8RycUKA6Ol54dNZ0LbVgOtUQjtpzgQDg5nL2P7oLlBdF
+
+#Optima
+# ------------------------------------------------------------------------------
+OPTIMA_DB=
+OPTIMA_SERVER=tcp:192.168.0.239
+OPTIMA_USER=sa
+OPTIMA_PASSWORD=
+
+# Email
+# ------------------------------------------------------------------------------
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+DEFAULT_FROM_EMAIL=
+
+# GUS
+# ------------------------------------------------------------------------------
+BIR_ENDPOINT=
+BIR_API_KEY=
+
+# GLS
+# ------------------------------------------------------------------------------
+GLS_USERNAME=
+GLS_PASSWORD=
+GLS_URL=
+GLS_TRACKING_URL=
