@@ -29,6 +29,7 @@ class User(AbstractUser):
     first_name = CharField(_("Name of User"), blank=True, max_length=255)
     last_name = CharField(_("Last Name of User"), blank=True, max_length=255)
     optima_user = OneToOneField(OptimaUser, on_delete=models.CASCADE, null=True, related_name="user")
+    created = models.DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self) -> str:
         """Get URL for user's detail view.

@@ -10,4 +10,5 @@ def import_document_types():
     document_types = document_type_object.get()
     for obj in document_types:
         serializer = DocumentTypeSerializer(obj)
-        DocumentType.objects.create(**serializer.data)
+        if serializer.data:
+            DocumentType.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)

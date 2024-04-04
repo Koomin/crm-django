@@ -10,4 +10,5 @@ def import_contractors():
     contractors = contractor_object.get()
     for obj in contractors:
         serializer = ContractorSerializer(obj)
-        Contractor.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
+        if serializer.data:
+            Contractor.objects.update_or_create(optima_id=serializer.data.get("optima_id"), defaults=serializer.data)
