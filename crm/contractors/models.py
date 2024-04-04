@@ -8,7 +8,7 @@ class Contractor(OptimaModel):
     postal_code = models.CharField(max_length=20)
     tax_number = models.CharField(max_length=30)
     phone_number = models.CharField(max_length=30)
-    country = models.CharField(max_length=50)
+    country = models.CharField(max_length=250)
     city = models.CharField(max_length=120)
     street = models.CharField(max_length=200)
     street_number = models.CharField(max_length=12)
