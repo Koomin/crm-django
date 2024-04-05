@@ -1,12 +1,10 @@
 from factory import Faker
-from factory.django import DjangoModelFactory
 
 from crm.contractors.models import Contractor
+from crm.core.tests.factories import OptimaModelFactory
 
 
-class ContractorFactory(DjangoModelFactory):
-    uuid = Faker("uuid4")
-    optima_id = Faker("random_number")
+class ContractorFactory(OptimaModelFactory):
     code = Faker("pystr", max_chars=120)
     postal_code = Faker("pystr", max_chars=20)
     tax_number = Faker("random_number")
@@ -19,9 +17,6 @@ class ContractorFactory(DjangoModelFactory):
     state = Faker("pystr")
     name = Faker("company")
     confirmed = Faker("pybool")
-    exported = Faker("pybool")
-    created = Faker("date_time_this_year")
-    modified = Faker("date_time_this_year")
 
     class Meta:
         model = Contractor
