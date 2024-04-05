@@ -93,3 +93,12 @@ The following details how to deploy this application.
 ### Docker
 
 See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
+
+### APIKey
+
+<b>To generate ApiKey :</b>
+> from rest_framework_api_key.models import APIKey
+>
+> api_key, key = APIKey.objects.create_key(name="my-remote-service")
+
+See detailed [djangorestframework-api-key documentation](https://florimondmanca.github.io/djangorestframework-api-key/).
