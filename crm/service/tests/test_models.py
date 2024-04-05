@@ -26,11 +26,8 @@ class StageTest(TestCase):
 
 
 class ServiceActivityTest(TestCase):
-    def create_service(self):
-        return ServiceActivityFactory()
-
-    def create_service_empty(self):
-        return ServiceActivityFactory(date_from=None, date_to=None)
+    def create_service(self, **kwargs):
+        return ServiceActivityFactory(**kwargs)
 
     def test_save(self):
         service_activity = self.create_service()
@@ -40,7 +37,7 @@ class ServiceActivityTest(TestCase):
         self.assertIsInstance(service_activity.date_to, datetime.datetime)
 
     def test_save_without_dates(self):
-        service_activity = self.create_service_empty()
+        service_activity = self.create_service(date_from=None, date_to=None)
         self.assertIsNotNone(service_activity.date_from)
         self.assertIsNotNone(service_activity.date_to)
         self.assertIsInstance(service_activity.date_from, datetime.datetime)

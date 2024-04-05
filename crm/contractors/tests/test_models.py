@@ -12,23 +12,19 @@ class ContractorTest(TestCase):
         name = "".join(random.choice(letters) for _ in range(length))
         return name
 
-    def create_contractor_name(self, name):
+    def create_contractor(self, **kwargs):
         contractor = ContractorFactory()
-        contractor.name = name
-        contractor.save()
-        return contractor
-
-    def create_contractor_code(self):
-        contractor = ContractorFactory()
-        contractor.code = None
-        contractor.save()
+        if kwargs:
+            for key, value in kwargs.items():
+                setattr(contractor, key, value)
+            contractor.save()
         return contractor
 
     def test_split_name_contractor(self):
         lengths = [10, 49, 50, 51, 75, 100, 125]
         for i in lengths:
             name = self.random_name(i)
-            contractor = self.create_contractor_name(name)
+            contractor = self.create_contractor(name=name)
             name1 = contractor.name
             name2 = None
             name3 = None
@@ -46,9 +42,9 @@ class ContractorTest(TestCase):
             self.assertEqual(contractor.name3, name3)
 
     def test_code_contractor(self):
-        contractor = self.create_contractor_code()
+        contractor = self.create_contractor(code=None)
         self.assertEqual(contractor.code, contractor.tax_number)
 
     def test_str_contractor(self):
-        contractor = ContractorFactory()
+        contractor = self.create_contractor()
         self.assertEqual(contractor.name, contractor.__str__())
