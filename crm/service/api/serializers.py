@@ -4,7 +4,7 @@ from crm.contractors.models import Contractor
 from crm.core.api.fields import FileBase64Field, FileTypeField
 from crm.core.api.serializers import OptimaSerializer
 from crm.crm_config.api.serializers import EmailTemplateSerializer
-from crm.crm_config.models import EmailTemplate
+from crm.crm_config.models import EmailTemplate, TaxPercentage
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.service.models import (
@@ -98,6 +98,9 @@ class ServiceActivitySerializer(OptimaSerializer):
     )
     date_from = serializers.DateTimeField(format="%Y-%m-%d", required=False)
     date_to = serializers.DateTimeField(format="%Y-%m-%d", required=False)
+    tax_percentage = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=TaxPercentage.objects.all(), read_only=False
+    )
 
     class Meta:
         model = ServiceActivity
@@ -122,6 +125,8 @@ class ServiceActivitySerializer(OptimaSerializer):
             "value_gross",
             "unit",
             "service_order",
+            "tax_percentage",
+            "service_cost",
         ]
 
 

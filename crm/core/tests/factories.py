@@ -1,4 +1,4 @@
-from factory import Faker
+from factory import Faker, Sequence
 from factory.django import DjangoModelFactory
 
 
@@ -9,5 +9,5 @@ class BaseModelFactory(DjangoModelFactory):
 
 
 class OptimaModelFactory(BaseModelFactory):
-    optima_id = Faker("random_number")
+    optima_id = Sequence(lambda n: "%09d" % n)
     exported = Faker("pybool")

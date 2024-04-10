@@ -362,14 +362,41 @@ class ServiceActivity(OptimaModel):
     date_from = models.DateTimeField(null=True, blank=True)
     date_to = models.DateTimeField(null=True, blank=True)
     price_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    price_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    price_discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_gross = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    price_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     service_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    value_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    value_gross = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    value_net = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    value_gross = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     tax_percentage = models.ForeignKey(TaxPercentage, on_delete=models.CASCADE, null=True, blank=True)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quantity = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     unit = models.CharField(max_length=10, null=True, blank=True)
+
+    def _export_to_optima(self):
+        try:
+            from service.optima_api.serializers import ServiceActivitySerializer
+            from service.optima_api.views import ServiceActivityObject
+        except ModuleNotFoundError:
+            from crm.service.optima_api.serializers import ServiceActivitySerializer
+            from crm.service.optima_api.views import ServiceActivityObject
+
+        serializer = ServiceActivitySerializer(self)
+        if serializer.is_valid():
+            optima_object = ServiceActivityObject()
+            created, response = optima_object.post(serializer.data)
+            if created and response:
+                self.optima_id = response
+                self.exported = True
+                super().save()
+            return created, response, serializer.data
+        return False, serializer.errors, {}
+
+    def calculations(self):
+        if self.price_net and self.tax_percentage:
+            self.price_gross = self.price_net + self.price_net * (100 + self.tax_percentage.value) / 100
+        if self.price_net and self.quantity:
+            self.value_net = self.price_net * self.quantity
+        if self.price_gross and self.quantity:
+            self.value_gross = self.price_gross * self.quantity
 
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         if not self.pk:
@@ -378,6 +405,9 @@ class ServiceActivity(OptimaModel):
                 self.date_from = now_date
             if not self.date_to:
                 self.date_to = now_date
+        if self.product:
+            self.unit = self.product.unit
+        self.calculations()
         super().save(fields_changed, with_optima_update, *args, **kwargs)
 
 

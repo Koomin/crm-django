@@ -9,6 +9,7 @@ from crm.crm_config.api.views import (
     LogEntryViewSet,
     LogViewSet,
     StateViewSet,
+    TaxPercentageViewSet,
 )
 from crm.documents.api.views import DocumentTypeViewSet
 from crm.products.api.views import ProductViewSet
@@ -69,6 +70,7 @@ router.register("shipping", ShippingViewSet)
 router.register("shipping-addresses", ShippingAddressViewSet)
 router.register("shipping-statuses", ShippingStatusViewSet)
 router.register("statuses", StatusViewSet)
+router.register("taxes", TaxPercentageViewSet)
 
 app_name = "api"
 urlpatterns = router.urls
