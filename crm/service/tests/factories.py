@@ -112,13 +112,13 @@ class ServiceActivityFactory(OptimaModelFactory):
     date_from = Faker("date_time_this_year")
     date_to = Faker("date_time_this_year")
     price_net = Faker("pydecimal", left_digits=8, right_digits=2)
-    price_gross = Faker("pydecimal", left_digits=8, right_digits=2)
+    price_gross = Faker("pydecimal", left_digits=10, right_digits=2)
     price_discount = Faker("pydecimal", left_digits=8, right_digits=2)
     service_cost = Faker("pydecimal", left_digits=8, right_digits=2)
-    value_net = Faker("pydecimal", left_digits=8, right_digits=2)
-    value_gross = Faker("pydecimal", left_digits=8, right_digits=2)
+    value_net = Faker("pydecimal", left_digits=18, right_digits=2)
+    value_gross = Faker("pydecimal", left_digits=18, right_digits=2)
     tax_percentage = SubFactory(TaxPercentageFactory)
-    quantity = Faker("pydecimal", left_digits=8, right_digits=2)
+    quantity = Faker("pydecimal", left_digits=4, right_digits=2)
     unit = Faker("pystr", max_chars=10)
 
     class Meta:

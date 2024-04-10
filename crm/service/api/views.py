@@ -340,10 +340,12 @@ class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, OptimaUpdateModel
             service_order = ServiceOrder.objects.get(uuid=request.data["service_order"])
         except ServiceOrder.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        last_number = max(
-            service_order.service_activities.filter(number__isnull=False).values_list("number", flat=True)
+        all_activities_numbers = service_order.service_activities.filter(number__isnull=False).values_list(
+            "number", flat=True
         )
+        last_number = max(all_activities_numbers) if all_activities_numbers else 0
         request.data["number"] = last_number + 1
+        request.data["user"] = request.user.optima_user.uuid
         return super().create(request, *args, **kwargs)
 
 
