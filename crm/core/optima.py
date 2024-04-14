@@ -150,6 +150,7 @@ class OptimaObject:
                     object_serialized="",
                 )
         else:
+            self._connection_error = "Synchronization is disabled."
             self.connection = None
 
     def _get_synchronize(self):
