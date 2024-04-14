@@ -304,12 +304,12 @@ class Attribute(OptimaModel):
             from crm.service.optima_api.serializers import AttributeSerializer
             from crm.service.optima_api.views import AttributeObject
 
-            serializer = AttributeSerializer(self, fields_changed)
-            if serializer.is_valid():
-                optima_object = AttributeObject()
-                updated, response = optima_object.put(serializer.data, self.optima_id)
-                return updated, response, serializer.data
-            return False, serializer.errors, {}
+        serializer = AttributeSerializer(self, fields_changed)
+        if serializer.is_valid():
+            optima_object = AttributeObject()
+            updated, response = optima_object.put(serializer.data, self.optima_id)
+            return updated, response, serializer.data
+        return False, serializer.errors, {}
 
 
 class StageDuration(BaseModel):
@@ -320,8 +320,8 @@ class StageDuration(BaseModel):
     service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        # if self.start and self.end:
-        #     self.duration = self.end - self.start
+        if self.start and self.end:
+            self.duration = self.end - self.start
         super().save(*args, **kwargs)
 
 
