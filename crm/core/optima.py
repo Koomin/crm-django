@@ -140,6 +140,8 @@ class OptimaObject:
         if self._synchronize:
             try:
                 self.connection = OptimaConnection(database).cursor
+                if not self.connection:
+                    raise Exception("Connection error")
             except Exception as e:
                 self._connection_error = e
                 self.connection = None
