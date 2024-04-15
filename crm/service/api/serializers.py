@@ -248,7 +248,6 @@ class ServiceOrderSerializer(OptimaSerializer):
             "form_files",
             "service_parts",
             "service_activities",
-            # "zip_files",
         ]
 
 
