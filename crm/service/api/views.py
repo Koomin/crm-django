@@ -1,8 +1,11 @@
 import datetime
+import io
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -199,6 +202,30 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
         serializer = self.get_serializer(qs, many=True)
         return Response(data=serializer.data)
 
+    @action(detail=True, methods=["get"])
+    def images(self, request, uuid):
+        obj = get_object_or_404(ServiceOrder, uuid=uuid)
+        form_files = obj.form_files.all()
+        mem_zip = io.BytesIO()
+        filename = (
+            f"{obj.full_number}_{datetime.datetime.now()}.zip"
+            if obj.full_number
+            else f"_{datetime.datetime.now()}.zip"
+        )
+        import zipfile
+
+        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for f in form_files:
+                file_to_zip = open(f.file.path, "rb")
+                try:
+                    zf.writestr(f.file.name.split("/")[-1], file_to_zip.getvalue())
+                except AttributeError:
+                    zf.writestr(f.file.name.split("/")[-1], file_to_zip.read())
+        mem_zip = mem_zip.getvalue()
+        response = HttpResponse(mem_zip, content_type="application/force-download")
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response
+
 
 class PurchaseDocumentViewSet(ListModelMixin, BaseViewSet):
     queryset = ServiceOrder.objects.filter(purchase_document__isnull=False)
@@ -259,7 +286,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         description += purchase_data
         shipping = Shipping()
         shipping_address = ShippingAddress()
-        if data.get("shipping") == "delivery_company":
+        if data.get("shipping") == "delivery_company" and data.get("shipping_country"):
             try:
                 shipping_address.country = Country.objects.get(uuid=data.get("shipping_country"))
             except Country.DoesNotExist:
