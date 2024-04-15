@@ -127,6 +127,6 @@ class ServiceActivityObject(ServiceOptimaObject):
         "SELECT SRS.SrY_SrYId, SRS.SrY_SrZId, SRS.SrY_Lp, SRS.SrY_TwrId, SRS.SrY_SerwisantId, SRS.SrY_Zakonczona, "
         "SRS.SrY_Fakturowac, SRS.SrY_DataWykonania, SRS.SrY_TerminOd, SRS.SrY_TerminDo, SRS.SrY_Rabat, "
         "SRS.SrY_CenaNetto, SRS.SrY_CenaBrutto, SRS.SrY_Ilosc, SRS.SrY_WartoscNetto, "
-        "SRS.SrY_WartoscBrutto, SRS.SrY_JM "
+        "SRS.SrY_WartoscBrutto, SRS.SrY_JM, SrY_Stawka "
         "FROM CDN.SrsCzynnosci as SRS WHERE SRS.SrY_SrZId = {0}"
     )

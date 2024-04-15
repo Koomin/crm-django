@@ -375,6 +375,14 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
+    def _get_tax_percentage(self):
+        try:
+            TaxPercentage = apps.get_model("crm_config", "TaxPercentage")
+            return TaxPercentage.objects.get(value=self.obj[17])
+        except TaxPercentage.DoesNotExist:
+            self._valid = False
+            return None
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -394,7 +402,7 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
             "value_net": self.obj[14],
             "value_gross": self.obj[15],
             "unit": self.obj[16],
-            "tax_percentage": self.obj[17],
+            "tax_percentage": self._get_tax_percentage(),
         }
 
     def _serialize(self) -> dict:
