@@ -100,7 +100,7 @@ class NoteSerializer(BaseOptimaSerializer):
 
     def _serialize_service_order(self):
         try:
-            return self.obj.servicer_order.optima_id
+            return self.obj.service_order.optima_id
         except AttributeError:
             self._valid = False
             return None
