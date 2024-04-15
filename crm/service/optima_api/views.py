@@ -122,6 +122,7 @@ class ServicePartObject(ServiceOptimaObject):
 
 
 class ServiceActivityObject(ServiceOptimaObject):
+    table_name = "CDN.SrsCzynnosci"
     get_queryset = (
         "SELECT SRS.SrY_SrYId, SRS.SrY_SrZId, SRS.SrY_Lp, SRS.SrY_TwrId, SRS.SrY_SerwisantId, SRS.SrY_Zakonczona, "
         "SRS.SrY_Fakturowac, SRS.SrY_DataWykonania, SRS.SrY_TerminOd, SRS.SrY_TerminDo, SRS.SrY_Rabat, "

@@ -1,6 +1,6 @@
 from config import celery_app
 from crm.crm_config.models import Log
-from crm.service.models import Shipping, ShippingStatus, Status
+from crm.shipping.models import Shipping, ShippingStatus, Status
 from crm.shipping.utils import GLSTracking
 
 

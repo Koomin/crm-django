@@ -222,8 +222,8 @@ class AttributeSerializer(BaseOptimaSerializer):
             return None
         if val_format == 4 and self.obj.value:
             delta = (
-                datetime.datetime.strptime(self.obj.value, "%Y-%m-%d")
-                - datetime.datetime(year=1800, month=12, day=28).date
+                datetime.datetime.strptime(self.obj.value, "%Y-%m-%d").date()
+                - datetime.datetime(year=1800, month=12, day=28).date()
             )
             return delta.days
         else:
@@ -328,7 +328,7 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
 
     def _serialize_service_order(self):
         try:
-            return self.obj.servicer_order.optima_id
+            return self.obj.service_order.optima_id
         except AttributeError:
             self._valid = False
             return None
@@ -356,7 +356,7 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
 
     def _serialize_optima_user(self):
         try:
-            return self.obj.user.optima_user.optima_id
+            return self.obj.user.optima_id
         except AttributeError:
             self._valid = False
             return None
@@ -370,7 +370,7 @@ class ServiceActivitySerializer(BaseOptimaSerializer):
 
     def _serialize_tax_percentage(self):
         try:
-            return self.tax_percentage.value
+            return self.obj.tax_percentage.value
         except AttributeError:
             self._valid = False
             return None
