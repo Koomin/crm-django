@@ -3,9 +3,10 @@ from rest_framework import serializers
 from crm.contractors.models import Contractor
 from crm.core.api.fields import FileBase64Field, FileTypeField
 from crm.core.api.serializers import OptimaSerializer
-from crm.crm_config.api.serializers import EmailTemplateSerializer
+from crm.crm_config.api.serializers import EmailTemplateSerializer, TaxPercentageSerializer
 from crm.crm_config.models import EmailTemplate, TaxPercentage
 from crm.documents.models import DocumentType
+from crm.products.api.serializers import ProductSerializer
 from crm.products.models import Product
 from crm.service.models import (
     Attribute,
@@ -101,6 +102,47 @@ class ServiceActivitySerializer(OptimaSerializer):
     tax_percentage = serializers.SlugRelatedField(
         slug_field="uuid", queryset=TaxPercentage.objects.all(), read_only=False
     )
+
+    class Meta:
+        model = ServiceActivity
+        fields = [
+            "uuid",
+            "number",
+            "product",
+            "product_name",
+            "product_code",
+            "to_invoicing",
+            "user_code",
+            "user",
+            "is_finished",
+            "date_of_service",
+            "date_from",
+            "date_to",
+            "price_net",
+            "price_gross",
+            "price_discount",
+            "quantity",
+            "value_net",
+            "value_gross",
+            "unit",
+            "service_order",
+            "tax_percentage",
+            "service_cost",
+        ]
+
+
+class ServiceActivityReadSerializer(OptimaSerializer):
+    product = ProductSerializer()
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    product_code = serializers.CharField(source="product.code", read_only=True)
+    user_code = serializers.CharField(source="user.code", read_only=True)
+    user = serializers.SlugRelatedField(slug_field="uuid", queryset=OptimaUser.objects.all(), read_only=False)
+    service_order = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
+    )
+    date_from = serializers.DateTimeField(format="%Y-%m-%d", required=False)
+    date_to = serializers.DateTimeField(format="%Y-%m-%d", required=False)
+    tax_percentage = TaxPercentageSerializer()
 
     class Meta:
         model = ServiceActivity
