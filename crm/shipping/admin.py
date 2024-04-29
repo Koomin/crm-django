@@ -11,7 +11,7 @@ class ShippingAddressAdmin(ModelAdmin):
 
 @admin.register(Shipping)
 class ShippingAdmin(ModelAdmin):
-    pass
+    list_display = ("uuid",)
 
 
 @admin.register(ShippingStatus)

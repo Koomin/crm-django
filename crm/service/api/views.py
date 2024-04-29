@@ -27,6 +27,7 @@ from crm.service.api.serializers import (
     NoteSerializer,
     OrderTypeSerializer,
     PurchaseDocumentSerializer,
+    ServiceActivityReadSerializer,
     ServiceActivitySerializer,
     ServiceOrderSerializer,
     StageDurationSerializer,
@@ -360,7 +361,13 @@ class StageDurationViewSet(ListModelMixin, BaseViewSet):
 class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = ServiceActivity.objects.all()
     serializer_class = ServiceActivitySerializer
+    list_serializer_class = ServiceActivityReadSerializer
     filterset_fields = ["uuid", "service_order__uuid"]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return self.list_serializer_class
+        return self.serializer_class
 
     def create(self, request, *args, **kwargs):
         try:
