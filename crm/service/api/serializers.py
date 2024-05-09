@@ -37,20 +37,26 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class StageSerializer(serializers.ModelSerializer):
     email_template = EmailTemplateSerializer(read_only=True)
+    attribute = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Stage
-        fields = ["uuid", "type", "code", "description", "email_template"]
+        fields = ["uuid", "type", "code", "description", "email_template", "attribute"]
 
 
 class StageUpdateSerializer(serializers.ModelSerializer):
     email_template = serializers.SlugRelatedField(
         slug_field="uuid", queryset=EmailTemplate.objects.all(), read_only=False
     )
+    attribute = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Stage
-        fields = ["uuid", "type", "code", "description", "email_template"]
+        fields = ["uuid", "type", "code", "description", "email_template", "attribute"]
 
 
 class DeviceTypeSerializer(serializers.ModelSerializer):

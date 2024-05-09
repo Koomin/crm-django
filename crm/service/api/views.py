@@ -3,6 +3,7 @@ import io
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -143,6 +144,16 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
                 current_stage_duration.save()
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
+            if new_stage.attribute:
+                try:
+                    attribute = Attribute.objects.get(
+                        service_order=service_order, attribute_definition=new_stage.attribute
+                    )
+                except Attribute.DoesNotExist:
+                    pass
+                else:
+                    attribute.value = timezone.now().date().strftime("%Y-%m-%d")
+                    attribute.save()
         # Moved to ServiceOrder save method.
         # if request.data.get("document_type"):
         #     try:
