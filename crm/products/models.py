@@ -20,3 +20,4 @@ class Product(OptimaModel):
     unit = models.CharField(max_length=10)
     type = models.IntegerField(choices=ProductType.choices, default=ProductType.PRODUCT)
     price_number = models.IntegerField(default=0)
+    active = models.BooleanField(default=True)

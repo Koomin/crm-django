@@ -1,13 +1,27 @@
 import datetime
 
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, ValidationError
 from django.db import models
 
 from crm.core.models import BaseModel
 from crm.crm_config.models import Country, Log
 from crm.service.models import AttributeDefinition, ServiceOrder
 from crm.shipping.utils import GLSClient
+
+
+class ShippingCompany(BaseModel):
+    class Companies(models.TextChoices):
+        GLS = "GLS", "GLS"
+        RABEN = "RABEN", "Raben"
+
+    name = models.CharField(choices=Companies.choices, default=Companies.GLS)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if ShippingCompany.objects.filter(name=self.name).exists():
+                raise ValidationError("Company has to be unique")
+        super().save(*args, **kwargs)
 
 
 class ShippingAddress(BaseModel):
@@ -23,6 +37,9 @@ class ShippingAddress(BaseModel):
 class Shipping(BaseModel):
     address = models.OneToOneField(ShippingAddress, on_delete=models.CASCADE, related_name="shipping")
     service_order = models.OneToOneField(ServiceOrder, on_delete=models.CASCADE, related_name="shipping")
+    shipping_company = models.ForeignKey(
+        ShippingCompany, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
+    )
     parcel_id = models.CharField(max_length=120, null=True, blank=True)
     parcel_number = models.CharField(max_length=120, null=True, blank=True)
     confirmation_id = models.CharField(max_length=120, null=True, blank=True)
@@ -35,7 +52,16 @@ class Shipping(BaseModel):
     def send(self):
         if self.is_sent:
             return False
-        client = GLSClient()
+        if self.shipping_company.name == "GLS":
+            client = GLSClient()
+        else:
+            Log.objects.create(
+                exception_traceback="No shipping company",
+                method_name="send",
+                model_name=self.model.__name__,
+                object_uuid=self.uuid,
+            )
+            return False
         created = client.create_parcel(self)
         if created:
             label_created = client.create_label(self)

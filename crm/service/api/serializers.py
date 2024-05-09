@@ -60,14 +60,19 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 
 class DeviceSerializer(serializers.ModelSerializer):
+    from crm.shipping.models import ShippingCompany
+
     device_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
     document_type = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
     )
+    shipping_company = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ShippingCompany.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Device
-        fields = ["uuid", "code", "name", "description", "device_type", "document_type"]
+        fields = ["uuid", "code", "name", "description", "device_type", "document_type", "shipping_company"]
 
 
 class NoteSerializer(OptimaSerializer):
@@ -294,9 +299,11 @@ class ServiceOrderSerializer(OptimaSerializer):
 
 
 class OrderTypeSerializer(serializers.ModelSerializer):
+    warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)
+
     class Meta:
         model = OrderType
-        fields = ["uuid", "name"]
+        fields = ["uuid", "name", "warehouse"]
 
 
 class PurchaseDocumentSerializer(serializers.ModelSerializer):

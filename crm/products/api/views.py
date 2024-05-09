@@ -8,7 +8,7 @@ from crm.products.models import Product
 
 
 class ProductViewSet(ListModelMixin, BaseViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.filter(active=True)
     serializer_class = ProductSerializer
     filterset_fields = [
         "uuid",

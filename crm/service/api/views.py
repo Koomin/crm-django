@@ -89,7 +89,7 @@ class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, Cr
         return super().create(request, *args, **kwargs)
 
 
-class OrderTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+class OrderTypeViewSet(ListModelMixin, UpdateModelMixin, RetrieveModelMixin, BaseViewSet):
     permission_classes = [IsAuthenticated | HasAPIKey]
     queryset = OrderType.objects.all()
     serializer_class = OrderTypeSerializer
@@ -292,6 +292,12 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
                 shipping_address.country = Country.objects.get(uuid=data.get("shipping_country"))
             except Country.DoesNotExist:
                 shipping_address.country = None
+            try:
+                device = Device.objects.get(uuid=data.get("device"))
+            except Device.DoesNotExist:
+                pass
+            else:
+                shipping.shipping_company = device.shipping_company
             shipping.default_send = True
             shipping_address.city = data.get("shipping_city")
             shipping_address.home_number = data.get("shipping_home_number")
@@ -323,6 +329,9 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
+        from crm.service.tasks import email_order_created
+
+        email_order_created.apply_async()
         shipping.service_order = instance
         shipping.save()
         headers = self.get_success_headers(serializer.data)

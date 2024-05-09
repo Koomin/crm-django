@@ -8,11 +8,12 @@ from rest_framework.response import Response
 from crm.core.api.views import BaseViewSet
 from crm.shipping.api.serializers import (
     ShippingAddressUpdateSerializer,
+    ShippingCompanySerializer,
     ShippingSerializer,
     ShippingStatusSerializer,
     StatusSerializer,
 )
-from crm.shipping.models import Shipping, ShippingAddress, ShippingStatus, Status
+from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingStatus, Status
 
 
 class ShippingViewSet(ListModelMixin, BaseViewSet):
@@ -44,14 +45,13 @@ class ShippingViewSet(ListModelMixin, BaseViewSet):
         try:
             obj = Shipping.objects.get(uuid=uuid)
         except Shipping.DoesNotExist:
-            pass
+            return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             if obj.is_sent:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             sent = obj.send()
             if sent:
                 return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=["get"])
     def label(self, request, uuid):
@@ -74,3 +74,8 @@ class StatusViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
 class ShippingStatusViewSet(ListModelMixin, BaseViewSet):
     queryset = ShippingStatus.objects.all()
     serializer_class = ShippingStatusSerializer
+
+
+class ShippingCompanyViewSet(ListModelMixin, BaseViewSet):
+    queryset = ShippingCompany.objects.all()
+    serializer_class = ShippingCompanySerializer

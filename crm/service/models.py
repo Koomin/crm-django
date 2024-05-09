@@ -48,10 +48,12 @@ class Device(OptimaModel):
     description = models.CharField(max_length=1024)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
+    shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class OrderType(BaseModel):
     name = models.CharField(max_length=50)
+    warehouse = models.OneToOneField(Warehouse, on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class ServiceOrder(OptimaModel):
@@ -195,8 +197,8 @@ class ServiceOrder(OptimaModel):
         if self.device:
             if self.device.document_type:
                 self.document_type = self.device.document_type
-                if self.device.document_type.warehouse:
-                    self.warehouse = self.device.document_type.warehouse
+        if self.order_type and self.order_type.warehouse:
+            self.warehouse = self.order_type.warehouse
         if self.document_type and not self.number_scheme:
             self.number_scheme = self.document_type.format_numbering_scheme()
         if not self.contractor_name1 and self.contractor:
