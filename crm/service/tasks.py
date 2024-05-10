@@ -6,8 +6,7 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 from config import celery_app
-from crm.crm.crm_config.models import GeneralSettings
-from crm.crm_config.models import Log
+from crm.crm_config.models import GeneralSettings, Log
 from crm.documents.models import DocumentType
 from crm.service.models import (
     Attribute,

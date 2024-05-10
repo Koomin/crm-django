@@ -303,12 +303,6 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
                 shipping_address.country = Country.objects.get(uuid=data.get("shipping_country"))
             except Country.DoesNotExist:
                 shipping_address.country = None
-            try:
-                device = Device.objects.get(uuid=data.get("device"))
-            except Device.DoesNotExist:
-                pass
-            else:
-                shipping.shipping_company = device.shipping_company
             shipping.default_send = True
             shipping_address.city = data.get("shipping_city")
             shipping_address.home_number = data.get("shipping_home_number")
@@ -324,6 +318,12 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             shipping_address.street = data.get("contractor_street")
             shipping_address.street_number = data.get("contractor_street_number")
             shipping_address.name = data.get("contractor_name")
+        try:
+            device = Device.objects.get(uuid=data.get("device"))
+        except Device.DoesNotExist:
+            pass
+        else:
+            shipping.shipping_company = device.shipping_company
         shipping_address.save()
         shipping.address = shipping_address
         address = (
