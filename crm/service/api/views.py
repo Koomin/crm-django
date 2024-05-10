@@ -3,6 +3,7 @@ import io
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -89,7 +90,7 @@ class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, Cr
         return super().create(request, *args, **kwargs)
 
 
-class OrderTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+class OrderTypeViewSet(ListModelMixin, UpdateModelMixin, RetrieveModelMixin, BaseViewSet):
     permission_classes = [IsAuthenticated | HasAPIKey]
     queryset = OrderType.objects.all()
     serializer_class = OrderTypeSerializer
@@ -143,6 +144,16 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
                 current_stage_duration.save()
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
+            if new_stage.attribute:
+                try:
+                    attribute = Attribute.objects.get(
+                        service_order=service_order, attribute_definition=new_stage.attribute
+                    )
+                except Attribute.DoesNotExist:
+                    pass
+                else:
+                    attribute.value = timezone.now().date().strftime("%Y-%m-%d")
+                    attribute.save()
         # Moved to ServiceOrder save method.
         # if request.data.get("document_type"):
         #     try:
@@ -307,6 +318,12 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             shipping_address.street = data.get("contractor_street")
             shipping_address.street_number = data.get("contractor_street_number")
             shipping_address.name = data.get("contractor_name")
+        try:
+            device = Device.objects.get(uuid=data.get("device"))
+        except Device.DoesNotExist:
+            pass
+        else:
+            shipping.shipping_company = device.shipping_company
         shipping_address.save()
         shipping.address = shipping_address
         address = (
@@ -323,6 +340,9 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
+        from crm.service.tasks import email_order_created
+
+        email_order_created.apply_async()
         shipping.service_order = instance
         shipping.save()
         headers = self.get_success_headers(serializer.data)

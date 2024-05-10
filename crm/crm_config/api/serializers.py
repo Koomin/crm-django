@@ -27,7 +27,14 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
 class GeneralSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = GeneralSettings
-        fields = ["uuid", "optima_synchronization", "mailing", "optima_config_database", "optima_general_database"]
+        fields = [
+            "uuid",
+            "optima_synchronization",
+            "mailing",
+            "optima_config_database",
+            "optima_general_database",
+            "admin_email",
+        ]
 
 
 class LogSerializer(serializers.ModelSerializer):

@@ -32,6 +32,7 @@ class GeneralSettings(BaseModel):
     mailing = models.BooleanField(default=False)
     optima_config_database = models.CharField(max_length=255, null=True, blank=True)
     optima_general_database = models.CharField(max_length=255, null=True, blank=True)
+    admin_email = models.EmailField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk and GeneralSettings.objects.exists():

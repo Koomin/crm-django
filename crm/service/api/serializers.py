@@ -37,20 +37,26 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class StageSerializer(serializers.ModelSerializer):
     email_template = EmailTemplateSerializer(read_only=True)
+    attribute = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Stage
-        fields = ["uuid", "type", "code", "description", "email_template"]
+        fields = ["uuid", "type", "code", "description", "email_template", "attribute"]
 
 
 class StageUpdateSerializer(serializers.ModelSerializer):
     email_template = serializers.SlugRelatedField(
         slug_field="uuid", queryset=EmailTemplate.objects.all(), read_only=False
     )
+    attribute = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Stage
-        fields = ["uuid", "type", "code", "description", "email_template"]
+        fields = ["uuid", "type", "code", "description", "email_template", "attribute"]
 
 
 class DeviceTypeSerializer(serializers.ModelSerializer):
@@ -60,14 +66,19 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 
 class DeviceSerializer(serializers.ModelSerializer):
+    from crm.shipping.models import ShippingCompany
+
     device_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
     document_type = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
     )
+    shipping_company = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ShippingCompany.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Device
-        fields = ["uuid", "code", "name", "description", "device_type", "document_type"]
+        fields = ["uuid", "code", "name", "description", "device_type", "document_type", "shipping_company"]
 
 
 class NoteSerializer(OptimaSerializer):
@@ -294,9 +305,11 @@ class ServiceOrderSerializer(OptimaSerializer):
 
 
 class OrderTypeSerializer(serializers.ModelSerializer):
+    warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)
+
     class Meta:
         model = OrderType
-        fields = ["uuid", "name"]
+        fields = ["uuid", "name", "warehouse"]
 
 
 class PurchaseDocumentSerializer(serializers.ModelSerializer):

@@ -1,10 +1,12 @@
 import datetime
 
+from django.conf import settings
 from django.core.mail import send_mail
 from django.db.utils import IntegrityError
+from django.utils import timezone
 
 from config import celery_app
-from crm.crm_config.models import Log
+from crm.crm_config.models import GeneralSettings, Log
 from crm.documents.models import DocumentType
 from crm.service.models import (
     Attribute,
@@ -271,14 +273,13 @@ def email_send(service_order_pk):
             sent = send_mail(
                 html_message=email.message,
                 message=email.message,
-                from_email="no-reply@wagner-polska.com.pl",
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[
                     email.email,
                 ],
                 subject=email.subject,
                 fail_silently=False,
             )
-            print(sent)
         except Exception as e:
             Log.objects.create(
                 exception_traceback=e,
@@ -292,3 +293,33 @@ def email_send(service_order_pk):
                 email.date_of_sent = datetime.datetime.now()
                 email.save()
     return
+
+
+@celery_app.task()
+def email_order_created():
+    message = f"Nowe zgłoszenie serwisowe trafiło do systemu o godzinie {timezone.now()}."
+    try:
+        admin_mail = GeneralSettings.objects.first().admin_email
+    except Exception as e:
+        Log.objects.create(
+            exception_traceback=e,
+            method_name="email_order_created",
+            model_name="GeneralSettings",
+        )
+    else:
+        try:
+            send_mail(
+                html_message=message,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[
+                    admin_mail,
+                ],
+                subject="Nowe zgłoszenie serwisowe",
+                fail_silently=False,
+            )
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="email_order_created",
+            )

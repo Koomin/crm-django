@@ -6,5 +6,5 @@ from crm.documents.models import DocumentType
 
 
 class DocumentTypeViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseViewSet):
-    queryset = DocumentType.objects.all()
+    queryset = DocumentType.objects.filter(active=True)
     serializer_class = DocumentTypeSerializer
