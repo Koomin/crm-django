@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
-from crm.crm_config.models import EmailTemplate, Log, TaxPercentage
+from crm.crm_config.models import EmailTemplate, Log, ServiceAddress, TaxPercentage
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.users.models import OptimaUser, User
@@ -107,6 +107,7 @@ class ServiceOrder(OptimaModel):
     phone_number = models.CharField(max_length=255, null=True, blank=True)
     order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True, blank=True)
     purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
+    service_address = models.ForeignKey(ServiceAddress, on_delete=models.SET_NULL, null=True, blank=True)
 
     def _export_to_optima(self) -> (bool, str, dict):
         from service.optima_api.serializers import ServiceOrderSerializer

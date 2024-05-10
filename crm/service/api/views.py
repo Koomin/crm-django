@@ -327,7 +327,8 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         shipping_address.save()
         shipping.address = shipping_address
         address = (
-            f"Adres do wysyłki: ul.{shipping_address.street} {shipping_address.home_number}\n"
+            f"Adres do wysyłki: ul.{shipping_address.street} {shipping_address.street_number} "
+            f"{shipping_address.home_number}\n"
             f"{shipping_address.postal_code} {shipping_address.city}\n{shipping_address.country}\n"
         )
         description += address

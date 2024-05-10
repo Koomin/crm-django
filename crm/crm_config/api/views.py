@@ -12,10 +12,11 @@ from crm.crm_config.api.serializers import (
     GeneralSettingsSerializer,
     LogEntrySerializer,
     LogSerializer,
+    ServiceAddressSerializer,
     StateSerializer,
     TaxPercentageSerializer,
 )
-from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, State, TaxPercentage
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, ServiceAddress, State, TaxPercentage
 
 
 class CountryViewSet(ListModelMixin, BaseViewSet):
@@ -59,3 +60,9 @@ class LogEntryViewSet(ListModelMixin, viewsets.GenericViewSet):
 class TaxPercentageViewSet(ListModelMixin, BaseViewSet):
     queryset = TaxPercentage.objects.all()
     serializer_class = TaxPercentageSerializer
+
+
+class ServiceAddressViewSet(ListModelMixin, BaseViewSet):
+    queryset = ServiceAddress.objects.all()
+    serializer_class = ServiceAddressSerializer
+    permission_classes = [IsAuthenticated | HasAPIKey]

@@ -16,6 +16,18 @@ class State(OptimaModel):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
 
+class ServiceAddress(BaseModel):
+    name = models.CharField(max_length=1024, null=True, blank=True)
+    city = models.CharField(max_length=120, null=True, blank=True)
+    country = models.ForeignKey(Country, null=True, blank=True, on_delete=models.CASCADE)
+    street = models.CharField(max_length=200, null=True, blank=True)
+    street_number = models.CharField(max_length=12, null=True, blank=True)
+    home_number = models.IntegerField(null=True, blank=True)
+    postal_code = models.CharField(max_length=120, null=True, blank=True)
+    phone_number = models.CharField(max_length=255, null=True, blank=True)
+    email = models.CharField(max_length=255, null=True, blank=True)
+
+
 class TaxPercentage(BaseModel):
     name = models.CharField(max_length=12)
     value = models.DecimalField(max_digits=4, decimal_places=2)

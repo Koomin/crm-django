@@ -3,8 +3,8 @@ from rest_framework import serializers
 from crm.contractors.models import Contractor
 from crm.core.api.fields import FileBase64Field, FileTypeField
 from crm.core.api.serializers import OptimaSerializer
-from crm.crm_config.api.serializers import EmailTemplateSerializer, TaxPercentageSerializer
-from crm.crm_config.models import EmailTemplate, TaxPercentage
+from crm.crm_config.api.serializers import EmailTemplateSerializer, ServiceAddressSerializer, TaxPercentageSerializer
+from crm.crm_config.models import EmailTemplate, ServiceAddress, TaxPercentage
 from crm.documents.models import DocumentType
 from crm.products.api.serializers import ProductSerializer
 from crm.products.models import Product
@@ -244,6 +244,7 @@ class ServiceOrderSerializer(OptimaSerializer):
     contractor_confirmed = serializers.BooleanField(source="contractor.confirmed", read_only=True)
     service_parts = ServicePartSerializer(many=True, read_only=True)
     service_activities = ServiceActivitySerializer(many=True, read_only=True)
+    service_address = ServiceAddressSerializer(read_only=True)
 
     class Meta:
         model = ServiceOrder
@@ -301,6 +302,7 @@ class ServiceOrderSerializer(OptimaSerializer):
             "form_files",
             "service_parts",
             "service_activities",
+            "service_address",
         ]
 
 
@@ -326,6 +328,9 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
     order_type = serializers.SlugRelatedField(slug_field="uuid", queryset=OrderType.objects.all(), read_only=False)
     form_files = FormFileSerializer(many=True, read_only=True)
     device = serializers.SlugRelatedField(slug_field="uuid", queryset=Device.objects.all(), read_only=False)
+    service_address = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceAddress.objects.all(), read_only=False
+    )
 
     class Meta:
         model = ServiceOrder
@@ -354,6 +359,7 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
             "acceptance_date",
             "form_files",
             "device",
+            "service_address",
         ]
 
     def create(self, validated_data):
