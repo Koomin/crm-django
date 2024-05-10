@@ -1,5 +1,3 @@
-import datetime
-
 from django.apps import apps
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
@@ -403,7 +401,7 @@ class ServiceActivity(OptimaModel):
 
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         if not self.pk:
-            now_date = datetime.datetime.now()
+            now_date = timezone.now()
             if not self.date_from:
                 self.date_from = now_date
             if not self.date_to:
