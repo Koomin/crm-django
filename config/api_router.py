@@ -8,6 +8,7 @@ from crm.crm_config.api.views import (
     GeneralSettingsViewSet,
     LogEntryViewSet,
     LogViewSet,
+    ServiceAddressViewSet,
     StateViewSet,
     TaxPercentageViewSet,
 )
@@ -78,6 +79,7 @@ router.register("shipping-statuses", ShippingStatusViewSet)
 router.register("statuses", StatusViewSet)
 router.register("taxes", TaxPercentageViewSet)
 router.register("shipping-companies", ShippingCompanyViewSet)
+router.register("service-address", ServiceAddressViewSet)
 
 app_name = "api"
 urlpatterns = router.urls

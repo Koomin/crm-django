@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.models import LogEntry
 
-from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, State, TaxPercentage
+from crm.crm_config.models import Country, EmailTemplate, GeneralSettings, Log, ServiceAddress, State, TaxPercentage
 
 
 @admin.register(State)
@@ -37,4 +37,9 @@ class LogEntryAdmin(ModelAdmin):
 
 @admin.register(TaxPercentage)
 class TaxPercentageAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(ServiceAddress)
+class ServiceAddressAdmin(ModelAdmin):
     pass
