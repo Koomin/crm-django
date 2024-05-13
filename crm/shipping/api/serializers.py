@@ -51,17 +51,36 @@ class ShippingAddressUpdateSerializer(serializers.ModelSerializer):
         fields = ["name", "city", "country", "postal_code", "street", "street_number", "home_number"]
 
 
-class ShippingSerializer(serializers.ModelSerializer):
-    address = ShippingAddressSerializer(read_only=True)
-    service_order = ServiceOrderSerializer(read_only=True)
-    status = ShippingStatusRelatedSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Shipping
-        fields = ["uuid", "service_order", "label", "track_ids", "default_send", "address", "is_sent", "status"]
-
-
 class ShippingCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingCompany
         fields = ["uuid", "name"]
+
+
+class ShippingSerializer(serializers.ModelSerializer):
+    address = ShippingAddressSerializer(read_only=True)
+    service_order = ServiceOrderSerializer(read_only=True)
+    status = ShippingStatusRelatedSerializer(many=True, read_only=True)
+    shipping_company = ShippingCompanySerializer()
+
+    class Meta:
+        model = Shipping
+        fields = [
+            "uuid",
+            "service_order",
+            "label",
+            "track_ids",
+            "default_send",
+            "address",
+            "is_sent",
+            "status",
+            "shipping_company",
+        ]
+
+
+class ShippingUpdateSerializer(serializers.ModelSerializer):
+    shipping_company = serializers.SlugRelatedField(slug_field="uuid", queryset=ShippingCompany.objects.all())
+
+    class Meta:
+        model = Shipping
+        fields = ["shipping_company"]

@@ -11,14 +11,21 @@ from crm.shipping.api.serializers import (
     ShippingCompanySerializer,
     ShippingSerializer,
     ShippingStatusSerializer,
+    ShippingUpdateSerializer,
     StatusSerializer,
 )
 from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingStatus, Status
 
 
-class ShippingViewSet(ListModelMixin, BaseViewSet):
+class ShippingViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = Shipping.objects.all()
     serializer_class = ShippingSerializer
+    update_serializer_class = ShippingUpdateSerializer
+
+    def get_serializer_class(self):
+        if self.action == "partial_update":
+            return self.update_serializer_class
+        return self.serializer_class
 
     @action(detail=False)
     def completed(self, request):
