@@ -37,7 +37,7 @@ class GLSClient:
         return {
             "references": "crm_service",
             "notes": "",
-            "srv_bool": {"pr": True},
+            "srv_bool": {"pr": 1},
             "srv_ppe": {
                 "sname1": address.name,
                 # 'rname2': 'Jan (2)',
