@@ -59,6 +59,7 @@ class ShippingViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
             sent = obj.send()
             if sent:
                 return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["get"])
     def label(self, request, uuid):
