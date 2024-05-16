@@ -35,25 +35,20 @@ class GLSClient:
         street = address.street + str(address.street_number) if address.street_number else address.street
         street = street + str(address.home_number) if address.home_number else street
         return {
-            "rname1": address.name,
-            # 'rname2': 'Jan (2)',
-            # 'rname3': 'Kowalski (3)',
-            "rcountry": address.country.code,
-            "rzipcode": address.postal_code,
-            "rcity": address.city,
-            "rstreet": street,
-            "rphone": obj.service_order.phone_number,
-            "rcontact": obj.service_order.email,
             "references": "crm_service",
-            "notes": "Notatka",
-            "weight": 1.2,
-            "quantity": 1,
-            # 'srv_bool': {'cod': 1, 'cod_amount': 57},
-            # 'parcels': {'items': [
-            #     {'reference': 'Ref. parc01', 'weight': '1.11'},
-            #     {'reference': 'Ref. parc02', 'weight': '1.22'},
-            #     {'reference': 'Ref. parc03', 'weight': '1.33'}
-            # ]}
+            "notes": "",
+            "srv_bool": {"pr": True},
+            "srv_ppe": {
+                "sname1": address.name,
+                # 'rname2': 'Jan (2)',
+                # 'rname3': 'Kowalski (3)',
+                "scountry": address.country.code,
+                "szipcode": address.postal_code,
+                "scity": address.city,
+                "sstreet": street,
+                "sphone": obj.service_order.phone_number,
+                "scontact": obj.service_order.email,
+            },
         }
 
     def create_parcel(self, shipping_obj):
