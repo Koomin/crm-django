@@ -329,7 +329,7 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
     form_files = FormFileSerializer(many=True, read_only=True)
     device = serializers.SlugRelatedField(slug_field="uuid", queryset=Device.objects.all(), read_only=False)
     service_address = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=ServiceAddress.objects.all(), read_only=False
+        slug_field="uuid", queryset=ServiceAddress.objects.all(), read_only=False, required=False
     )
 
     class Meta:
