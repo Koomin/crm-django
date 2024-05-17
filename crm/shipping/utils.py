@@ -37,6 +37,14 @@ class GLSClient:
         return {
             "references": "crm_service",
             "notes": "",
+            "rname1": "",
+            "rcountry": "",
+            "rzipcode": "",
+            "rcity": "",
+            "rstreet": "",
+            "rphone": "",
+            "rcontact": "",
+            "weight": 0.01,
             "srv_bool": {"pr": 1},
             "srv_ppe": {
                 "sname1": address.name,
@@ -48,6 +56,14 @@ class GLSClient:
                 "sstreet": street,
                 "sphone": obj.service_order.phone_number,
                 "scontact": obj.service_order.email,
+                "rname1": "",
+                "rcountry": "",
+                "rzipcode": "",
+                "rcity": "",
+                "rstreet": "",
+                "rphone": "",
+                "rcontact": "",
+                "weight": 0.01,
             },
         }
 
@@ -67,7 +83,7 @@ class GLSClient:
         else:
             shipping_obj.parcel_id = parcel_id
             shipping_obj.save_without_update()
-            return True
+            return self._get_track_ids(shipping_obj)
 
     def create_label(self, shipping_obj):
         data = {"session": self._session, "id": shipping_obj.parcel_id, "mode": "one_label_on_a4_lt_pdf"}
@@ -86,6 +102,7 @@ class GLSClient:
             label = ContentFile(base64.b64decode(label_base64))
             file_name = f"{shipping_obj.parcel_id}.pdf"
             shipping_obj.label.save(file_name, label, save=True)
+            # _get_track_ids moved to create_parcel while create_label method is unnecessary
             return self._get_track_ids(shipping_obj)
 
     def _get_track_ids(self, shipping_obj):

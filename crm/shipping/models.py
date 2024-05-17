@@ -64,14 +64,15 @@ class Shipping(BaseModel):
             return False
         created = client.create_parcel(self)
         if created:
-            label_created = client.create_label(self)
-            if label_created:
-                confirmed = client.confirm_shipping(self)
-                if confirmed:
-                    self.is_sent = True
-                    self.save_without_update()
-                    client.logout()
-                    return True
+            # GLS PR shipping method - cannot generate label
+            # label_created = client.create_label(self)
+            # if label_created:
+            confirmed = client.confirm_shipping(self)
+            if confirmed:
+                self.is_sent = True
+                self.save_without_update()
+                client.logout()
+                return True
         client.logout()
         return False
 
