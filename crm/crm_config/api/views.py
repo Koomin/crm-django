@@ -24,11 +24,17 @@ class CountryViewSet(ListModelMixin, BaseViewSet):
     serializer_class = CountrySerializer
     permission_classes = [IsAuthenticated | HasAPIKey]
 
+    def get_queryset(self):
+        return super().get_queryset().order_by("name")
+
 
 class StateViewSet(ListModelMixin, BaseViewSet):
     queryset = State.objects.all()
     serializer_class = StateSerializer
     permission_classes = [IsAuthenticated | HasAPIKey]
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("name")
 
 
 class EmailTemplateViewSet(ListModelMixin, CreateModelMixin, UpdateModelMixin, BaseViewSet):
