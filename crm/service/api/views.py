@@ -305,7 +305,9 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
                 shipping_address.country = None
             shipping.default_send = True
             shipping_address.city = data.get("shipping_city")
-            shipping_address.home_number = data.get("shipping_home_number")
+            shipping_address.home_number = (
+                data.get("shipping_home_number") if data.get("shipping_home_number") else None
+            )
             shipping_address.postal_code = data.get("shipping_postal_code")
             shipping_address.street = data.get("shipping_street")
             shipping_address.street_number = data.get("shipping_street_number")
@@ -313,7 +315,9 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         else:
             shipping_address.city = data.get("contractor_city")
             shipping_address.country = contractor_country
-            shipping_address.home_number = data.get("contractor_home_number")
+            shipping_address.home_number = (
+                data.get("contractor_home_number") if data.get("contractor_home_number") else None
+            )
             shipping_address.postal_code = data.get("contractor_postal_code")
             shipping_address.street = data.get("contractor_street")
             shipping_address.street_number = data.get("contractor_street_number")
