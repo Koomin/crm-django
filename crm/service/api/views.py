@@ -342,6 +342,11 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             OrderType.objects.get(uuid=data["order_type"])
         except ObjectDoesNotExist:
             return Response("Nie znaleziono typu zgłoszenia.", status=status.HTTP_404_NOT_FOUND)
+        try:
+            data["category"] = Category.objects.get(code="200")
+        except Category.DoesNotExist:
+            pass
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()

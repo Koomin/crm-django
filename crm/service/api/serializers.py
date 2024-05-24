@@ -360,6 +360,7 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
             "form_files",
             "device",
             "service_address",
+            "category",
         ]
 
     def create(self, validated_data):
