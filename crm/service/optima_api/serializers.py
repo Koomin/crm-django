@@ -681,6 +681,9 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
     def _serialize_buffer(self):
         return 1 if self.obj.in_buffer else 0
 
+    def _serialize_description(self):
+        return self.obj.description.replace("\n", " CHAR(10)")
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -747,7 +750,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_WartoscNettoDoFAPLN": self.obj.net_value or 0.00,
             "SrZ_WartoscBruttoDoFA": self.obj.gross_value or 0.00,
             "SrZ_WartoscBruttoDoFAPLN": self.obj.gross_value or 0.00,
-            "SrZ_Opis": self.obj.description,
+            "SrZ_Opis": self._serialize_description(),
             "SrZ_SrUId": self._serialize_device(),
             # "SrZ_NumerPelny": self.obj.full_number,
             "SrZ_Email": self.obj.email,

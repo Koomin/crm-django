@@ -287,13 +287,19 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
                     data["contractor_name2"] = data.get("contractor_name")[51:]
             else:
                 data["contractor_name1"] = data.get("contractor_name")
+        try:
+            device = Device.objects.get(uuid=data.get("device"))
+        except Device.DoesNotExist:
+            device = None
         description = data.get("description")
         if not description:
             description = ""
         description += "\nDane z formularza:\n"
+        model_contractor = f'{device.name}; {data.get("contractor_name")}\n'
+        description += model_contractor
         purchase_data = (
-            f'\nNumer dokumentu sprzedaży: {data.get("purchase_document_number")}, '
-            f'data sprzedaży: {data.get("purchase_date")}\n'
+            f'\nNumer dowodu zakupu: {data.get("purchase_document_number")}; '
+            f'Data zakupu: {data.get("purchase_date")}\n'
         )
         description += purchase_data
         shipping = Shipping()
@@ -322,18 +328,14 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             shipping_address.street = data.get("contractor_street")
             shipping_address.street_number = data.get("contractor_street_number")
             shipping_address.name = data.get("contractor_name")
-        try:
-            device = Device.objects.get(uuid=data.get("device"))
-        except Device.DoesNotExist:
-            pass
-        else:
+        if device:
             shipping.shipping_company = device.shipping_company
         shipping_address.save()
         shipping.address = shipping_address
         address = (
-            f"Adres do wysyłki: ul.{shipping_address.street} {shipping_address.street_number} "
-            f"{shipping_address.home_number}\n"
-            f"{shipping_address.postal_code} {shipping_address.city}\n{shipping_address.country}\n"
+            f"Adres do wysyłki:\n ul.{shipping_address.street} {shipping_address.street_number}"
+            f"{'/' + shipping_address.home_number if shipping_address.home_number else ''}\n"
+            f"{shipping_address.postal_code} {shipping_address.city}\n"
         )
         description += address
         data["description"] = description
@@ -342,6 +344,11 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             OrderType.objects.get(uuid=data["order_type"])
         except ObjectDoesNotExist:
             return Response("Nie znaleziono typu zgłoszenia.", status=status.HTTP_404_NOT_FOUND)
+        try:
+            data["category"] = Category.objects.get(code="200").pk
+        except Category.DoesNotExist:
+            pass
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
