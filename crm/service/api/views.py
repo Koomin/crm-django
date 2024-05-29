@@ -128,7 +128,9 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
 
     def partial_update(self, request, *args, **kwargs):
         if request.data.get("state") == 0:
-            request.data["acceptance_date"] = timezone.now()
+            # Moved to new service order creation
+            # request.data["acceptance_date"] = timezone.now()
+            request.data["user"] = request.user.uuid
         if request.data.get("stage"):
             try:
                 service_order = ServiceOrder.objects.get(uuid=kwargs.get("uuid"))
@@ -253,6 +255,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
     def create(self, request, *args, **kwargs):
         # TODO ADD STAGE WHILE CREATING NEW ORDER
         data = request.data.copy()
+        data["acceptance_date"] = timezone.now()
         try:
             contractor_country = Country.objects.get(uuid=data.get("contractor_country"))
         except Country.DoesNotExist:

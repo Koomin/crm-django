@@ -36,7 +36,7 @@ class GLSClient:
         street = street + str(address.home_number) if address.home_number else street
         return {
             "references": "crm_service",
-            "notes": "",
+            "notes": f"{obj.service_order.device.name}, Prośba o kontakt z klientem.",
             "rname1": "",
             "rcountry": "",
             "rzipcode": "",
