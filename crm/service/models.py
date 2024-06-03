@@ -115,7 +115,7 @@ class ServiceOrder(OptimaModel):
 
         from crm.service.tasks import create_attributes
 
-        if self.state != self.States.NEW and self.optima_id:
+        if self.state != self.States.NEW:
             if not self.number:
                 all_numbers = ServiceOrder.objects.filter(
                     document_type=self.document_type,
