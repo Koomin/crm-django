@@ -115,7 +115,7 @@ class ServiceOrder(OptimaModel):
 
         from crm.service.tasks import create_attributes
 
-        if self.state != self.States.NEW:
+        if self.state != self.States.NEW or self.state != self.States.CANCELED and not self.optima_id:
             if not self.number:
                 all_numbers = ServiceOrder.objects.filter(
                     document_type=self.document_type,
@@ -151,7 +151,7 @@ class ServiceOrder(OptimaModel):
         return False, None, {}
 
     def export(self):
-        if not self.exported and not self.optima_id and self.state != 3:
+        if not self.exported and not self.optima_id:
             created, errors, data = self._export_to_optima()
             try:
                 exceptions = ",".join(errors)
