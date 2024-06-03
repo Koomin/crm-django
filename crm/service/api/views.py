@@ -271,7 +271,8 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             customer_dict = {}
             for k, v in data.items():
                 if "contractor_" in k:
-                    customer_dict[k.replace("contractor_", "")] = v
+                    if k not in ["contractor_type", "contractor_country_name"]:
+                        customer_dict[k.replace("contractor_", "")] = v
             contractor, created = Contractor.objects.get_or_create(
                 tax_number=data["tax_number"], defaults=customer_dict
             )
