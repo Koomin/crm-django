@@ -153,9 +153,13 @@ class ServiceOrder(OptimaModel):
     def export(self):
         if not self.exported and not self.optima_id:
             created, errors, data = self._export_to_optima()
+            try:
+                exceptions = ",".join(errors)
+            except Exception:
+                exceptions = errors
             if not created:
                 Log.objects.create(
-                    exception_traceback=",".join(errors),
+                    exception_traceback=exceptions,
                     method_name="export",
                     model_name=self.__class__.__name__,
                     object_uuid=self.uuid,
