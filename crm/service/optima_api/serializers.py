@@ -682,7 +682,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
         return 1 if self.obj.in_buffer else 0
 
     def _serialize_description(self):
-        return self.obj.description.replace("\n", " CHAR(10)")
+        return self.obj.description.replace("\n", "\n")
 
     def _deserialize(self) -> dict:
         return {

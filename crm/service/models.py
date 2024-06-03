@@ -151,7 +151,7 @@ class ServiceOrder(OptimaModel):
         return False, None, {}
 
     def export(self):
-        if not self.exported and not self.optima_id:
+        if not self.exported and not self.optima_id and self.state != 3:
             created, errors, data = self._export_to_optima()
             try:
                 exceptions = ",".join(errors)
