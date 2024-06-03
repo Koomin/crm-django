@@ -113,7 +113,11 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
             if order.optima_id:
                 synchronize_order.apply_async(args=[order.optima_id])
                 return Response(status=status.HTTP_200_OK)
-            return Response(data="Zlecenie nie wyeksportowane do Optima", status=status.HTTP_404_NOT_FOUND)
+            else:
+                exported = order.export()
+                if exported:
+                    return Response(status=status.HTTP_200_OK)
+        return Response(data="Zlecenie nie wyeksportowane do Optima", status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=["post"])
     def export(self, uuid):
