@@ -54,9 +54,10 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Poczta": self.obj.post,
             "Knt_Wojewodztwo": self.obj.state,
             "Knt_Nazwa1": self.obj.name1,
-            "Knt_Nazwa2": self.obj.name2,
-            "Knt_Nazwa3": self.obj.name3,
-            "Knt_Kod": self.obj.tax_number,
+            "Knt_Nazwa2": self.obj.name2 if self.obj.name2 else " ",
+            "Knt_Nazwa3": self.obj.name3 if self.obj.name3 else " ",
+            # TODO Check how to autocreate Knt_Kod
+            # "Knt_Kod": self.obj.tax_number,
         }
 
     @property
@@ -136,7 +137,8 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Pesel": "",
             "Knt_Powiat": "",
             "Knt_RachunekNr": "",
-            "Knt_Zezwolenie": "",
+            # TODO Check Knt_Zezwolenie
+            "Knt_Zezwolenie": "wpis",
             "Knt_FCzynnosci": "",
             "Knt_FCzesci": "",
             "Knt_ZwolnionyZAkcyzy": 0,
