@@ -36,6 +36,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "name1": self.obj[12],
             "name2": self.obj[13],
             "name3": self.obj[14],
+            "regon": self.obj[15],
             "confirmed": True,
             "exported": True,
         }
@@ -56,6 +57,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Nazwa1": self.obj.name1,
             "Knt_Nazwa2": self.obj.name2 if self.obj.name2 else " ",
             "Knt_Nazwa3": self.obj.name3 if self.obj.name3 else " ",
+            "Knt_Regon": self.obj.regon,
             # TODO Check how to autocreate Knt_Kod
             # "Knt_Kod": self.obj.tax_number,
         }
@@ -67,7 +69,6 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_PodmiotTyp": 1,
             "Knt_GLN": "",
             "Knt_EAN": "",
-            "Knt_Regon": "",
             "Knt_Telefon2": "",
             "Knt_Fax": "",
             "Knt_URL": "",
