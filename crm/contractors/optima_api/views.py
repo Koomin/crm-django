@@ -10,3 +10,7 @@ class ContractorObject(OptimaObject):
         "Knt.Knt_Wojewodztwo, Knt.Knt_Nazwa1, Knt.Knt_Nazwa2, Knt.Knt_Nazwa3, Knt.Knt_Regon "
         "FROM CDN.Kontrahenci as Knt"
     )
+
+
+class ContractorAttributeObject(OptimaObject):
+    table_name = "CDN.KntAtrybuty"

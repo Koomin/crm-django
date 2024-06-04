@@ -38,8 +38,8 @@ class Contractor(OptimaModel):
                 self.name1 = self.name
 
     def _export_to_optima(self) -> (bool, str, dict):
-        from crm.contractors.optima_api.serializers import ContractorSerializer
-        from crm.contractors.optima_api.views import ContractorObject
+        from crm.contractors.optima_api.serializers import ContractorAttributeSerializer, ContractorSerializer
+        from crm.contractors.optima_api.views import ContractorAttributeObject, ContractorObject
 
         serializer = ContractorSerializer(self)
         if serializer.is_valid():
@@ -49,6 +49,11 @@ class Contractor(OptimaModel):
                 self.optima_id = optima_id
                 self.exported = True
                 super().save()
+                for code in [116, 118]:
+                    serializer = ContractorAttributeSerializer(self, code)
+                    if serializer.is_valid():
+                        attr_connection = ContractorAttributeObject()
+                        created, optima_id = attr_connection.post(serializer.data)
             return created, optima_id, serializer.data
         return False, serializer.errors, {}
 
