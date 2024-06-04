@@ -51,8 +51,8 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Miasto": self.obj.city,
             "Knt_Ulica": self.obj.street,
             "Knt_NrDomu": self.obj.street_number,
-            "Knt_NrLokalu": self.obj.home_number,
-            "Knt_Poczta": self.obj.post,
+            "Knt_NrLokalu": self.obj.home_number if self.obj.home_number else " ",
+            "Knt_Poczta": self.obj.post if self.obj.post else " ",
             "Knt_Wojewodztwo": self.obj.state,
             "Knt_Nazwa1": self.obj.name1,
             "Knt_Nazwa2": self.obj.name2 if self.obj.name2 else " ",
@@ -60,6 +60,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Regon": self.obj.regon,
             # TODO Check how to autocreate Knt_Kod
             # "Knt_Kod": self.obj.tax_number,
+            "Knt_Kod": "*",
         }
 
     @property
@@ -190,4 +191,9 @@ class ContractorAttributeSerializer(BaseOptimaSerializer):
             "KnA_PodmiotTyp": 1,
             "KnA_DeAId": self.code,
             "KnA_WartoscTxt": "DF",
+            "KnA_CzyKopiowac": 0,
+            "KnA_CzyKod": 0,
+            "KnA_CzyPrzenosic": 0,
+            "KnA_CzyDrukowac": 0,
+            "KnA_CzyKopiowacDoVAT": 0,
         }
