@@ -60,6 +60,7 @@ def gus_data_by_tax_id(request, tax_id):
                         "contractor_name": name,
                         "contractor_state_obj": state_obj,
                         "contractor_state": state,
+                        "contractor_regon": data.get("Regon"),
                     }
                     return Response(serialized, status=status.HTTP_200_OK)
     return Response({}, status=status.HTTP_404_NOT_FOUND)
