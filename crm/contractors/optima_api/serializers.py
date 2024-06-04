@@ -60,6 +60,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Regon": self.obj.regon,
             # TODO Check how to autocreate Knt_Kod
             # "Knt_Kod": self.obj.tax_number,
+            "Knt_Kod": "*",
         }
 
     @property
@@ -190,4 +191,9 @@ class ContractorAttributeSerializer(BaseOptimaSerializer):
             "KnA_PodmiotTyp": 1,
             "KnA_DeAId": self.code,
             "KnA_WartoscTxt": "DF",
+            "KnA_CzyKopiowac": 0,
+            "KnA_CzyKod": 0,
+            "KnA_CzyPrzenosic": 0,
+            "KnA_CzyDrukowac": 0,
+            "KnA_CzyKopiowacDoVAT": 0,
         }
