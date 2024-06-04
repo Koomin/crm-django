@@ -173,3 +173,21 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_NieUwzglwedniajWEwidencjiWegiel": 0,
             "Knt_NieWysylajDokumentuDoKSeF": 0,
         }
+
+
+class ContractorAttributeSerializer(BaseOptimaSerializer):
+    def __init__(self, obj, code):
+        self._data = None
+        self._valid = False
+        self._errors = []
+        self.obj = obj
+        self.code = code
+        self._deserialization = False
+
+    def _serialize(self) -> dict:
+        return {
+            "KnA_PodmiotId": self.obj.optima_id,
+            "KnA_PodmiotTyp": 1,
+            "KnA_DeAId": self.code,
+            "KnA_WartoscTxt": "DF",
+        }
