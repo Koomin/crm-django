@@ -182,7 +182,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _get_attribute_definition(self):
         try:
-            attribute_definition = self.model.objects.get(optima_id=self.obj[2])
+            attribute_definition = AttributeDefinitionSerializer.model.get(optima_id=self.obj[2])
         except ObjectDoesNotExist:
             self._valid = False
             return None
@@ -191,7 +191,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _get_service_order(self):
         try:
-            service_order = self.model.objects.get(optima_id=self.obj[4])
+            service_order = ServiceOrderSerializer.model.objects.get(optima_id=self.obj[4])
         except ObjectDoesNotExist:
             self._valid = False
             return None
