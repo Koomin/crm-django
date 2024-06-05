@@ -23,8 +23,10 @@ class DeviceTypeObject(OptimaObject):
 
 class DeviceObject(OptimaObject):
     get_queryset = (
-        "SELECT SRS.SrU_SrUId, SRS.SrU_Kod, SRS.SrU_Nazwa, SRS.SrU_Opis, SRS.SrU_SrRId"
-        " FROM CDN.SrsUrzadzenia as SRS"
+        "SELECT SRS.SrU_SrUId, SRS.SrU_Kod, SRS.SrU_Nazwa, SRS.SrU_Opis, SRS.SrU_SrRId, Atrybuty.TwA_WartoscTxt "
+        "FROM CDN.SrsUrzadzenia as SRS "
+        "INNER JOIN CDN.TwrAtrybuty as Atrybuty ON SRS.SrU_SrUId = Atrybuty.TwA_SrUId "
+        "WHERE Atrybuty..TwA_DeAId = 160"
     )
 
 

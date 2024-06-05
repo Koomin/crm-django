@@ -21,6 +21,7 @@ from crm.service.api.serializers import (
     AttributeDefinitionSerializer,
     AttributeSerializer,
     CategorySerializer,
+    DeviceCatalogSerializer,
     DeviceSerializer,
     DeviceTypeSerializer,
     EmailSentSerializer,
@@ -41,6 +42,7 @@ from crm.service.models import (
     AttributeDefinitionItem,
     Category,
     Device,
+    DeviceCatalog,
     DeviceType,
     EmailSent,
     Note,
@@ -67,6 +69,11 @@ class StageViewSet(ListModelMixin, UpdateModelMixin, RetrieveModelMixin, BaseVie
         if self.action == "partial_update":
             return self.update_serializer_class
         return self.serializer_class
+
+
+class DeviceCatalogViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+    queryset = DeviceCatalog.objects.all()
+    serializer_class = DeviceCatalogSerializer
 
 
 class DeviceTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):

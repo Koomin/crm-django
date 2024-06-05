@@ -139,7 +139,6 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Pesel": "",
             "Knt_Powiat": "",
             "Knt_RachunekNr": "",
-            # TODO Check Knt_Zezwolenie
             "Knt_Zezwolenie": "wpis",
             "Knt_FCzynnosci": "",
             "Knt_FCzesci": "",
@@ -188,7 +187,7 @@ class ContractorAttributeSerializer(BaseOptimaSerializer):
     def _serialize(self) -> dict:
         return {
             "KnA_PodmiotId": self.obj.optima_id,
-            "KnA_PodmiotTyp": 1,
+            # "KnA_PodmiotTyp": 1,
             "KnA_DeAId": self.code,
             "KnA_WartoscTxt": "DF",
             "KnA_CzyKopiowac": 0,
