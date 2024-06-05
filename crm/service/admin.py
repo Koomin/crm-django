@@ -8,6 +8,7 @@ from crm.service.models import (
     AttributeDefinitionItem,
     Category,
     Device,
+    DeviceCatalog,
     DeviceType,
     EmailSent,
     FormFile,
@@ -33,6 +34,11 @@ class StageAdmin(ModelAdmin):
 
 @admin.register(DeviceType)
 class DeviceTypeAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(DeviceCatalog)
+class DeviceCatalogAdmin(ModelAdmin):
     pass
 
 
