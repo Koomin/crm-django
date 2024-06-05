@@ -48,6 +48,11 @@ class DeviceSerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
+    def _get_device_catalog(self):
+        DeviceCatalog = apps.get_model("service", "DeviceCatalog")
+        catalog, created = DeviceCatalog.objects.get_or_create(name=self.obj[5])
+        return catalog
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -55,6 +60,7 @@ class DeviceSerializer(BaseOptimaSerializer):
             "name": self.obj[2],
             "description": self.obj[3],
             "device_type": self._get_device_type(),
+            "device_catalog": self._get_device_catalog(),
         }
 
 

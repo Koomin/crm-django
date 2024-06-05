@@ -14,6 +14,7 @@ from crm.service.models import (
     AttributeDefinitionItem,
     Category,
     Device,
+    DeviceCatalog,
     DeviceType,
     EmailSent,
     FormFile,
@@ -59,6 +60,12 @@ class StageUpdateSerializer(serializers.ModelSerializer):
         fields = ["uuid", "type", "code", "description", "email_template", "attribute"]
 
 
+class DeviceCatalogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceCatalog
+        fields = ["uuid", "name", "active"]
+
+
 class DeviceTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceType
@@ -75,10 +82,22 @@ class DeviceSerializer(serializers.ModelSerializer):
     shipping_company = serializers.SlugRelatedField(
         slug_field="uuid", queryset=ShippingCompany.objects.all(), read_only=False
     )
+    device_catalog = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=DeviceCatalog.objects.all(), read_only=False
+    )
 
     class Meta:
         model = Device
-        fields = ["uuid", "code", "name", "description", "device_type", "document_type", "shipping_company"]
+        fields = [
+            "uuid",
+            "code",
+            "name",
+            "description",
+            "device_type",
+            "document_type",
+            "shipping_company",
+            "device_catalog",
+        ]
 
 
 class NoteSerializer(OptimaSerializer):

@@ -33,6 +33,11 @@ class Stage(OptimaModel):
         super().save(*args, **kwargs)
 
 
+class DeviceCatalog(BaseModel):
+    name = models.CharField(max_length=255)
+    active = models.BooleanField(default=True)
+
+
 class DeviceType(OptimaModel):
     # Optima table - CDN.SrsRodzajeU
     code = models.CharField(max_length=255)
@@ -46,8 +51,10 @@ class Device(OptimaModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=1024)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
+    device_catalog = models.ForeignKey(DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True)
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
     shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL, null=True, blank=True)
+    active = models.BooleanField(default=True)
 
 
 class OrderType(BaseModel):
