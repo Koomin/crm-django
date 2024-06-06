@@ -24,6 +24,11 @@ class ShippingCompany(BaseModel):
         super().save(*args, **kwargs)
 
 
+class ShippingMethod(BaseModel):
+    name = models.CharField(max_length=255)
+    company = models.ForeignKey(ShippingCompany, on_delete=models.CASCADE)
+
+
 class ShippingAddress(BaseModel):
     name = models.CharField(max_length=1024, null=True, blank=True)
     city = models.CharField(max_length=120, null=True, blank=True)
