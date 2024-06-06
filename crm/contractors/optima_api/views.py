@@ -14,7 +14,11 @@ class ContractorObject(OptimaObject):
 
     def get_id_by_tax_number(self, tax_number):
         self.get_queryset = self.get_queryset_id_by_tax_number.format(tax_number)
-        return super().get_one()[0]
+        try:
+            optima_id = super().get_one()[0]
+        except TypeError:
+            optima_id = None
+        return optima_id
 
 
 class ContractorAttributeObject(OptimaObject):
