@@ -281,9 +281,11 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
                 if "contractor_" in k:
                     if k not in ["contractor_type", "contractor_country_name"]:
                         customer_dict[k.replace("contractor_", "")] = v
-            contractor, created = Contractor.objects.get_or_create(
-                tax_number=data["tax_number"], defaults=customer_dict
-            )
+            try:
+                contractor = Contractor.objects.get(tax_number=data["tax_number"])
+            except Contractor.DoesNotExist:
+                contractor = Contractor(customer_dict)
+                contractor.save_without_optima_export()
             data["contractor"] = contractor.uuid
         else:
             try:
