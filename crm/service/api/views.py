@@ -157,16 +157,17 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
                 current_stage_duration.save()
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
-            if new_stage.attribute:
+            for attr in new_stage.attributes.all():
                 try:
-                    attribute = Attribute.objects.get(
-                        service_order=service_order, attribute_definition=new_stage.attribute
-                    )
+                    attribute = Attribute.objects.get(service_order=service_order, attribute_definition=attr)
                 except Attribute.DoesNotExist:
                     pass
                 else:
-                    attribute.value = timezone.now().date().strftime("%Y-%m-%d")
-                    attribute.save()
+                    if attribute.value:
+                        pass
+                    else:
+                        attribute.value = timezone.now().date().strftime("%Y-%m-%d")
+                        attribute.save()
         # Moved to ServiceOrder save method.
         # if request.data.get("document_type"):
         #     try:

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingStatus, Status
+from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingMethod, ShippingStatus, Status
 
 
 @admin.register(ShippingAddress)
@@ -26,4 +26,9 @@ class StatusAdmin(ModelAdmin):
 
 @admin.register(ShippingCompany)
 class ShippingCompanyAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(ShippingMethod)
+class ShippingMethodAdmin(admin.ModelAdmin):
     pass

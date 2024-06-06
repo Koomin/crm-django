@@ -26,7 +26,7 @@ class Stage(OptimaModel):
     description = models.CharField(max_length=255, null=True)
     email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True, blank=True)
     is_default = models.BooleanField(default=False)
-    attribute = models.OneToOneField("service.AttributeDefinition", on_delete=models.SET_NULL, null=True, blank=True)
+    attributes = models.ManyToManyField("service.AttributeDefinition")
 
     def save(self, *args, **kwargs):
         Stage.objects.filter(is_default=True).update(is_default=False)
