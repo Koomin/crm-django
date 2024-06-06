@@ -47,7 +47,7 @@ class Contractor(OptimaModel):
             connection = ContractorObject()
             created, response = connection.post(serializer.data)
             if created and response:
-                optima_id = connection.get_queryset_id_by_tax_number(self.tax_number)
+                optima_id = connection.get_id_by_tax_number(self.tax_number)
                 self.optima_id = optima_id
                 self.exported = True
                 super().save()

@@ -12,6 +12,10 @@ class ContractorObject(OptimaObject):
     )
     get_queryset_id_by_tax_number = "SELECT Knt.Knt_KntId FROM CDN.Kontrahenci as Knt WHERE Knt.Knt_Nip={0}"
 
+    def get_id_by_tax_number(self, tax_number):
+        self.get_queryset = self.get_queryset_id_by_tax_number.format(tax_number)
+        return super().get_one()[0]
+
 
 class ContractorAttributeObject(OptimaObject):
     table_name = "CDN.KntAtrybuty"
