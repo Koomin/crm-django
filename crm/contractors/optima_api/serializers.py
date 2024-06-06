@@ -187,7 +187,7 @@ class ContractorAttributeSerializer(BaseOptimaSerializer):
     def _serialize(self) -> dict:
         return {
             "KnA_PodmiotId": self.obj.optima_id,
-            # "KnA_PodmiotTyp": 1,
+            "KnA_PodmiotTyp": 1,
             "KnA_DeAId": self.code,
             "KnA_WartoscTxt": "DF",
             "KnA_CzyKopiowac": 0,
