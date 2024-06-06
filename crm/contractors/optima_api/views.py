@@ -10,7 +10,7 @@ class ContractorObject(OptimaObject):
         "Knt.Knt_Wojewodztwo, Knt.Knt_Nazwa1, Knt.Knt_Nazwa2, Knt.Knt_Nazwa3, Knt.Knt_Regon "
         "FROM CDN.Kontrahenci as Knt"
     )
-    get_queryset_id_by_tax_number = "SELECT Knt.Knt_KntId FROM CDN.Kontrahenci as Knt WHERE Knt.Knt_Nip={0}"
+    get_queryset_id_by_tax_number = "SELECT Knt.Knt_KntId FROM CDN.Kontrahenci as Knt WHERE Knt.Knt_Nip='{0}'"
 
     def get_id_by_tax_number(self, tax_number):
         self.get_queryset = self.get_queryset_id_by_tax_number.format(tax_number)

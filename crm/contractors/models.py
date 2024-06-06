@@ -45,6 +45,9 @@ class Contractor(OptimaModel):
         serializer = ContractorSerializer(self)
         if serializer.is_valid():
             connection = ContractorObject()
+            optima_id = connection.get_id_by_tax_number(self.tax_number)
+            if optima_id:
+                return False, "Contractor with given tax number already exists in optima.", serializer.data
             created, response = connection.post(serializer.data)
             if created and response:
                 optima_id = connection.get_id_by_tax_number(self.tax_number)
