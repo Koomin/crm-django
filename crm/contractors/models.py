@@ -45,13 +45,14 @@ class Contractor(OptimaModel):
         serializer = ContractorSerializer(self)
         if serializer.is_valid():
             connection = ContractorObject()
-            created, optima_id = connection.post(serializer.data)
-            if created and optima_id:
+            created, response = connection.post(serializer.data)
+            if created and response:
+                optima_id = connection.get_queryset_id_by_tax_number(self.tax_number)
                 self.optima_id = optima_id
                 self.exported = True
                 super().save()
                 create_attributes.apply_async(args=[str(self.pk)], countdown=10)
-            return created, optima_id, serializer.data
+            return created, response, serializer.data
         return False, serializer.errors, {}
 
     def save(self, *args, **kwargs):
