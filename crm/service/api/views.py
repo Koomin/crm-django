@@ -284,7 +284,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             try:
                 contractor = Contractor.objects.get(tax_number=data["tax_number"])
             except Contractor.DoesNotExist:
-                contractor = Contractor(**customer_dict)
+                contractor = Contractor(tax_number=data["tax_number"], **customer_dict)
                 contractor.save_without_optima_export()
             data["contractor"] = contractor.uuid
         else:
