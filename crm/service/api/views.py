@@ -315,11 +315,10 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         description += "\nDane z formularza:\n"
         model_contractor = f'{device.name}; {data.get("contractor_name")}\n'
         description += model_contractor
-        purchase_data = (
-            f'\nNumer dowodu zakupu: {data.get("purchase_document_number")}; '
-            f'Data zakupu: {data.get("purchase_date")}\n'
-        )
-        description += purchase_data
+        if data.get("purchase_document_number"):
+            description += f'\nNumer dowodu zakupu: {data.get("purchase_document_number")}; '
+        if data.get("purchase_date"):
+            description += f'Data zakupu: {data.get("purchase_date")}\n'
         shipping = Shipping()
         shipping_address = ShippingAddress()
         if data.get("shipping") == "delivery_company" and data.get("shipping_country"):
