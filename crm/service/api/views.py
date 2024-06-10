@@ -73,6 +73,7 @@ class StageViewSet(ListModelMixin, UpdateModelMixin, RetrieveModelMixin, BaseVie
 
 class DeviceCatalogViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     queryset = DeviceCatalog.objects.all()
+    permission_classes = [IsAuthenticated | HasAPIKey]
     serializer_class = DeviceCatalogSerializer
 
 
@@ -85,6 +86,7 @@ class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseVi
     queryset = Device.objects.all()
     permission_classes = [IsAuthenticated | HasAPIKey]
     serializer_class = DeviceSerializer
+    filterset_fields = ["uuid", "device_catalog__uuid"]
 
 
 class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, CreateModelMixin, BaseViewSet):
