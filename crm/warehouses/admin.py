@@ -6,4 +6,4 @@ from crm.warehouses.models import Warehouse
 
 @admin.register(Warehouse)
 class WarehouseAdmin(ModelAdmin):
-    pass
+    search_fields = ["symbol", "name"]
