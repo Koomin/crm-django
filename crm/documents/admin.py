@@ -6,4 +6,4 @@ from crm.documents.models import DocumentType
 
 @admin.register(DocumentType)
 class DocumentTypeAdmin(ModelAdmin):
-    pass
+    search_fields = ["symbol", "name"]
