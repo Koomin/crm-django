@@ -75,6 +75,9 @@ class AttributeDefinitionItemAdmin(ModelAdmin):
 @admin.register(AttributeDefinition)
 class AttributeDefinitionAdmin(ModelAdmin):
     actions = (set_active, set_inactive)
+    search_fields = [
+        "code",
+    ]
 
 
 @admin.register(StageDuration)
