@@ -8,8 +8,37 @@ from zeep import Client
 from crm.crm_config.models import Log
 
 
-class GLSClient:
+class ShippingClient:
     def __init__(self):
+        pass
+
+    def _serializer(self, obj) -> dict:
+        pass
+
+
+class RabenClient(ShippingClient):
+    def __init__(self):
+        super().__init__()
+        self._url = settings.RABEN_URL
+        self._username = settings.RABEN_USERNAME
+        self._password = settings.RABEN_PASSWORD
+        self._client = Client(self._url)
+        self._header = f"""
+        <Security xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+                                <UsernameToken>
+                                    <Username>{self._username}</Username>
+                                    <Password>{self._password}</Password>
+                                </UsernameToken>
+                            </Security>
+                        """
+
+    def _serializer(self, obj):
+        pass
+
+
+class GLSClient(ShippingClient):
+    def __init__(self):
+        super().__init__()
         self._url = settings.GLS_URL
         self._username = settings.GLS_USERNAME
         self._password = settings.GLS_PASSWORD
