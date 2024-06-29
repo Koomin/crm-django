@@ -2,11 +2,12 @@ from rest_framework import serializers
 
 from crm.crm_config.api.serializers import CountrySerializer
 from crm.crm_config.models import Country
-from crm.service.api.serializers import AttributeDefinition, ServiceOrderSerializer
-from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingStatus, Status
+from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingMethod, ShippingStatus, Status
 
 
 class StatusSerializer(serializers.ModelSerializer):
+    from crm.service.api.serializers import AttributeDefinition
+
     attribute = serializers.SlugRelatedField(
         slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False
     )
@@ -14,6 +15,12 @@ class StatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status
         fields = ["uuid", "code", "name", "attribute"]
+
+
+class ShippingMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingMethod
+        fields = ["uuid", "name", "company"]
 
 
 class ShippingStatusSerializer(serializers.ModelSerializer):
@@ -58,10 +65,13 @@ class ShippingCompanySerializer(serializers.ModelSerializer):
 
 
 class ShippingSerializer(serializers.ModelSerializer):
+    from crm.service.api.serializers import ServiceOrderSerializer
+
     address = ShippingAddressSerializer(read_only=True)
     service_order = ServiceOrderSerializer(read_only=True)
     status = ShippingStatusRelatedSerializer(many=True, read_only=True)
     shipping_company = ShippingCompanySerializer()
+    shipping_method = ShippingMethodSerializer()
 
     class Meta:
         model = Shipping

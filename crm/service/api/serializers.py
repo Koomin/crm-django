@@ -82,6 +82,7 @@ class DeviceSerializer(serializers.ModelSerializer):
     shipping_company = serializers.SlugRelatedField(
         slug_field="uuid", queryset=ShippingCompany.objects.all(), read_only=False
     )
+    shipping_method = serializers.SlugRelatedField(slug_field="uuid", many=True, read_only=True)
     device_catalog = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DeviceCatalog.objects.all(), read_only=False
     )
@@ -97,6 +98,7 @@ class DeviceSerializer(serializers.ModelSerializer):
             "document_type",
             "shipping_company",
             "device_catalog",
+            "shipping_method",
         ]
 
 

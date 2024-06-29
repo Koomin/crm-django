@@ -26,7 +26,7 @@ class ShippingCompany(BaseModel):
 
 class ShippingMethod(BaseModel):
     name = models.CharField(max_length=255)
-    company = models.ForeignKey(ShippingCompany, on_delete=models.CASCADE)
+    company = models.ForeignKey(ShippingCompany, on_delete=models.CASCADE, related_name="methods")
 
 
 class ShippingAddress(BaseModel):
@@ -45,6 +45,7 @@ class Shipping(BaseModel):
     shipping_company = models.ForeignKey(
         ShippingCompany, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
     )
+    shipping_method = models.ForeignKey(ShippingMethod, on_delete=models.CASCADE, related_name="shipping")
     parcel_id = models.CharField(max_length=120, null=True, blank=True)
     parcel_number = models.CharField(max_length=120, null=True, blank=True)
     confirmation_id = models.CharField(max_length=120, null=True, blank=True)

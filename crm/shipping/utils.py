@@ -18,26 +18,6 @@ class ShippingClient:
         pass
 
 
-class RabenClient(ShippingClient):
-    def __init__(self):
-        super().__init__()
-        self._url = settings.RABEN_URL
-        self._username = settings.RABEN_USERNAME
-        self._password = settings.RABEN_PASSWORD
-        self._client = Client(self._url)
-        self._header = f"""
-        <Security xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-                                <UsernameToken>
-                                    <Username>{self._username}</Username>
-                                    <Password>{self._password}</Password>
-                                </UsernameToken>
-                            </Security>
-                        """
-
-    def _serializer(self, obj):
-        pass
-
-
 class GLSClient(ShippingClient):
     def __init__(self):
         super().__init__()
@@ -282,7 +262,7 @@ class RabenClient:
             },
         }
 
-    def _serializer(self, obj) -> dict:
+    def _serializer(self, obj, parcel_id) -> dict:
         address = obj.address
         street = address.street + str(address.street_number) if address.street_number else address.street
         street = street + str(address.home_number) if address.home_number else street
@@ -290,7 +270,7 @@ class RabenClient:
             "creationDateTime": str(timezone.now()),
             "documentStatusCode": "ORIGINAL",
             "documentActionCode": "ADD",
-            "transportInstructionIdentification": {"entityIdentification": "TEST_EDI_REF_1"},
+            "transportInstructionIdentification": {"entityIdentification": f"{parcel_id}"},
             "transportInstructionFunction": "SHIPMENT",
             "logisticServicesBuyer": {
                 "additionalPartyIdentification": {
@@ -299,10 +279,10 @@ class RabenClient:
                 },
             },
             "transportInstructionShipment": {
-                # 'additionalShipmentIdentification': {
-                #     'additionalShipmentIdentificationTypeCode': 'refopd',
-                #     '_value_1': 'TEST_EDI_REF_1',
-                # },
+                "additionalShipmentIdentification": {
+                    "additionalShipmentIdentificationTypeCode": "refopd",
+                    "_value_1": f"{parcel_id}",
+                },
                 "note": {"languageCode": "PL", "noteTypeCode": "SEC", "_value_1": "Folia zwykła + taśma firmowa"},
                 "receiver": {
                     # 'additionalPartyIdentification': {
@@ -416,7 +396,8 @@ class RabenClient:
         }
 
     def create_parcel(self, shipping_obj):
-        data = self._serializer(shipping_obj)
+        parcel_id = f"{shipping_obj.service_order.contractor.id}{shipping_obj.id}"
+        data = self._serializer(shipping_obj, parcel_id=parcel_id)
         try:
             self._client.service.importTransportInstruction(self._header(), transportInstruction=data)
         except Exception as e:
@@ -429,12 +410,30 @@ class RabenClient:
             )
             return False
         else:
-            # shipping_obj.parcel_id = parcel_id
+            shipping_obj.parcel_id = parcel_id
             shipping_obj.save_without_update()
             return self._get_track_ids(shipping_obj)
 
     def create_label(self, shipping_obj):
-        data = {"session": self._session, "id": shipping_obj.parcel_id, "mode": "one_label_on_a4_lt_pdf"}
+        data = {
+            "transportDocumentRequest": {
+                "creationDateTime": str(timezone.now()),
+                "documentStatusCode": "ADDITIONAL_TRANSMISSION",
+                "documentActionCode": "GET_DOC_PDF",
+                "transportDocumentRequestIdentification": {
+                    "entityIdentification": f"{shipping_obj.parcel_id}",
+                },
+                "transportDocumentInformationCode": "LABELS",
+                "transportDocumentObjectCode": "INLINE",
+                "transportDocumentRequestShipment": {
+                    "additionalShipmentIdentification": {
+                        "additionalShipmentIdentificationTypeCode": "refopd",
+                        "_value_1": f"{shipping_obj.parcel_id}",
+                    }
+                },
+            }
+        }
+
         try:
             label_base64 = self._client.service.adePreparingBox_GetConsignLabels(**data)
         except Exception as e:

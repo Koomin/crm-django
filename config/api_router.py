@@ -35,6 +35,7 @@ from crm.service.api.views import (
 from crm.shipping.api.views import (
     ShippingAddressViewSet,
     ShippingCompanyViewSet,
+    ShippingMethodViewSet,
     ShippingStatusViewSet,
     ShippingViewSet,
     StatusViewSet,
@@ -81,6 +82,7 @@ router.register("shipping-statuses", ShippingStatusViewSet)
 router.register("statuses", StatusViewSet)
 router.register("taxes", TaxPercentageViewSet)
 router.register("shipping-companies", ShippingCompanyViewSet)
+router.register("shipping-methods", ShippingMethodViewSet)
 router.register("service-address", ServiceAddressViewSet)
 
 app_name = "api"

@@ -54,7 +54,13 @@ class Device(OptimaModel):
     device_catalog = models.ForeignKey(DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True)
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
     shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL, null=True, blank=True)
+    shipping_method = models.ManyToManyField("shipping.ShippingMethod")
     active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if self.shipping_company:
+            self.shipping_method.add(self.shipping_company.methods.all())
+        super().save(*args, **kwargs)
 
 
 class OrderType(BaseModel):
