@@ -85,6 +85,7 @@ class ShippingSerializer(serializers.ModelSerializer):
             "is_sent",
             "status",
             "shipping_company",
+            "shipping_method",
         ]
 
 

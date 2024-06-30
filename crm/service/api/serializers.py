@@ -73,16 +73,18 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 
 class DeviceSerializer(serializers.ModelSerializer):
-    from crm.shipping.models import ShippingCompany
+    from crm.shipping.models import ShippingCompany, ShippingMethod
 
     device_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
     document_type = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
     )
-    shipping_company = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=ShippingCompany.objects.all(), read_only=False
+    # shipping_company = serializers.SlugRelatedField(
+    #     slug_field="uuid", queryset=ShippingCompany.objects.all(), read_only=False
+    # )
+    shipping_method = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ShippingMethod.objects.all(), many=True, read_only=False
     )
-    shipping_method = serializers.SlugRelatedField(slug_field="uuid", many=True, read_only=True)
     device_catalog = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DeviceCatalog.objects.all(), read_only=False
     )
@@ -96,7 +98,7 @@ class DeviceSerializer(serializers.ModelSerializer):
             "description",
             "device_type",
             "document_type",
-            "shipping_company",
+            # "shipping_company",
             "device_catalog",
             "shipping_method",
         ]

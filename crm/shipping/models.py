@@ -45,7 +45,9 @@ class Shipping(BaseModel):
     shipping_company = models.ForeignKey(
         ShippingCompany, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
     )
-    shipping_method = models.ForeignKey(ShippingMethod, on_delete=models.CASCADE, related_name="shipping")
+    shipping_method = models.ForeignKey(
+        ShippingMethod, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
+    )
     parcel_id = models.CharField(max_length=120, null=True, blank=True)
     parcel_number = models.CharField(max_length=120, null=True, blank=True)
     confirmation_id = models.CharField(max_length=120, null=True, blank=True)
@@ -54,6 +56,11 @@ class Shipping(BaseModel):
     default_send = models.BooleanField(default=False)
     is_sent = models.BooleanField(default=False)
     delivered = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.shipping_method and not self.shipping_company:
+            self.shipping_company = self.shipping_method.company
+        super().save(*args, **kwargs)
 
     def send(self):
         if self.is_sent:
