@@ -370,3 +370,9 @@ GLS_USERNAME = env("GLS_USERNAME")
 GLS_PASSWORD = env("GLS_PASSWORD")
 GLS_URL = env("GLS_URL")
 GLS_TRACKING_URL = env("GLS_TRACKING_URL")
+
+# RABEN
+# ------------------------------------------------------------------------------
+RABEN_URL = env("RABEN_URL")
+RABEN_USERNAME = env("RABEN_USERNAME")
+RABEN_PASSWORD = env("RABEN_PASSWORD")
