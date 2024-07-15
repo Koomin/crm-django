@@ -302,7 +302,7 @@ class RabenClient:
                     },
                     "address": {
                         "city": address.city,
-                        "countryCode": address.country_code,
+                        "countryCode": address.country.code,
                         "name": address.name,
                         "postalCode": address.postal_code,
                         "streetAddressOne": street,
@@ -332,7 +332,7 @@ class RabenClient:
                 "shipFrom": {
                     "address": {
                         "city": address.city,
-                        "countryCode": address.country_code,
+                        "countryCode": address.country.code,
                         "name": address.name,
                         "postalCode": address.postal_code,
                         "streetAddressOne": street,
