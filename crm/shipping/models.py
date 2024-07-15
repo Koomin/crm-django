@@ -7,7 +7,7 @@ from django.db import models
 from crm.core.models import BaseModel
 from crm.crm_config.models import Country, Log
 from crm.service.models import AttributeDefinition, ServiceOrder
-from crm.shipping.utils import GLSClient
+from crm.shipping.utils import GLSClient, RabenClient
 
 
 class ShippingCompany(BaseModel):
@@ -26,7 +26,8 @@ class ShippingCompany(BaseModel):
 
 class ShippingMethod(BaseModel):
     name = models.CharField(max_length=255)
-    company = models.ForeignKey(ShippingCompany, on_delete=models.CASCADE)
+    company = models.ForeignKey(ShippingCompany, on_delete=models.CASCADE, related_name="methods")
+    code = models.CharField(max_length=15, null=True, blank=True)
 
 
 class ShippingAddress(BaseModel):
@@ -45,6 +46,9 @@ class Shipping(BaseModel):
     shipping_company = models.ForeignKey(
         ShippingCompany, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
     )
+    shipping_method = models.ForeignKey(
+        ShippingMethod, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
+    )
     parcel_id = models.CharField(max_length=120, null=True, blank=True)
     parcel_number = models.CharField(max_length=120, null=True, blank=True)
     confirmation_id = models.CharField(max_length=120, null=True, blank=True)
@@ -54,11 +58,18 @@ class Shipping(BaseModel):
     is_sent = models.BooleanField(default=False)
     delivered = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        if self.shipping_method and not self.shipping_company:
+            self.shipping_company = self.shipping_method.company
+        super().save(*args, **kwargs)
+
     def send(self):
         if self.is_sent:
             return False
         if self.shipping_company.name == "GLS":
             client = GLSClient()
+        elif self.shipping_company.name == "RABEN":
+            client = RabenClient()
         else:
             Log.objects.create(
                 exception_traceback="No shipping company",

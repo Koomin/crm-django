@@ -53,7 +53,9 @@ class Device(OptimaModel):
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
     device_catalog = models.ForeignKey(DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True)
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
-    shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL, null=True, blank=True)
+    # shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL,
+    # null=True, blank=True)
+    shipping_method = models.ManyToManyField("shipping.ShippingMethod")
     active = models.BooleanField(default=True)
 
 

@@ -52,7 +52,7 @@ from crm.service.models import (
     Stage,
     StageDuration,
 )
-from crm.shipping.models import Shipping, ShippingAddress
+from crm.shipping.models import Shipping, ShippingAddress, ShippingMethod
 
 
 class CategoryViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
@@ -323,12 +323,13 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             description += f'Data zakupu: {data.get("purchase_date")}\n'
         shipping = Shipping()
         shipping_address = ShippingAddress()
-        if data.get("shipping") == "delivery_company" and data.get("shipping_country"):
+        if data.get("shipping") == "delivery_company":
+            shipping.default_send = True
+        if data.get("shipping_country"):
             try:
                 shipping_address.country = Country.objects.get(uuid=data.get("shipping_country"))
             except Country.DoesNotExist:
                 shipping_address.country = None
-            shipping.default_send = True
             shipping_address.city = data.get("shipping_city")
             shipping_address.home_number = (
                 data.get("shipping_home_number") if data.get("shipping_home_number") else None
@@ -375,6 +376,8 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
 
         email_order_created.apply_async()
         shipping.service_order = instance
+        if data.get("shipping_method"):
+            shipping.shipping_method = ShippingMethod.objects.get(uuid=data.get("shipping_method"))
         shipping.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

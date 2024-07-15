@@ -3,18 +3,21 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_api_key.permissions import HasAPIKey
 
 from crm.core.api.views import BaseViewSet
 from crm.shipping.api.serializers import (
     ShippingAddressUpdateSerializer,
     ShippingCompanySerializer,
+    ShippingMethodSerializer,
     ShippingSerializer,
     ShippingStatusSerializer,
     ShippingUpdateSerializer,
     StatusSerializer,
 )
-from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingStatus, Status
+from crm.shipping.models import Shipping, ShippingAddress, ShippingCompany, ShippingMethod, ShippingStatus, Status
 
 
 class ShippingViewSet(ListModelMixin, UpdateModelMixin, BaseViewSet):
@@ -87,3 +90,9 @@ class ShippingStatusViewSet(ListModelMixin, BaseViewSet):
 class ShippingCompanyViewSet(ListModelMixin, BaseViewSet):
     queryset = ShippingCompany.objects.all()
     serializer_class = ShippingCompanySerializer
+
+
+class ShippingMethodViewSet(ListModelMixin, BaseViewSet):
+    queryset = ShippingMethod.objects.all()
+    serializer_class = ShippingMethodSerializer
+    permission_classes = [IsAuthenticated | HasAPIKey]
