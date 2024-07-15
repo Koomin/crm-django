@@ -350,7 +350,6 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             shipping_address.name = data.get("contractor_name")
         if data.get("shipping_method"):
             shipping.shipping_method = ShippingMethod.objects.get(uuid=data.get("shipping_method"))
-        if shipping.default_sen:
             shipping.shipping_company = shipping.shipping_method.company
         shipping_address.save()
         shipping.address = shipping_address
