@@ -474,10 +474,10 @@ class RabenClient:
 
     def _get_track_ids(self, shipping_obj, response):
         transport_instruction = response.transportInstructionResponse[0].transportInstructionShipment[0]
-        self.track_id = transport_instruction.additionalShipmentIdentification[1]._value_1
-        if self.track_id:
+        track_id = transport_instruction.additionalShipmentIdentification[1]._value_1
+        if track_id:
             shipping_obj.track_ids = [
-                self.track_id,
+                track_id,
             ]
             shipping_obj.save_without_update()
             return True
@@ -486,7 +486,7 @@ class RabenClient:
     def logout(self):
         return True
 
-    def confirm_shipping(self):
-        if self.track_id:
+    def confirm_shipping(self, shipping_obj):
+        if shipping_obj.track_id:
             return True
         return False
