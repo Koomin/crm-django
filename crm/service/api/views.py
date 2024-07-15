@@ -348,8 +348,10 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             shipping_address.street = data.get("contractor_street")
             shipping_address.street_number = data.get("contractor_street_number")
             shipping_address.name = data.get("contractor_name")
-        if device:
-            shipping.shipping_company = device.shipping_company
+        if data.get("shipping_method"):
+            shipping.shipping_method = ShippingMethod.objects.get(uuid=data.get("shipping_method"))
+        if shipping.default_sen:
+            shipping.shipping_company = shipping.shipping_method.company
         shipping_address.save()
         shipping.address = shipping_address
         address = (
@@ -376,8 +378,6 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
 
         email_order_created.apply_async()
         shipping.service_order = instance
-        if data.get("shipping_method"):
-            shipping.shipping_method = ShippingMethod.objects.get(uuid=data.get("shipping_method"))
         shipping.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
