@@ -7,7 +7,7 @@ from django.db import models
 from crm.core.models import BaseModel
 from crm.crm_config.models import Country, Log
 from crm.service.models import AttributeDefinition, ServiceOrder
-from crm.shipping.utils import GLSClient
+from crm.shipping.utils import GLSClient, RabenClient
 
 
 class ShippingCompany(BaseModel):
@@ -27,6 +27,7 @@ class ShippingCompany(BaseModel):
 class ShippingMethod(BaseModel):
     name = models.CharField(max_length=255)
     company = models.ForeignKey(ShippingCompany, on_delete=models.CASCADE, related_name="methods")
+    code = models.CharField(max_length=15, null=True, blank=True)
 
 
 class ShippingAddress(BaseModel):
@@ -67,6 +68,8 @@ class Shipping(BaseModel):
             return False
         if self.shipping_company.name == "GLS":
             client = GLSClient()
+        elif self.shipping_company.name == "RABEN":
+            client = RabenClient()
         else:
             Log.objects.create(
                 exception_traceback="No shipping company",

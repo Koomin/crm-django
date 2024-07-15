@@ -236,11 +236,10 @@ class RabenClient:
             return None
 
     def _header(self):
-        # TODO get proper values
         return {
             "HeaderVersion": "1",
             "Sender": {
-                "Identifier": "Wagner-Service Sp. z o.o.",
+                "Identifier": "WAGNESWIIM",
             },
             "Receiver": {
                 "Identifier": "Raben Poland Test",
@@ -256,7 +255,7 @@ class RabenClient:
                 "Scope": [
                     {"Type": "EDIcustomerNumber", "InstanceIdentifier": "90000050"},
                     {"Type": "fileType", "InstanceIdentifier": "NF"},
-                    {"Type": "department", "InstanceIdentifier": "44"},
+                    {"Type": "department", "InstanceIdentifier": 63},
                     {"Type": "application", "InstanceIdentifier": "INT"},
                 ]
             },
@@ -270,12 +269,12 @@ class RabenClient:
             "creationDateTime": str(timezone.now()),
             "documentStatusCode": "ORIGINAL",
             "documentActionCode": "ADD",
-            "transportInstructionIdentification": {"entityIdentification": f"{parcel_id}"},
+            "transportInstructionIdentification": {"entityIdentification": 1},
             "transportInstructionFunction": "SHIPMENT",
             "logisticServicesBuyer": {
                 "additionalPartyIdentification": {
                     "additionalPartyIdentificationTypeCode": "searchname",
-                    "_value_1": "TEST_CLIENT",
+                    "_value_1": "WAGNESWIIM",
                 },
             },
             "transportInstructionShipment": {
@@ -283,25 +282,24 @@ class RabenClient:
                     "additionalShipmentIdentificationTypeCode": "refopd",
                     "_value_1": f"{parcel_id}",
                 },
-                "note": {"languageCode": "PL", "noteTypeCode": "SEC", "_value_1": "Folia zwykła + taśma firmowa"},
                 "receiver": {
-                    # 'additionalPartyIdentification': {
-                    #     'additionalPartyIdentificationTypeCode': 'searchname',
-                    #     '_value_1': 'RECEIVER_SN'
-                    # },
+                    "additionalPartyIdentification": {
+                        "additionalPartyIdentificationTypeCode": "searchname",
+                        "_value_1": "WAGNESWIIM",
+                    },
                     "address": {
-                        "city": "Warszawa",
+                        "city": "Świętochłowice",
                         "countryCode": "PL",
-                        "name": "TEST SHIPPER",
-                        "postalCode": "00-716",
-                        "streetAddressOne": "TEST STREET SHIPPER 1",
+                        "name": "Wagner Service",
+                        "postalCode": "41-100",
+                        "streetAddressOne": "E.Imieli 18",
                     },
                 },
                 "shipper": {
-                    # 'additionalPartyIdentification': {
-                    #     'additionalPartyIdentificationTypeCode': 'searchname',
-                    #     '_value_1': 'SHIPPER_SN'
-                    # },
+                    "additionalPartyIdentification": {
+                        "additionalPartyIdentificationTypeCode": "searchname",
+                        "_value_1": obj.service_order.contractor_name,
+                    },
                     "address": {
                         "city": address.city,
                         "countryCode": address.country_code,
@@ -311,16 +309,16 @@ class RabenClient:
                     },
                 },
                 "shipTo": {
-                    # 'additionalPartyIdentification': {
-                    #     'additionalPartyIdentificationTypeCode': 'searchname',
-                    #     '_value_1': 'RECEIVER_SN'
-                    # },
+                    "additionalPartyIdentification": {
+                        "additionalPartyIdentificationTypeCode": "searchname",
+                        "_value_1": "WAGNESWIIM",
+                    },
                     "address": {
-                        "city": "Warszawa",
+                        "city": "Świętochłowice",
                         "countryCode": "PL",
-                        "name": "TEST SHIPPER",
-                        "postalCode": "00-716",
-                        "streetAddressOne": "TEST STREET SHIPPER 1",
+                        "name": "Wagner Service",
+                        "postalCode": "41-100",
+                        "streetAddressOne": "E.Imieli 18",
                     },
                     "contact": {
                         "contactTypeCode": "BJ",
@@ -399,7 +397,7 @@ class RabenClient:
         parcel_id = f"{shipping_obj.service_order.contractor.id}{shipping_obj.id}"
         data = self._serializer(shipping_obj, parcel_id=parcel_id)
         try:
-            self._client.service.importTransportInstruction(self._header(), transportInstruction=data)
+            response = self._client.service.importTransportInstruction(self._header(), transportInstruction=data)
         except Exception as e:
             Log.objects.create(
                 exception_traceback=e,
@@ -412,7 +410,7 @@ class RabenClient:
         else:
             shipping_obj.parcel_id = parcel_id
             shipping_obj.save_without_update()
-            return self._get_track_ids(shipping_obj)
+            return self._get_track_ids(shipping_obj, response)
 
     def create_label(self, shipping_obj):
         data = {
@@ -421,7 +419,13 @@ class RabenClient:
                 "documentStatusCode": "ADDITIONAL_TRANSMISSION",
                 "documentActionCode": "GET_DOC_PDF",
                 "transportDocumentRequestIdentification": {
-                    "entityIdentification": f"{shipping_obj.parcel_id}",
+                    "entityIdentification": 1,
+                    "contentOwner": {
+                        "additionalPartyIdentification": {
+                            "additionalPartyIdentificationTypeCode": "searchname",
+                            "_value_1": "WAGNESWIIM",
+                        }
+                    },
                 },
                 "transportDocumentInformationCode": "LABELS",
                 "transportDocumentObjectCode": "INLINE",
@@ -435,7 +439,8 @@ class RabenClient:
         }
 
         try:
-            label_base64 = self._client.service.adePreparingBox_GetConsignLabels(**data)
+            with self._client.settings(raw_response=True):
+                response = self._client.service.getTransportDocument(self._header(), transportDocumentRequest=data)
         except Exception as e:
             Log.objects.create(
                 exception_traceback=e,
@@ -446,54 +451,29 @@ class RabenClient:
             )
             return False
         else:
+            import xml.etree.ElementTree as ET
+
+            root = ET.fromstring(response.text)
+            label_base64 = root.find(".//transportDocumentObjectAttachment").text
             label = ContentFile(base64.b64decode(label_base64))
             file_name = f"{shipping_obj.parcel_id}.pdf"
             shipping_obj.label.save(file_name, label, save=True)
             # _get_track_ids moved to create_parcel while create_label method is unnecessary
-            return self._get_track_ids(shipping_obj)
-
-    def _get_track_ids(self, shipping_obj):
-        data = {
-            "session": self._session,
-            "id": shipping_obj.parcel_id,
-        }
-        try:
-            parcel_data = self._client.service.adePreparingBox_GetConsign(**data)
-        except Exception as e:
-            Log.objects.create(
-                exception_traceback=e,
-                method_name="_get_track_ids",
-                model_name=self.__class__.__name__,
-                object_uuid=shipping_obj.uuid,
-                object_serialized=data,
-            )
-            return False
-        else:
-            track_ids = []
-            parcels = parcel_data.parcels.items
-            for parcel in parcels:
-                track_ids.append(parcel["number"])
-            shipping_obj.track_ids = track_ids
-            shipping_obj.save_without_update()
             return True
 
-    def confirm_shipping(self, shipping_obj):
-        data = {"session": self._session, "consigns_ids": [shipping_obj.parcel_id], "desc": "Potwierdzenie"}
-        try:
-            confirmed_id = self._client.service.adePickup_Create(**data)
-        except Exception as e:
-            Log.objects.create(
-                exception_traceback=e,
-                method_name="confirm_shipping",
-                model_name=self.__class__.__name__,
-                object_uuid=shipping_obj.uuid,
-                object_serialized=data,
-            )
-            return False
-        else:
-            shipping_obj.confirmation_id = confirmed_id
+    def _get_track_ids(self, shipping_obj, response):
+        transport_instruction = response.transportInstructionResponse[0].transportInstructionShipment[0]
+        self.track_id = transport_instruction.additionalShipmentIdentification[1]._value_1
+        if self.track_id:
+            shipping_obj.track_ids = [
+                self.track_id,
+            ]
             shipping_obj.save_without_update()
-            return True
 
     def logout(self):
-        self._client.service.adeLogout(**{"session": self._session})
+        return True
+
+    def confirm_shipping(self):
+        if self.track_id:
+            return True
+        return False
