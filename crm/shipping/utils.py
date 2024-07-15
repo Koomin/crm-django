@@ -330,6 +330,10 @@ class RabenClient:
                     },
                 },
                 "shipFrom": {
+                    "additionalPartyIdentification": {
+                        "additionalPartyIdentificationTypeCode": "searchname",
+                        "_value_1": obj.service_order.contractor_name,
+                    },
                     "address": {
                         "city": address.city,
                         "countryCode": address.country.code,
@@ -352,9 +356,9 @@ class RabenClient:
                         ],
                     },
                 },
-                "transportInstructionTerms": {
-                    "transportServiceCategoryType": "30",
-                },
+                # "transportInstructionTerms": {
+                #     "transportServiceCategoryType": "30",
+                # },
                 # 'plannedDelivery': {
                 #     'logisticEventPeriod': {
                 #         'beginDate': '',
@@ -363,14 +367,14 @@ class RabenClient:
                 #         'endTime': ''
                 #     }
                 # },
-                "plannedDespatch": {
-                    "logisticEventPeriod": {
-                        "beginDate": "",
-                        "endDate": "",
-                        "beginTime": "08:00:00",
-                        "endTime": "16:00:00",
-                    }
-                },
+                # "plannedDespatch": {
+                #     "logisticEventPeriod": {
+                #         "beginDate": "",
+                #         "endDate": "",
+                #         "beginTime": "08:00:00",
+                #         "endTime": "16:00:00",
+                #     }
+                # },
                 "transportInstructionShipmentItem": {
                     "lineItemNumber": "1",
                     "parentLineItemNumber": "1",
@@ -416,6 +420,7 @@ class RabenClient:
         else:
             shipping_obj.parcel_id = parcel_id
             shipping_obj.save_without_update()
+            self.create_label(shipping_obj)
             return self._get_track_ids(shipping_obj, response)
 
     def create_label(self, shipping_obj):
@@ -475,6 +480,8 @@ class RabenClient:
                 self.track_id,
             ]
             shipping_obj.save_without_update()
+            return True
+        return False
 
     def logout(self):
         return True
