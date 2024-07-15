@@ -487,6 +487,6 @@ class RabenClient:
         return True
 
     def confirm_shipping(self, shipping_obj):
-        if shipping_obj.track_id:
+        if shipping_obj.track_ids:
             return True
         return False
