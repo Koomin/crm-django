@@ -425,28 +425,26 @@ class RabenClient:
 
     def create_label(self, shipping_obj):
         data = {
-            "transportDocumentRequest": {
-                "creationDateTime": str(timezone.now()),
-                "documentStatusCode": "ADDITIONAL_TRANSMISSION",
-                "documentActionCode": "GET_DOC_PDF",
-                "transportDocumentRequestIdentification": {
-                    "entityIdentification": 1,
-                    "contentOwner": {
-                        "additionalPartyIdentification": {
-                            "additionalPartyIdentificationTypeCode": "searchname",
-                            "_value_1": "WAGNESWIIM",
-                        }
-                    },
-                },
-                "transportDocumentInformationCode": "LABELS",
-                "transportDocumentObjectCode": "INLINE",
-                "transportDocumentRequestShipment": {
-                    "additionalShipmentIdentification": {
-                        "additionalShipmentIdentificationTypeCode": "refopd",
-                        "_value_1": f"{shipping_obj.parcel_id}",
+            "creationDateTime": str(timezone.now()),
+            "documentStatusCode": "ADDITIONAL_TRANSMISSION",
+            "documentActionCode": "GET_DOC_PDF",
+            "transportDocumentRequestIdentification": {
+                "entityIdentification": 1,
+                "contentOwner": {
+                    "additionalPartyIdentification": {
+                        "additionalPartyIdentificationTypeCode": "searchname",
+                        "_value_1": "WAGNESWIIM",
                     }
                 },
-            }
+            },
+            "transportDocumentInformationCode": "LABELS",
+            "transportDocumentObjectCode": "INLINE",
+            "transportDocumentRequestShipment": {
+                "additionalShipmentIdentification": {
+                    "additionalShipmentIdentificationTypeCode": "refopd",
+                    "_value_1": f"{shipping_obj.parcel_id}",
+                }
+            },
         }
 
         try:
