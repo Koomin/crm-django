@@ -377,17 +377,23 @@ class RabenClient:
                     "logisticUnit": {
                         "grossWeight": {"_value_1": "23", "measurementUnitCode": "KGM"},
                         "dimension": {
-                            "depth": {"_value_1": "10", "measurementUnitCode": "MTR"},
-                            "height": {"_value_1": "10", "measurementUnitCode": "MTR"},
-                            "width": {"_value_1": "10", "measurementUnitCode": "MTR"},
+                            "depth": {"_value_1": "1.2", "measurementUnitCode": "MTR"},
+                            "height": {"_value_1": "0.6", "measurementUnitCode": "MTR"},
+                            "width": {"_value_1": "0.6", "measurementUnitCode": "MTR"},
                         },
                     },
                     "transportCargoCharacteristics": {
                         # ds/ep
+                        "cargoTypeCode": "neam",
+                        "cargoTypeDescription": {"languageCode": "PL", "_value_1": "Produkty ."},
                         "totalPackageQuantity": {
                             "_value_1": "1",
                             "measurementUnitCode": "ds",
-                        }
+                        },
+                        "totalGrossVolume": {"measurementUnitCode": "MTQ", "_value_1": 2.112},
+                        "totalGrossWeight": {"measurementUnitCode": "KGM", "_value_1": 23.00},
+                        "totalLoadingLength": {"measurementUnitCode": "PP", "_value_1": 1.00},
+                        "totalItemQuantity": {"measurementUnitCode": "ds", "_value_1": 1.00},
                     },
                 },
             },
