@@ -5,10 +5,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_api_key.permissions import HasAPIKey
 
@@ -230,6 +230,11 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
         serializer = self.get_serializer(qs, many=True)
         return Response(data=serializer.data)
 
+    @permission_classes(
+        [
+            IsAuthenticatedOrReadOnly,
+        ]
+    )
     @action(detail=True, methods=["get"])
     def images(self, request, uuid):
         obj = get_object_or_404(ServiceOrder, uuid=uuid)
