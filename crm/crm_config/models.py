@@ -26,6 +26,7 @@ class ServiceAddress(BaseModel):
     postal_code = models.CharField(max_length=120, null=True, blank=True)
     phone_number = models.CharField(max_length=255, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
+    opening_hours = models.TextField(null=True, blank=True)
 
 
 class TaxPercentage(BaseModel):
