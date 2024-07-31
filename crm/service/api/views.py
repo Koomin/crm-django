@@ -5,10 +5,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_api_key.permissions import HasAPIKey
 
@@ -230,6 +230,11 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
         serializer = self.get_serializer(qs, many=True)
         return Response(data=serializer.data)
 
+    @permission_classes(
+        [
+            IsAuthenticatedOrReadOnly,
+        ]
+    )
     @action(detail=True, methods=["get"])
     def images(self, request, uuid):
         obj = get_object_or_404(ServiceOrder, uuid=uuid)
@@ -311,16 +316,13 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             device = Device.objects.get(uuid=data.get("device"))
         except Device.DoesNotExist:
             device = None
-        description = data.get("description")
-        if not description:
-            description = ""
-        description += "\nDane z formularza:\n"
+        description = ""
         model_contractor = f'{device.name}; {data.get("contractor_name")}\n'
         description += model_contractor
         if data.get("purchase_document_number"):
-            description += f'\nNumer dowodu zakupu: {data.get("purchase_document_number")}; '
+            description += f'\nDowód zakupu: {data.get("purchase_document_number")} '
         if data.get("purchase_date"):
-            description += f'Data zakupu: {data.get("purchase_date")}\n'
+            description += f'{data.get("purchase_date")}\n'
         shipping = Shipping()
         shipping_address = ShippingAddress()
         if data.get("shipping") == "delivery_company":
@@ -354,11 +356,12 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         shipping_address.save()
         shipping.address = shipping_address
         address = (
-            f"Adres do wysyłki:\n ul.{shipping_address.street} {shipping_address.street_number}"
+            f"Adres do obioru/wysyłki urządzenia:”:\n{shipping_address.street} {shipping_address.street_number}"
             f"{'/' + shipping_address.home_number if shipping_address.home_number else ''}\n"
             f"{shipping_address.postal_code} {shipping_address.city}\n"
         )
         description += address
+        description += f'Opis usterki:\n{data.get("description")}'
         data["description"] = description
         data["document_date"] = timezone.now()
         try:
