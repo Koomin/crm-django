@@ -88,6 +88,7 @@ class DeviceSerializer(serializers.ModelSerializer):
     device_catalog = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DeviceCatalog.objects.all(), read_only=False
     )
+    available_services = serializers.SlugRelatedField(slug_field="uuid", many=True, read_only=True)
 
     class Meta:
         model = Device
@@ -101,6 +102,7 @@ class DeviceSerializer(serializers.ModelSerializer):
             # "shipping_company",
             "device_catalog",
             "shipping_method",
+            "available_services",
         ]
 
 

@@ -1,4 +1,6 @@
-from django.core.exceptions import ValidationError
+import csv
+
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 
 from crm.core.models import BaseModel, OptimaModel
@@ -73,3 +75,32 @@ class Log(BaseModel):
             else:
                 self.number = 1
         super().save(*args, **kwargs)
+
+
+class Import(BaseModel):
+    class ImportType(models.TextChoices):
+        shipping_methods = "Shipping Methods", "Shipping Methods"
+
+    file = models.FileField(blank=True, null=True, upload_to="imports/")
+    import_type = models.CharField(max_length=255, choices=ImportType.choices, default=ImportType.shipping_methods)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.import_type == "Shipping Methods":
+            with open(self.file.file.name, encoding="utf-8", errors="ignore") as f:
+                data = csv.reader(f, delimiter=";")
+                from crm.service.models import Device
+                from crm.shipping.models import ShippingMethod
+
+                for idx, row in enumerate(data):
+                    if idx == 0:
+                        continue
+                    if row[0]:
+                        device_code = row[0]
+                        shipping_methods = row[3].replace(" ", "").split(",")
+                        try:
+                            device = Device.objects.get(code=device_code)
+                        except ObjectDoesNotExist:
+                            pass
+                        else:
+                            device.shipping_method.set(ShippingMethod.objects.filter(name__in=shipping_methods))

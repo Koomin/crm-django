@@ -37,6 +37,9 @@ class DeviceCatalog(BaseModel):
     name = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.name
+
 
 class DeviceType(OptimaModel):
     # Optima table - CDN.SrsRodzajeU
@@ -51,12 +54,15 @@ class Device(OptimaModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=1024)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
-    device_catalog = models.ForeignKey(DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True)
+    device_catalog = models.ForeignKey(
+        DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True, related_name="devices"
+    )
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
     # shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL,
     # null=True, blank=True)
     shipping_method = models.ManyToManyField("shipping.ShippingMethod")
     active = models.BooleanField(default=True)
+    available_services = models.ManyToManyField("crm_config.ServiceAddress", blank=True, related_name="devices")
 
 
 class OrderType(BaseModel):
