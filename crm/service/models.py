@@ -57,6 +57,7 @@ class Device(OptimaModel):
     # null=True, blank=True)
     shipping_method = models.ManyToManyField("shipping.ShippingMethod")
     active = models.BooleanField(default=True)
+    available_services = models.ManyToManyField("crm_config.ServiceAddress", blank=True, related_name="devices")
 
 
 class OrderType(BaseModel):

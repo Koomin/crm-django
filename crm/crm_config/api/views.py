@@ -77,4 +77,7 @@ class TaxPercentageViewSet(ListModelMixin, BaseViewSet):
 class ServiceAddressViewSet(ListModelMixin, BaseViewSet):
     queryset = ServiceAddress.objects.all()
     serializer_class = ServiceAddressSerializer
+    filterset_fields = [
+        "devices__uuid",
+    ]
     permission_classes = [IsAuthenticated | HasAPIKey]
