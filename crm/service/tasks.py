@@ -332,4 +332,4 @@ def set_service_address():
     for device in Device.objects.filter(code__startswith="PF"):
         device.available_services.set([first_service, second_service])
     for device in Device.objects.filter(code__startswith="HF"):
-        device.available_services.set(first_service)
+        device.available_services.set([first_service])
