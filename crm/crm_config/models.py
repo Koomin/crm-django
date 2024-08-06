@@ -97,7 +97,7 @@ class Import(BaseModel):
                         continue
                     if row[0]:
                         device_code = row[0]
-                        shipping_methods = row[3].replace(" ", "").split(",")
+                        shipping_methods = row[3].replace(", ", ",").split(",")
                         try:
                             device = Device.objects.get(code=device_code)
                         except ObjectDoesNotExist:
