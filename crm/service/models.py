@@ -1,5 +1,4 @@
 from django.apps import apps
-from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.utils import timezone
 
@@ -203,18 +202,19 @@ class ServiceOrder(OptimaModel):
 
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         # TODO Test
-        default_stage = None
-        if not self.pk:
-            try:
-                default_stage = Stage.objects.get(is_default=True)
-            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
-                Log.objects.create(
-                    exception_traceback=e,
-                    method_name="save",
-                    model_name=self.__class__.__name__,
-                )
-            else:
-                self.stage = default_stage
+        # Moved to view
+        # default_stage = None
+        # if not self.pk:
+        #     try:
+        #         default_stage = Stage.objects.get(is_default=True)
+        #     except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+        #         Log.objects.create(
+        #             exception_traceback=e,
+        #             method_name="save",
+        #             model_name=self.__class__.__name__,
+        #         )
+        #     else:
+        #         self.stage = default_stage
         if self.device:
             if self.device.document_type:
                 self.document_type = self.device.document_type
@@ -227,8 +227,9 @@ class ServiceOrder(OptimaModel):
             self.contractor_name2 = self.contractor.name2
             self.contractor_name3 = self.contractor.name3
         super().save(fields_changed, with_optima_update, *args, **kwargs)
-        if default_stage:
-            StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
+        # MOVED TO VIEWS
+        # if default_stage:
+        #     StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
         if fields_changed and "stage" in fields_changed:
             general_settings_model = apps.get_model("crm_config", "GeneralSettings")
             try:
