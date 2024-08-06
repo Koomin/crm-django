@@ -153,7 +153,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
                     model_name=self.__class__.__name__,
                 )
             else:
-                request.data["stage"] = default_stage
+                request.data["stage"] = default_stage.uuid
         if request.data.get("stage"):
             try:
                 service_order = ServiceOrder.objects.get(uuid=kwargs.get("uuid"))
