@@ -39,3 +39,10 @@ GLS_USERNAME=
 GLS_PASSWORD=
 GLS_URL=
 GLS_TRACKING_URL=
+
+
+# RABEN
+# ------------------------------------------------------------------------------
+RABEN_URL=
+RABEN_USERNAME=
+RABEN_PASSWORD=

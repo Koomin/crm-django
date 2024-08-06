@@ -1,21 +1,20 @@
-import datetime
 import io
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import HttpResponse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_api_key.permissions import HasAPIKey
 
 from crm.contractors.models import Contractor
 from crm.core.api.mixins import OptimaUpdateModelMixin
 from crm.core.api.views import BaseViewSet
-from crm.crm_config.models import Country
+from crm.crm_config.models import Country, Log
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
     AttributeDefinitionSerializer,
@@ -144,6 +143,16 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
             # Moved to new service order creation
             # request.data["acceptance_date"] = timezone.now()
             request.data["user"] = request.user.uuid
+            try:
+                default_stage = Stage.objects.get(is_default=True)
+            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+                Log.objects.create(
+                    exception_traceback=e,
+                    method_name="partial_update",
+                    model_name=self.__class__.__name__,
+                )
+            else:
+                request.data["stage"] = default_stage.uuid
         if request.data.get("stage"):
             try:
                 service_order = ServiceOrder.objects.get(uuid=kwargs.get("uuid"))
@@ -230,16 +239,16 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
         serializer = self.get_serializer(qs, many=True)
         return Response(data=serializer.data)
 
+    @permission_classes(
+        [
+            AllowAny,
+        ]
+    )
     @action(detail=True, methods=["get"])
     def images(self, request, uuid):
         obj = get_object_or_404(ServiceOrder, uuid=uuid)
         form_files = obj.form_files.all()
         mem_zip = io.BytesIO()
-        filename = (
-            f"{obj.full_number}_{datetime.datetime.now()}.zip"
-            if obj.full_number
-            else f"_{datetime.datetime.now()}.zip"
-        )
         import zipfile
 
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
@@ -250,8 +259,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
                 except AttributeError:
                     zf.writestr(f.file.name.split("/")[-1], file_to_zip.read())
         mem_zip = mem_zip.getvalue()
-        response = HttpResponse(mem_zip, content_type="application/force-download")
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        response = HttpResponse(mem_zip, content_type="application/zip")
         return response
 
 
@@ -311,16 +319,13 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             device = Device.objects.get(uuid=data.get("device"))
         except Device.DoesNotExist:
             device = None
-        description = data.get("description")
-        if not description:
-            description = ""
-        description += "\nDane z formularza:\n"
+        description = ""
         model_contractor = f'{device.name}; {data.get("contractor_name")}\n'
         description += model_contractor
         if data.get("purchase_document_number"):
-            description += f'\nNumer dowodu zakupu: {data.get("purchase_document_number")}; '
+            description += f'\nDowód zakupu: {data.get("purchase_document_number")} '
         if data.get("purchase_date"):
-            description += f'Data zakupu: {data.get("purchase_date")}\n'
+            description += f'{data.get("purchase_date")}\n'
         shipping = Shipping()
         shipping_address = ShippingAddress()
         if data.get("shipping") == "delivery_company":
@@ -354,11 +359,12 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         shipping_address.save()
         shipping.address = shipping_address
         address = (
-            f"Adres do wysyłki:\n ul.{shipping_address.street} {shipping_address.street_number}"
+            f"Adres do obioru/wysyłki urządzenia:\n{shipping_address.street} {shipping_address.street_number}"
             f"{'/' + shipping_address.home_number if shipping_address.home_number else ''}\n"
             f"{shipping_address.postal_code} {shipping_address.city}\n"
         )
         description += address
+        description += f'Opis usterki:\n{data.get("description")}'
         data["description"] = description
         data["document_date"] = timezone.now()
         try:

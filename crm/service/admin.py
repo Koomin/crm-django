@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from crm.service.actions import set_active, set_inactive
+from crm.service.actions import set_active, set_inactive, set_standard_package
 from crm.service.models import (
     Attribute,
     AttributeDefinition,
@@ -39,7 +39,7 @@ class DeviceTypeAdmin(ModelAdmin):
 
 @admin.register(DeviceCatalog)
 class DeviceCatalogAdmin(ModelAdmin):
-    pass
+    actions = (set_standard_package,)
 
 
 @admin.register(Device)

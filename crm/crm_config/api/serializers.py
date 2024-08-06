@@ -79,4 +79,5 @@ class ServiceAddressSerializer(serializers.ModelSerializer):
             "home_number",
             "phone_number",
             "email",
+            "opening_hours",
         ]
