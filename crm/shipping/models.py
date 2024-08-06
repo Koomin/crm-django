@@ -16,6 +16,7 @@ class ShippingCompany(BaseModel):
         RABEN = "RABEN", "Raben"
 
     name = models.CharField(choices=Companies.choices, default=Companies.GLS)
+    track_url = models.CharField(max_length=2048, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self._state.adding:
