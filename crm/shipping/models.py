@@ -1,13 +1,34 @@
 import datetime
 
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, ValidationError
 from django.db import models
 
 from crm.core.models import BaseModel
 from crm.crm_config.models import Country, Log
 from crm.service.models import AttributeDefinition, ServiceOrder
-from crm.shipping.utils import GLSClient
+from crm.shipping.utils import GLSClient, RabenClient
+
+
+class ShippingCompany(BaseModel):
+    class Companies(models.TextChoices):
+        GLS = "GLS", "GLS"
+        RABEN = "RABEN", "Raben"
+
+    name = models.CharField(choices=Companies.choices, default=Companies.GLS)
+    track_url = models.CharField(max_length=2048, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if ShippingCompany.objects.filter(name=self.name).exists():
+                raise ValidationError("Company has to be unique")
+        super().save(*args, **kwargs)
+
+
+class ShippingMethod(BaseModel):
+    name = models.CharField(max_length=255)
+    company = models.ForeignKey(ShippingCompany, on_delete=models.CASCADE, related_name="methods")
+    code = models.CharField(max_length=15, null=True, blank=True)
 
 
 class ShippingAddress(BaseModel):
@@ -23,6 +44,12 @@ class ShippingAddress(BaseModel):
 class Shipping(BaseModel):
     address = models.OneToOneField(ShippingAddress, on_delete=models.CASCADE, related_name="shipping")
     service_order = models.OneToOneField(ServiceOrder, on_delete=models.CASCADE, related_name="shipping")
+    shipping_company = models.ForeignKey(
+        ShippingCompany, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
+    )
+    shipping_method = models.ForeignKey(
+        ShippingMethod, on_delete=models.CASCADE, related_name="shipping", null=True, blank=True
+    )
     parcel_id = models.CharField(max_length=120, null=True, blank=True)
     parcel_number = models.CharField(max_length=120, null=True, blank=True)
     confirmation_id = models.CharField(max_length=120, null=True, blank=True)
@@ -32,20 +59,37 @@ class Shipping(BaseModel):
     is_sent = models.BooleanField(default=False)
     delivered = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        if self.shipping_method and not self.shipping_company:
+            self.shipping_company = self.shipping_method.company
+        super().save(*args, **kwargs)
+
     def send(self):
         if self.is_sent:
             return False
-        client = GLSClient()
+        if self.shipping_company.name == "GLS":
+            client = GLSClient()
+        elif self.shipping_company.name == "RABEN":
+            client = RabenClient()
+        else:
+            Log.objects.create(
+                exception_traceback="No shipping company",
+                method_name="send",
+                model_name=self.model.__name__,
+                object_uuid=self.uuid,
+            )
+            return False
         created = client.create_parcel(self)
         if created:
-            label_created = client.create_label(self)
-            if label_created:
-                confirmed = client.confirm_shipping(self)
-                if confirmed:
-                    self.is_sent = True
-                    self.save_without_update()
-                    client.logout()
-                    return True
+            # GLS PR shipping method - cannot generate label
+            # label_created = client.create_label(self)
+            # if label_created:
+            confirmed = client.confirm_shipping(self)
+            if confirmed:
+                self.is_sent = True
+                self.save_without_update()
+                client.logout()
+                return True
         client.logout()
         return False
 

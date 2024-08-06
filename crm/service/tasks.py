@@ -1,10 +1,12 @@
 import datetime
 
+from django.conf import settings
 from django.core.mail import send_mail
 from django.db.utils import IntegrityError
+from django.utils import timezone
 
 from config import celery_app
-from crm.crm_config.models import Log
+from crm.crm_config.models import GeneralSettings, Log, ServiceAddress
 from crm.documents.models import DocumentType
 from crm.service.models import (
     Attribute,
@@ -233,8 +235,11 @@ def create_attributes(service_order_pk):
     attributes_to_create = AttributeDefinition.objects.filter(is_active=True)
     for attribute in attributes_to_create:
         if not service_order.attributes.filter(attribute_definition=attribute).exists():
+            value = ""
+            if attribute.pk in service_order.stage.attributes.all().values_list("pk", flat=True):
+                value = timezone.now().date().strftime("%Y-%m-%d")
             Attribute.objects.create(
-                attribute_definition=attribute, code=attribute.code, value="", service_order=service_order
+                attribute_definition=attribute, code=attribute.code, value=value, service_order=service_order
             )
     return
 
@@ -271,14 +276,13 @@ def email_send(service_order_pk):
             sent = send_mail(
                 html_message=email.message,
                 message=email.message,
-                from_email="no-reply@wagner-polska.com.pl",
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[
                     email.email,
                 ],
                 subject=email.subject,
                 fail_silently=False,
             )
-            print(sent)
         except Exception as e:
             Log.objects.create(
                 exception_traceback=e,
@@ -292,3 +296,43 @@ def email_send(service_order_pk):
                 email.date_of_sent = datetime.datetime.now()
                 email.save()
     return
+
+
+@celery_app.task()
+def email_order_created():
+    message = f"Nowe zgłoszenie serwisowe trafiło do systemu o godzinie {timezone.now()}."
+    try:
+        admin_mail = GeneralSettings.objects.first().admin_email
+    except Exception as e:
+        Log.objects.create(
+            exception_traceback=e,
+            method_name="email_order_created",
+            model_name="GeneralSettings",
+        )
+    else:
+        try:
+            send_mail(
+                html_message=message,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[
+                    admin_mail,
+                ],
+                subject="Nowe zgłoszenie serwisowe",
+                fail_silently=False,
+            )
+        except Exception as e:
+            Log.objects.create(
+                exception_traceback=e,
+                method_name="email_order_created",
+            )
+
+
+@celery_app.task()
+def set_service_address():
+    first_service = ServiceAddress.objects.get(name="Centrala Świętochłowice")
+    second_service = ServiceAddress.objects.get(name="Oddział Warszawa")
+    for device in Device.objects.filter(code__startswith="PF"):
+        device.available_services.set([first_service, second_service])
+    for device in Device.objects.filter(code__startswith="HF"):
+        device.available_services.set([first_service])

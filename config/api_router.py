@@ -8,7 +8,9 @@ from crm.crm_config.api.views import (
     GeneralSettingsViewSet,
     LogEntryViewSet,
     LogViewSet,
+    ServiceAddressViewSet,
     StateViewSet,
+    TaxPercentageViewSet,
 )
 from crm.documents.api.views import DocumentTypeViewSet
 from crm.products.api.views import ProductViewSet
@@ -17,6 +19,7 @@ from crm.service.api.views import (
     AttributeDefinitionViewSet,
     AttributeViewSet,
     CategoryViewSet,
+    DeviceCatalogViewSet,
     DeviceTypeViewSet,
     DeviceViewSet,
     EmailSentViewSet,
@@ -29,7 +32,14 @@ from crm.service.api.views import (
     StageDurationViewSet,
     StageViewSet,
 )
-from crm.shipping.api.views import ShippingAddressViewSet, ShippingStatusViewSet, ShippingViewSet, StatusViewSet
+from crm.shipping.api.views import (
+    ShippingAddressViewSet,
+    ShippingCompanyViewSet,
+    ShippingMethodViewSet,
+    ShippingStatusViewSet,
+    ShippingViewSet,
+    StatusViewSet,
+)
 from crm.users.api.views import OptimaUserViewSet, UserViewSet
 from crm.warehouses.api.views import WarehouseViewSet
 
@@ -45,9 +55,10 @@ router.register("categories", CategoryViewSet)
 router.register("stages", StageViewSet)
 router.register("devices-types", DeviceTypeViewSet)
 router.register("devices", DeviceViewSet)
+router.register("devices-catalogs", DeviceCatalogViewSet)
 router.register("service-orders", ServiceOrderViewSet)
-router.register("purchase-document", PurchaseDocumentViewSet)
-router.register("new-service-orders", NewServiceOrderViewSet)
+router.register("purchase-document", PurchaseDocumentViewSet, basename="purchasedocument")
+router.register("new-service-orders", NewServiceOrderViewSet, basename="newserviceorder")
 router.register("contractors", ContractorViewSet)
 router.register("document-types", DocumentTypeViewSet)
 router.register("notes", NoteViewSet)
@@ -69,6 +80,10 @@ router.register("shipping", ShippingViewSet)
 router.register("shipping-addresses", ShippingAddressViewSet)
 router.register("shipping-statuses", ShippingStatusViewSet)
 router.register("statuses", StatusViewSet)
+router.register("taxes", TaxPercentageViewSet)
+router.register("shipping-companies", ShippingCompanyViewSet)
+router.register("shipping-methods", ShippingMethodViewSet)
+router.register("service-address", ServiceAddressViewSet)
 
 app_name = "api"
 urlpatterns = router.urls

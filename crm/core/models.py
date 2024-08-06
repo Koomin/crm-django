@@ -68,3 +68,6 @@ class OptimaModel(BaseModel):
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         super().save(*args, **kwargs)
         self._optima_synchronization(with_optima_update, fields_changed)
+
+    def save_without_optima_export(self, *args, **kwargs):
+        super().save(*args, **kwargs)

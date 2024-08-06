@@ -107,12 +107,15 @@ class OptimaConnection:
         else:
             general_db = settings.OPTIMA_DB["DATABASE"]
         try:
-            self.cnxn = pyodbc.connect(
+            self.connection_string = (
                 "Driver={ODBC Driver 17 for SQL Server};"
                 f"Server={settings.OPTIMA_DB['SERVER']};"
                 f"Database={general_db if not database else database};"
                 f"uid={settings.OPTIMA_DB['UID']};"
-                f"pwd={settings.OPTIMA_DB['PASSWORD']}",
+                f"pwd={settings.OPTIMA_DB['PASSWORD']}"
+            )
+            self.cnxn = pyodbc.connect(
+                self.connection_string,
                 autocommit=False,
             )
         except Exception as e:
@@ -139,7 +142,10 @@ class OptimaObject:
         self._synchronize = self._get_synchronize()
         if self._synchronize:
             try:
-                self.connection = OptimaConnection(database).cursor
+                self.connection_ = OptimaConnection(database)
+                self.connection = self.connection_.cursor
+                if not self.connection:
+                    raise Exception("Connection error, check env variables.")
             except Exception as e:
                 self._connection_error = e
                 self.connection = None
@@ -150,6 +156,7 @@ class OptimaObject:
                     object_serialized="",
                 )
         else:
+            self._connection_error = "Synchronization is disabled."
             self.connection = None
 
     def _get_synchronize(self):

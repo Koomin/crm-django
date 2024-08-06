@@ -36,6 +36,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "name1": self.obj[12],
             "name2": self.obj[13],
             "name3": self.obj[14],
+            "regon": self.obj[15],
             "confirmed": True,
             "exported": True,
         }
@@ -50,13 +51,16 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Miasto": self.obj.city,
             "Knt_Ulica": self.obj.street,
             "Knt_NrDomu": self.obj.street_number,
-            "Knt_NrLokalu": self.obj.home_number,
-            "Knt_Poczta": self.obj.post,
+            "Knt_NrLokalu": self.obj.home_number if self.obj.home_number else " ",
+            "Knt_Poczta": self.obj.post if self.obj.post else " ",
             "Knt_Wojewodztwo": self.obj.state,
             "Knt_Nazwa1": self.obj.name1,
-            "Knt_Nazwa2": self.obj.name2,
-            "Knt_Nazwa3": self.obj.name3,
-            "Knt_Kod": self.obj.tax_number,
+            "Knt_Nazwa2": self.obj.name2 if self.obj.name2 else " ",
+            "Knt_Nazwa3": self.obj.name3 if self.obj.name3 else " ",
+            "Knt_Regon": self.obj.regon,
+            # TODO Check how to autocreate Knt_Kod
+            # "Knt_Kod": self.obj.tax_number,
+            "Knt_Kod": "*",
         }
 
     @property
@@ -66,7 +70,6 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_PodmiotTyp": 1,
             "Knt_GLN": "",
             "Knt_EAN": "",
-            "Knt_Regon": "",
             "Knt_Telefon2": "",
             "Knt_Fax": "",
             "Knt_URL": "",
@@ -136,7 +139,7 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_Pesel": "",
             "Knt_Powiat": "",
             "Knt_RachunekNr": "",
-            "Knt_Zezwolenie": "",
+            "Knt_Zezwolenie": "wpis",
             "Knt_FCzynnosci": "",
             "Knt_FCzesci": "",
             "Knt_ZwolnionyZAkcyzy": 0,
@@ -169,4 +172,27 @@ class ContractorSerializer(BaseOptimaSerializer):
             "Knt_NieNaliczajOplataCukrowa": 0,
             "Knt_NieUwzglwedniajWEwidencjiWegiel": 0,
             "Knt_NieWysylajDokumentuDoKSeF": 0,
+        }
+
+
+class ContractorAttributeSerializer(BaseOptimaSerializer):
+    def __init__(self, obj, code):
+        self._data = None
+        self._valid = False
+        self._errors = []
+        self.obj = obj
+        self.code = code
+        self._deserialization = False
+
+    def _serialize(self) -> dict:
+        return {
+            "KnA_PodmiotId": self.obj.optima_id,
+            "KnA_PodmiotTyp": 1,
+            "KnA_DeAId": self.code,
+            "KnA_WartoscTxt": "DF",
+            "KnA_CzyKopiowac": 0,
+            "KnA_CzyKod": 0,
+            "KnA_CzyPrzenosic": 0,
+            "KnA_CzyDrukowac": 0,
+            "KnA_CzyKopiowacDoVAT": 0,
         }

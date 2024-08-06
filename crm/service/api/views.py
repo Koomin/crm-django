@@ -1,22 +1,26 @@
-import datetime
+import io
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.http import HttpResponse
+from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_api_key.permissions import HasAPIKey
 
 from crm.contractors.models import Contractor
 from crm.core.api.mixins import OptimaUpdateModelMixin
 from crm.core.api.views import BaseViewSet
-from crm.crm_config.models import Country
+from crm.crm_config.models import Country, Log
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
     AttributeDefinitionSerializer,
     AttributeSerializer,
     CategorySerializer,
+    DeviceCatalogSerializer,
     DeviceSerializer,
     DeviceTypeSerializer,
     EmailSentSerializer,
@@ -24,6 +28,7 @@ from crm.service.api.serializers import (
     NoteSerializer,
     OrderTypeSerializer,
     PurchaseDocumentSerializer,
+    ServiceActivityReadSerializer,
     ServiceActivitySerializer,
     ServiceOrderSerializer,
     StageDurationSerializer,
@@ -36,6 +41,7 @@ from crm.service.models import (
     AttributeDefinitionItem,
     Category,
     Device,
+    DeviceCatalog,
     DeviceType,
     EmailSent,
     Note,
@@ -45,7 +51,7 @@ from crm.service.models import (
     Stage,
     StageDuration,
 )
-from crm.shipping.models import Shipping, ShippingAddress
+from crm.shipping.models import Shipping, ShippingAddress, ShippingMethod
 
 
 class CategoryViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
@@ -64,6 +70,12 @@ class StageViewSet(ListModelMixin, UpdateModelMixin, RetrieveModelMixin, BaseVie
         return self.serializer_class
 
 
+class DeviceCatalogViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+    queryset = DeviceCatalog.objects.all()
+    permission_classes = [IsAuthenticated | HasAPIKey]
+    serializer_class = DeviceCatalogSerializer
+
+
 class DeviceTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     queryset = DeviceType.objects.all()
     serializer_class = DeviceTypeSerializer
@@ -73,6 +85,7 @@ class DeviceViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, BaseVi
     queryset = Device.objects.all()
     permission_classes = [IsAuthenticated | HasAPIKey]
     serializer_class = DeviceSerializer
+    filterset_fields = ["uuid", "device_catalog__uuid"]
 
 
 class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, CreateModelMixin, BaseViewSet):
@@ -85,7 +98,7 @@ class NoteViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelMixin, Cr
         return super().create(request, *args, **kwargs)
 
 
-class OrderTypeViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+class OrderTypeViewSet(ListModelMixin, UpdateModelMixin, RetrieveModelMixin, BaseViewSet):
     permission_classes = [IsAuthenticated | HasAPIKey]
     queryset = OrderType.objects.all()
     serializer_class = OrderTypeSerializer
@@ -108,7 +121,11 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
             if order.optima_id:
                 synchronize_order.apply_async(args=[order.optima_id])
                 return Response(status=status.HTTP_200_OK)
-            return Response(data="Zlecenie nie wyeksportowane do Optima", status=status.HTTP_404_NOT_FOUND)
+            else:
+                exported = order.export()
+                if exported:
+                    return Response(status=status.HTTP_200_OK)
+        return Response(data="Zlecenie nie wyeksportowane do Optima", status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=["post"])
     def export(self, uuid):
@@ -123,7 +140,19 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
 
     def partial_update(self, request, *args, **kwargs):
         if request.data.get("state") == 0:
-            request.data["acceptance_date"] = datetime.datetime.now()
+            # Moved to new service order creation
+            # request.data["acceptance_date"] = timezone.now()
+            request.data["user"] = request.user.uuid
+            try:
+                default_stage = Stage.objects.get(is_default=True)
+            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+                Log.objects.create(
+                    exception_traceback=e,
+                    method_name="partial_update",
+                    model_name=self.__class__.__name__,
+                )
+            else:
+                request.data["stage"] = default_stage.uuid
         if request.data.get("stage"):
             try:
                 service_order = ServiceOrder.objects.get(uuid=kwargs.get("uuid"))
@@ -135,10 +164,21 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
             except StageDuration.DoesNotExist:
                 pass
             else:
-                current_stage_duration.end = datetime.datetime.now()
+                current_stage_duration.end = timezone.now()
                 current_stage_duration.save()
             new_stage = Stage.objects.get(uuid=request.data.get("stage"))
             StageDuration.objects.get_or_create(stage=new_stage, service_order=service_order)
+            for attr in new_stage.attributes.all():
+                try:
+                    attribute = Attribute.objects.get(service_order=service_order, attribute_definition=attr)
+                except Attribute.DoesNotExist:
+                    pass
+                else:
+                    if attribute.value:
+                        pass
+                    else:
+                        attribute.value = timezone.now().date().strftime("%Y-%m-%d")
+                        attribute.save()
         # Moved to ServiceOrder save method.
         # if request.data.get("document_type"):
         #     try:
@@ -199,6 +239,29 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
         serializer = self.get_serializer(qs, many=True)
         return Response(data=serializer.data)
 
+    @permission_classes(
+        [
+            AllowAny,
+        ]
+    )
+    @action(detail=True, methods=["get"])
+    def images(self, request, uuid):
+        obj = get_object_or_404(ServiceOrder, uuid=uuid)
+        form_files = obj.form_files.all()
+        mem_zip = io.BytesIO()
+        import zipfile
+
+        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for f in form_files:
+                file_to_zip = open(f.file.path, "rb")
+                try:
+                    zf.writestr(f.file.name.split("/")[-1], file_to_zip.getvalue())
+                except AttributeError:
+                    zf.writestr(f.file.name.split("/")[-1], file_to_zip.read())
+        mem_zip = mem_zip.getvalue()
+        response = HttpResponse(mem_zip, content_type="application/zip")
+        return response
+
 
 class PurchaseDocumentViewSet(ListModelMixin, BaseViewSet):
     queryset = ServiceOrder.objects.filter(purchase_document__isnull=False)
@@ -214,6 +277,7 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
     def create(self, request, *args, **kwargs):
         # TODO ADD STAGE WHILE CREATING NEW ORDER
         data = request.data.copy()
+        data["acceptance_date"] = timezone.now()
         try:
             contractor_country = Country.objects.get(uuid=data.get("contractor_country"))
         except Country.DoesNotExist:
@@ -225,10 +289,13 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
             customer_dict = {}
             for k, v in data.items():
                 if "contractor_" in k:
-                    customer_dict[k.replace("contractor_", "")] = v
-            contractor, created = Contractor.objects.get_or_create(
-                tax_number=data["tax_number"], defaults=customer_dict
-            )
+                    if k not in ["contractor_type", "contractor_country_name"]:
+                        customer_dict[k.replace("contractor_", "")] = v
+            try:
+                contractor = Contractor.objects.get(tax_number=data["tax_number"])
+            except Contractor.DoesNotExist:
+                contractor = Contractor(tax_number=data["tax_number"], **customer_dict)
+                contractor.save_without_optima_export()
             data["contractor"] = contractor.uuid
         else:
             try:
@@ -248,25 +315,30 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
                     data["contractor_name2"] = data.get("contractor_name")[51:]
             else:
                 data["contractor_name1"] = data.get("contractor_name")
-        description = data.get("description")
-        if not description:
-            description = ""
-        description += "\nDane z formularza:\n"
-        purchase_data = (
-            f'\nNumer dokumentu sprzedaży: {data.get("purchase_document_number")}, '
-            f'data sprzedaży: {data.get("purchase_date")}\n'
-        )
-        description += purchase_data
+        try:
+            device = Device.objects.get(uuid=data.get("device"))
+        except Device.DoesNotExist:
+            device = None
+        description = ""
+        model_contractor = f'{device.name}; {data.get("contractor_name")}\n'
+        description += model_contractor
+        if data.get("purchase_document_number"):
+            description += f'\nDowód zakupu: {data.get("purchase_document_number")} '
+        if data.get("purchase_date"):
+            description += f'{data.get("purchase_date")}\n'
         shipping = Shipping()
         shipping_address = ShippingAddress()
         if data.get("shipping") == "delivery_company":
+            shipping.default_send = True
+        if data.get("shipping_country"):
             try:
                 shipping_address.country = Country.objects.get(uuid=data.get("shipping_country"))
             except Country.DoesNotExist:
                 shipping_address.country = None
-            shipping.default_send = True
             shipping_address.city = data.get("shipping_city")
-            shipping_address.home_number = data.get("shipping_home_number")
+            shipping_address.home_number = (
+                data.get("shipping_home_number") if data.get("shipping_home_number") else None
+            )
             shipping_address.postal_code = data.get("shipping_postal_code")
             shipping_address.street = data.get("shipping_street")
             shipping_address.street_number = data.get("shipping_street_number")
@@ -274,27 +346,42 @@ class NewServiceOrderViewSet(UpdateModelMixin, CreateModelMixin, BaseViewSet):
         else:
             shipping_address.city = data.get("contractor_city")
             shipping_address.country = contractor_country
-            shipping_address.home_number = data.get("contractor_home_number")
+            shipping_address.home_number = (
+                data.get("contractor_home_number") if data.get("contractor_home_number") else None
+            )
             shipping_address.postal_code = data.get("contractor_postal_code")
             shipping_address.street = data.get("contractor_street")
             shipping_address.street_number = data.get("contractor_street_number")
             shipping_address.name = data.get("contractor_name")
+        if data.get("shipping_method"):
+            shipping.shipping_method = ShippingMethod.objects.get(uuid=data.get("shipping_method"))
+            shipping.shipping_company = shipping.shipping_method.company
         shipping_address.save()
         shipping.address = shipping_address
         address = (
-            f"Adres do wysyłki: ul.{shipping_address.street} {shipping_address.home_number}\n"
-            f"{shipping_address.postal_code} {shipping_address.city}\n{shipping_address.country}\n"
+            f"Adres do obioru/wysyłki urządzenia:\n{shipping_address.street} {shipping_address.street_number}"
+            f"{'/' + shipping_address.home_number if shipping_address.home_number else ''}\n"
+            f"{shipping_address.postal_code} {shipping_address.city}\n"
         )
         description += address
+        description += f'Opis usterki:\n{data.get("description")}'
         data["description"] = description
-        data["document_date"] = datetime.datetime.now()
+        data["document_date"] = timezone.now()
         try:
             OrderType.objects.get(uuid=data["order_type"])
         except ObjectDoesNotExist:
             return Response("Nie znaleziono typu zgłoszenia.", status=status.HTTP_404_NOT_FOUND)
+        try:
+            data["category"] = Category.objects.get(code="200").pk
+        except Category.DoesNotExist:
+            pass
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
+        from crm.service.tasks import email_order_created
+
+        email_order_created.apply_async()
         shipping.service_order = instance
         shipping.save()
         headers = self.get_success_headers(serializer.data)
@@ -333,17 +420,25 @@ class StageDurationViewSet(ListModelMixin, BaseViewSet):
 class ServiceActivityViewSet(ListModelMixin, CreateModelMixin, OptimaUpdateModelMixin, BaseViewSet):
     queryset = ServiceActivity.objects.all()
     serializer_class = ServiceActivitySerializer
+    list_serializer_class = ServiceActivityReadSerializer
     filterset_fields = ["uuid", "service_order__uuid"]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return self.list_serializer_class
+        return self.serializer_class
 
     def create(self, request, *args, **kwargs):
         try:
             service_order = ServiceOrder.objects.get(uuid=request.data["service_order"])
         except ServiceOrder.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        last_number = max(
-            service_order.service_activities.filter(number__isnull=False).values_list("number", flat=True)
+        all_activities_numbers = service_order.service_activities.filter(number__isnull=False).values_list(
+            "number", flat=True
         )
+        last_number = max(all_activities_numbers) if all_activities_numbers else 0
         request.data["number"] = last_number + 1
+        request.data["user"] = request.user.optima_user.uuid
         return super().create(request, *args, **kwargs)
 
 

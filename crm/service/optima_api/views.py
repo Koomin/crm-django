@@ -23,8 +23,10 @@ class DeviceTypeObject(OptimaObject):
 
 class DeviceObject(OptimaObject):
     get_queryset = (
-        "SELECT SRS.SrU_SrUId, SRS.SrU_Kod, SRS.SrU_Nazwa, SRS.SrU_Opis, SRS.SrU_SrRId"
-        " FROM CDN.SrsUrzadzenia as SRS"
+        "SELECT SRS.SrU_SrUId, SRS.SrU_Kod, SRS.SrU_Nazwa, SRS.SrU_Opis, SRS.SrU_SrRId, Atrybuty.TwA_WartoscTxt "
+        "FROM CDN.SrsUrzadzenia as SRS "
+        "INNER JOIN CDN.TwrAtrybuty as Atrybuty ON SRS.SrU_SrUId = Atrybuty.TwA_SrUId "
+        "WHERE Atrybuty.TwA_DeAId = 160"
     )
 
 
@@ -122,10 +124,11 @@ class ServicePartObject(ServiceOptimaObject):
 
 
 class ServiceActivityObject(ServiceOptimaObject):
+    table_name = "CDN.SrsCzynnosci"
     get_queryset = (
         "SELECT SRS.SrY_SrYId, SRS.SrY_SrZId, SRS.SrY_Lp, SRS.SrY_TwrId, SRS.SrY_SerwisantId, SRS.SrY_Zakonczona, "
         "SRS.SrY_Fakturowac, SRS.SrY_DataWykonania, SRS.SrY_TerminOd, SRS.SrY_TerminDo, SRS.SrY_Rabat, "
         "SRS.SrY_CenaNetto, SRS.SrY_CenaBrutto, SRS.SrY_Ilosc, SRS.SrY_WartoscNetto, "
-        "SRS.SrY_WartoscBrutto, SRS.SrY_JM "
+        "SRS.SrY_WartoscBrutto, SRS.SrY_JM, SrY_Stawka "
         "FROM CDN.SrsCzynnosci as SRS WHERE SRS.SrY_SrZId = {0}"
     )

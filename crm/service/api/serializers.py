@@ -3,9 +3,10 @@ from rest_framework import serializers
 from crm.contractors.models import Contractor
 from crm.core.api.fields import FileBase64Field, FileTypeField
 from crm.core.api.serializers import OptimaSerializer
-from crm.crm_config.api.serializers import EmailTemplateSerializer
-from crm.crm_config.models import EmailTemplate
+from crm.crm_config.api.serializers import EmailTemplateSerializer, ServiceAddressSerializer, TaxPercentageSerializer
+from crm.crm_config.models import EmailTemplate, ServiceAddress, TaxPercentage
 from crm.documents.models import DocumentType
+from crm.products.api.serializers import ProductSerializer
 from crm.products.models import Product
 from crm.service.models import (
     Attribute,
@@ -13,6 +14,7 @@ from crm.service.models import (
     AttributeDefinitionItem,
     Category,
     Device,
+    DeviceCatalog,
     DeviceType,
     EmailSent,
     FormFile,
@@ -36,20 +38,32 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class StageSerializer(serializers.ModelSerializer):
     email_template = EmailTemplateSerializer(read_only=True)
+    attributes = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False, many=True
+    )
 
     class Meta:
         model = Stage
-        fields = ["uuid", "type", "code", "description", "email_template"]
+        fields = ["uuid", "type", "code", "description", "email_template", "attributes"]
 
 
 class StageUpdateSerializer(serializers.ModelSerializer):
     email_template = serializers.SlugRelatedField(
         slug_field="uuid", queryset=EmailTemplate.objects.all(), read_only=False
     )
+    attributes = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=AttributeDefinition.objects.all(), read_only=False, many=True
+    )
 
     class Meta:
         model = Stage
-        fields = ["uuid", "type", "code", "description", "email_template"]
+        fields = ["uuid", "type", "code", "description", "email_template", "attributes"]
+
+
+class DeviceCatalogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceCatalog
+        fields = ["uuid", "name", "active"]
 
 
 class DeviceTypeSerializer(serializers.ModelSerializer):
@@ -59,14 +73,37 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 
 
 class DeviceSerializer(serializers.ModelSerializer):
+    from crm.shipping.models import ShippingCompany, ShippingMethod
+
     device_type = serializers.SlugRelatedField(slug_field="uuid", read_only=True)
     document_type = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DocumentType.objects.all(), read_only=False
     )
+    # shipping_company = serializers.SlugRelatedField(
+    #     slug_field="uuid", queryset=ShippingCompany.objects.all(), read_only=False
+    # )
+    shipping_method = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ShippingMethod.objects.all(), many=True, read_only=False
+    )
+    device_catalog = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=DeviceCatalog.objects.all(), read_only=False
+    )
+    available_services = serializers.SlugRelatedField(slug_field="uuid", many=True, read_only=True)
 
     class Meta:
         model = Device
-        fields = ["uuid", "code", "name", "description", "device_type", "document_type"]
+        fields = [
+            "uuid",
+            "code",
+            "name",
+            "description",
+            "device_type",
+            "document_type",
+            # "shipping_company",
+            "device_catalog",
+            "shipping_method",
+            "available_services",
+        ]
 
 
 class NoteSerializer(OptimaSerializer):
@@ -98,6 +135,9 @@ class ServiceActivitySerializer(OptimaSerializer):
     )
     date_from = serializers.DateTimeField(format="%Y-%m-%d", required=False)
     date_to = serializers.DateTimeField(format="%Y-%m-%d", required=False)
+    tax_percentage = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=TaxPercentage.objects.all(), read_only=False
+    )
 
     class Meta:
         model = ServiceActivity
@@ -122,6 +162,49 @@ class ServiceActivitySerializer(OptimaSerializer):
             "value_gross",
             "unit",
             "service_order",
+            "tax_percentage",
+            "service_cost",
+        ]
+
+
+class ServiceActivityReadSerializer(OptimaSerializer):
+    product = ProductSerializer()
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    product_code = serializers.CharField(source="product.code", read_only=True)
+    user_code = serializers.CharField(source="user.code", read_only=True)
+    user = serializers.SlugRelatedField(slug_field="uuid", queryset=OptimaUser.objects.all(), read_only=False)
+    service_order = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceOrder.objects.all(), read_only=False
+    )
+    date_from = serializers.DateTimeField(format="%Y-%m-%d", required=False)
+    date_to = serializers.DateTimeField(format="%Y-%m-%d", required=False)
+    tax_percentage = TaxPercentageSerializer()
+
+    class Meta:
+        model = ServiceActivity
+        fields = [
+            "uuid",
+            "number",
+            "product",
+            "product_name",
+            "product_code",
+            "to_invoicing",
+            "user_code",
+            "user",
+            "is_finished",
+            "date_of_service",
+            "date_from",
+            "date_to",
+            "price_net",
+            "price_gross",
+            "price_discount",
+            "quantity",
+            "value_net",
+            "value_gross",
+            "unit",
+            "service_order",
+            "tax_percentage",
+            "service_cost",
         ]
 
 
@@ -165,6 +248,7 @@ class ServiceOrderSerializer(OptimaSerializer):
     category = serializers.SlugRelatedField(slug_field="uuid", queryset=Category.objects.all(), read_only=False)
     category_code = serializers.CharField(source="category.code", allow_null=True, required=False)
     contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
+    contractor_ext_id = serializers.IntegerField(source="contractor.optima_id", read_only=True, required=False)
     # contractor_name = serializers.CharField(source="contractor.name", allow_null=True, required=False)
     user = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all(), read_only=False)
     warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)
@@ -186,6 +270,7 @@ class ServiceOrderSerializer(OptimaSerializer):
     contractor_confirmed = serializers.BooleanField(source="contractor.confirmed", read_only=True)
     service_parts = ServicePartSerializer(many=True, read_only=True)
     service_activities = ServiceActivitySerializer(many=True, read_only=True)
+    service_address = ServiceAddressSerializer(read_only=True)
 
     class Meta:
         model = ServiceOrder
@@ -243,13 +328,17 @@ class ServiceOrderSerializer(OptimaSerializer):
             "form_files",
             "service_parts",
             "service_activities",
+            "service_address",
+            "contractor_ext_id",
         ]
 
 
 class OrderTypeSerializer(serializers.ModelSerializer):
+    warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)
+
     class Meta:
         model = OrderType
-        fields = ["uuid", "name"]
+        fields = ["uuid", "name", "warehouse"]
 
 
 class PurchaseDocumentSerializer(serializers.ModelSerializer):
@@ -266,6 +355,9 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
     order_type = serializers.SlugRelatedField(slug_field="uuid", queryset=OrderType.objects.all(), read_only=False)
     form_files = FormFileSerializer(many=True, read_only=True)
     device = serializers.SlugRelatedField(slug_field="uuid", queryset=Device.objects.all(), read_only=False)
+    service_address = serializers.SlugRelatedField(
+        slug_field="uuid", queryset=ServiceAddress.objects.all(), read_only=False, required=False
+    )
 
     class Meta:
         model = ServiceOrder
@@ -294,6 +386,8 @@ class NewServiceOrderSerializer(serializers.ModelSerializer):
             "acceptance_date",
             "form_files",
             "device",
+            "service_address",
+            "category",
         ]
 
     def create(self, validated_data):

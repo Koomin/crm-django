@@ -26,7 +26,7 @@ class UserFactory(DjangoModelFactory):
     username = Faker("user_name")
     email = Faker("email")
     first_name = Faker("first_name")
-    last_name = Faker("first_name")
+    last_name = Faker("last_name")
     optima_user = SubFactory(OptimaUserFactory)
     created = Faker("date_time_this_year")
 
