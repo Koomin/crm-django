@@ -6,7 +6,7 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 from config import celery_app
-from crm.crm_config.models import GeneralSettings, Log
+from crm.crm_config.models import GeneralSettings, Log, ServiceAddress
 from crm.documents.models import DocumentType
 from crm.service.models import (
     Attribute,
@@ -235,8 +235,11 @@ def create_attributes(service_order_pk):
     attributes_to_create = AttributeDefinition.objects.filter(is_active=True)
     for attribute in attributes_to_create:
         if not service_order.attributes.filter(attribute_definition=attribute).exists():
+            value = ""
+            if attribute.pk in service_order.stage.attributes.all().values_list("pk", flat=True):
+                value = timezone.now().date().strftime("%Y-%m-%d")
             Attribute.objects.create(
-                attribute_definition=attribute, code=attribute.code, value="", service_order=service_order
+                attribute_definition=attribute, code=attribute.code, value=value, service_order=service_order
             )
     return
 
@@ -323,3 +326,13 @@ def email_order_created():
                 exception_traceback=e,
                 method_name="email_order_created",
             )
+
+
+@celery_app.task()
+def set_service_address():
+    first_service = ServiceAddress.objects.get(name="Centrala Świętochłowice")
+    second_service = ServiceAddress.objects.get(name="Oddział Warszawa")
+    for device in Device.objects.filter(code__startswith="PF"):
+        device.available_services.set([first_service, second_service])
+    for device in Device.objects.filter(code__startswith="HF"):
+        device.available_services.set([first_service])

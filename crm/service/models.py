@@ -29,13 +29,17 @@ class Stage(OptimaModel):
     attributes = models.ManyToManyField("service.AttributeDefinition")
 
     def save(self, *args, **kwargs):
-        Stage.objects.filter(is_default=True).update(is_default=False)
+        if self.is_default:
+            Stage.objects.filter(is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
 
 
 class DeviceCatalog(BaseModel):
     name = models.CharField(max_length=255)
     active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
 
 
 class DeviceType(OptimaModel):
@@ -51,12 +55,15 @@ class Device(OptimaModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=1024)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
-    device_catalog = models.ForeignKey(DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True)
+    device_catalog = models.ForeignKey(
+        DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True, related_name="devices"
+    )
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
     # shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL,
     # null=True, blank=True)
     shipping_method = models.ManyToManyField("shipping.ShippingMethod")
     active = models.BooleanField(default=True)
+    available_services = models.ManyToManyField("crm_config.ServiceAddress", blank=True, related_name="devices")
 
 
 class OrderType(BaseModel):
@@ -197,21 +204,29 @@ class ServiceOrder(OptimaModel):
 
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         # TODO Test
-        default_stage = None
-        if not self.pk:
+        # Moved to view
+        # default_stage = None
+        # if not self.pk:
+        #     try:
+        #         default_stage = Stage.objects.get(is_default=True)
+        #     except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+        #         Log.objects.create(
+        #             exception_traceback=e,
+        #             method_name="save",
+        #             model_name=self.__class__.__name__,
+        #         )
+        #     else:
+        #         self.stage = default_stage
+        if not self.pk and not self.document_type:
             try:
-                default_stage = Stage.objects.get(is_default=True)
-            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
-                Log.objects.create(
-                    exception_traceback=e,
-                    method_name="save",
-                    model_name=self.__class__.__name__,
-                )
+                default_document_type = DocumentType.objects.get(is_default=True)
+            except (DocumentType.DoesNotExist, MultipleObjectsReturned):
+                pass
             else:
-                self.stage = default_stage
-        if self.device:
-            if self.device.document_type:
-                self.document_type = self.device.document_type
+                self.document_type = default_document_type
+        # if self.device:
+        #     if self.device.document_type:
+        #         self.document_type = self.device.document_type
         if self.order_type and self.order_type.warehouse:
             self.warehouse = self.order_type.warehouse
         if self.document_type and not self.number_scheme:
@@ -221,8 +236,9 @@ class ServiceOrder(OptimaModel):
             self.contractor_name2 = self.contractor.name2
             self.contractor_name3 = self.contractor.name3
         super().save(fields_changed, with_optima_update, *args, **kwargs)
-        if default_stage:
-            StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
+        # MOVED TO VIEWS
+        # if default_stage:
+        #     StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
         if fields_changed and "stage" in fields_changed:
             general_settings_model = apps.get_model("crm_config", "GeneralSettings")
             try:

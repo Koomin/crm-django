@@ -61,7 +61,7 @@ class ShippingAddressUpdateSerializer(serializers.ModelSerializer):
 class ShippingCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingCompany
-        fields = ["uuid", "name"]
+        fields = ["uuid", "name", "track_url"]
 
 
 class ShippingSerializer(serializers.ModelSerializer):

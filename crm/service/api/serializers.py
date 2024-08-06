@@ -88,6 +88,7 @@ class DeviceSerializer(serializers.ModelSerializer):
     device_catalog = serializers.SlugRelatedField(
         slug_field="uuid", queryset=DeviceCatalog.objects.all(), read_only=False
     )
+    available_services = serializers.SlugRelatedField(slug_field="uuid", many=True, read_only=True)
 
     class Meta:
         model = Device
@@ -101,6 +102,7 @@ class DeviceSerializer(serializers.ModelSerializer):
             # "shipping_company",
             "device_catalog",
             "shipping_method",
+            "available_services",
         ]
 
 
@@ -246,6 +248,7 @@ class ServiceOrderSerializer(OptimaSerializer):
     category = serializers.SlugRelatedField(slug_field="uuid", queryset=Category.objects.all(), read_only=False)
     category_code = serializers.CharField(source="category.code", allow_null=True, required=False)
     contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
+    contractor_ext_id = serializers.IntegerField(source="contractor.optima_id", read_only=True, required=False)
     # contractor_name = serializers.CharField(source="contractor.name", allow_null=True, required=False)
     user = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all(), read_only=False)
     warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)
@@ -326,6 +329,7 @@ class ServiceOrderSerializer(OptimaSerializer):
             "service_parts",
             "service_activities",
             "service_address",
+            "contractor_ext_id",
         ]
 
 
