@@ -248,6 +248,7 @@ class ServiceOrderSerializer(OptimaSerializer):
     category = serializers.SlugRelatedField(slug_field="uuid", queryset=Category.objects.all(), read_only=False)
     category_code = serializers.CharField(source="category.code", allow_null=True, required=False)
     contractor = serializers.SlugRelatedField(slug_field="uuid", queryset=Contractor.objects.all(), read_only=False)
+    contractor_ext_id = serializers.SlugRelatedField(slug_field="optima_id", read_only=True)
     # contractor_name = serializers.CharField(source="contractor.name", allow_null=True, required=False)
     user = serializers.SlugRelatedField(slug_field="uuid", queryset=User.objects.all(), read_only=False)
     warehouse = serializers.SlugRelatedField(slug_field="uuid", queryset=Warehouse.objects.all(), read_only=False)

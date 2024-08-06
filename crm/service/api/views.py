@@ -1,21 +1,21 @@
 import datetime
 import io
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import HttpResponse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_api_key.permissions import HasAPIKey
 
 from crm.contractors.models import Contractor
 from crm.core.api.mixins import OptimaUpdateModelMixin
 from crm.core.api.views import BaseViewSet
-from crm.crm_config.models import Country
+from crm.crm_config.models import Country, Log
 from crm.service.api.serializers import (
     AttributeDefinitionItemSerializer,
     AttributeDefinitionSerializer,
@@ -144,6 +144,16 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
             # Moved to new service order creation
             # request.data["acceptance_date"] = timezone.now()
             request.data["user"] = request.user.uuid
+            try:
+                default_stage = Stage.objects.get(is_default=True)
+            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+                Log.objects.create(
+                    exception_traceback=e,
+                    method_name="partial_update",
+                    model_name=self.__class__.__name__,
+                )
+            else:
+                request.data["stage"] = default_stage
         if request.data.get("stage"):
             try:
                 service_order = ServiceOrder.objects.get(uuid=kwargs.get("uuid"))
@@ -232,7 +242,7 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
 
     @permission_classes(
         [
-            IsAuthenticatedOrReadOnly,
+            AllowAny,
         ]
     )
     @action(detail=True, methods=["get"])
