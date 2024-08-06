@@ -1,5 +1,3 @@
-import datetime
-
 from django.apps import apps
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
@@ -7,7 +5,7 @@ from django.utils import timezone
 
 from crm.contractors.models import Contractor
 from crm.core.models import BaseModel, OptimaModel
-from crm.crm_config.models import EmailTemplate, Log, TaxPercentage
+from crm.crm_config.models import EmailTemplate, Log, ServiceAddress, TaxPercentage
 from crm.documents.models import DocumentType
 from crm.products.models import Product
 from crm.users.models import OptimaUser, User
@@ -28,10 +26,20 @@ class Stage(OptimaModel):
     description = models.CharField(max_length=255, null=True)
     email_template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, null=True, blank=True)
     is_default = models.BooleanField(default=False)
+    attributes = models.ManyToManyField("service.AttributeDefinition")
 
     def save(self, *args, **kwargs):
-        Stage.objects.filter(is_default=True).update(is_default=False)
+        if self.is_default:
+            Stage.objects.filter(is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
+
+
+class DeviceCatalog(BaseModel):
+    name = models.CharField(max_length=255)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
 
 
 class DeviceType(OptimaModel):
@@ -47,11 +55,20 @@ class Device(OptimaModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=1024)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
+    device_catalog = models.ForeignKey(
+        DeviceCatalog, on_delete=models.SET_NULL, null=True, blank=True, related_name="devices"
+    )
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, null=True, blank=True)
+    # shipping_company = models.ForeignKey("shipping.ShippingCompany", on_delete=models.SET_NULL,
+    # null=True, blank=True)
+    shipping_method = models.ManyToManyField("shipping.ShippingMethod")
+    active = models.BooleanField(default=True)
+    available_services = models.ManyToManyField("crm_config.ServiceAddress", blank=True, related_name="devices")
 
 
 class OrderType(BaseModel):
     name = models.CharField(max_length=50)
+    warehouse = models.OneToOneField(Warehouse, on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class ServiceOrder(OptimaModel):
@@ -106,6 +123,7 @@ class ServiceOrder(OptimaModel):
     phone_number = models.CharField(max_length=255, null=True, blank=True)
     order_type = models.ForeignKey(OrderType, on_delete=models.CASCADE, null=True, blank=True)
     purchase_document = models.FileField(upload_to="purchase_documents/", null=True, blank=True)
+    service_address = models.ForeignKey(ServiceAddress, on_delete=models.SET_NULL, null=True, blank=True)
 
     def _export_to_optima(self) -> (bool, str, dict):
         from service.optima_api.serializers import ServiceOrderSerializer
@@ -113,6 +131,8 @@ class ServiceOrder(OptimaModel):
 
         from crm.service.tasks import create_attributes
 
+        if self.state == self.States.CANCELED and not self.optima_id:
+            return True, None, {}
         if self.state != self.States.NEW:
             if not self.number:
                 all_numbers = ServiceOrder.objects.filter(
@@ -151,9 +171,13 @@ class ServiceOrder(OptimaModel):
     def export(self):
         if not self.exported and not self.optima_id:
             created, errors, data = self._export_to_optima()
+            try:
+                exceptions = ",".join(errors)
+            except Exception:
+                exceptions = errors
             if not created:
                 Log.objects.create(
-                    exception_traceback=",".join(errors),
+                    exception_traceback=exceptions,
                     method_name="export",
                     model_name=self.__class__.__name__,
                     object_uuid=self.uuid,
@@ -180,23 +204,31 @@ class ServiceOrder(OptimaModel):
 
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         # TODO Test
-        default_stage = None
-        if not self.pk:
+        # Moved to view
+        # default_stage = None
+        # if not self.pk:
+        #     try:
+        #         default_stage = Stage.objects.get(is_default=True)
+        #     except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
+        #         Log.objects.create(
+        #             exception_traceback=e,
+        #             method_name="save",
+        #             model_name=self.__class__.__name__,
+        #         )
+        #     else:
+        #         self.stage = default_stage
+        if not self.pk and not self.document_type:
             try:
-                default_stage = Stage.objects.get(is_default=True)
-            except (Stage.DoesNotExist, MultipleObjectsReturned) as e:
-                Log.objects.create(
-                    exception_traceback=e,
-                    method_name="save",
-                    model_name=self.__class__.__name__,
-                )
+                default_document_type = DocumentType.objects.get(is_default=True)
+            except (DocumentType.DoesNotExist, MultipleObjectsReturned):
+                pass
             else:
-                self.stage = default_stage
-        if self.device:
-            if self.device.document_type:
-                self.document_type = self.device.document_type
-                if self.device.document_type.warehouse:
-                    self.warehouse = self.device.document_type.warehouse
+                self.document_type = default_document_type
+        # if self.device:
+        #     if self.device.document_type:
+        #         self.document_type = self.device.document_type
+        if self.order_type and self.order_type.warehouse:
+            self.warehouse = self.order_type.warehouse
         if self.document_type and not self.number_scheme:
             self.number_scheme = self.document_type.format_numbering_scheme()
         if not self.contractor_name1 and self.contractor:
@@ -204,8 +236,9 @@ class ServiceOrder(OptimaModel):
             self.contractor_name2 = self.contractor.name2
             self.contractor_name3 = self.contractor.name3
         super().save(fields_changed, with_optima_update, *args, **kwargs)
-        if default_stage:
-            StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
+        # MOVED TO VIEWS
+        # if default_stage:
+        #     StageDuration.objects.create(stage=default_stage, start=timezone.now(), service_order=self)
         if fields_changed and "stage" in fields_changed:
             general_settings_model = apps.get_model("crm_config", "GeneralSettings")
             try:
@@ -400,7 +433,7 @@ class ServiceActivity(OptimaModel):
 
     def save(self, fields_changed=None, with_optima_update=True, *args, **kwargs):
         if not self.pk:
-            now_date = datetime.datetime.now()
+            now_date = timezone.now()
             if not self.date_from:
                 self.date_from = now_date
             if not self.date_to:

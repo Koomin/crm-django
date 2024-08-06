@@ -1,13 +1,14 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from crm.service.actions import set_active, set_inactive
+from crm.service.actions import set_active, set_inactive, set_standard_package
 from crm.service.models import (
     Attribute,
     AttributeDefinition,
     AttributeDefinitionItem,
     Category,
     Device,
+    DeviceCatalog,
     DeviceType,
     EmailSent,
     FormFile,
@@ -34,6 +35,11 @@ class StageAdmin(ModelAdmin):
 @admin.register(DeviceType)
 class DeviceTypeAdmin(ModelAdmin):
     pass
+
+
+@admin.register(DeviceCatalog)
+class DeviceCatalogAdmin(ModelAdmin):
+    actions = (set_standard_package,)
 
 
 @admin.register(Device)
@@ -69,6 +75,9 @@ class AttributeDefinitionItemAdmin(ModelAdmin):
 @admin.register(AttributeDefinition)
 class AttributeDefinitionAdmin(ModelAdmin):
     actions = (set_active, set_inactive)
+    search_fields = [
+        "code",
+    ]
 
 
 @admin.register(StageDuration)

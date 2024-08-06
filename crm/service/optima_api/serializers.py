@@ -48,6 +48,11 @@ class DeviceSerializer(BaseOptimaSerializer):
             self._valid = False
             return None
 
+    def _get_device_catalog(self):
+        DeviceCatalog = apps.get_model("service", "DeviceCatalog")
+        catalog, created = DeviceCatalog.objects.get_or_create(name=self.obj[5])
+        return catalog
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -55,6 +60,7 @@ class DeviceSerializer(BaseOptimaSerializer):
             "name": self.obj[2],
             "description": self.obj[3],
             "device_type": self._get_device_type(),
+            "device_catalog": self._get_device_catalog(),
         }
 
 
@@ -176,7 +182,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _get_attribute_definition(self):
         try:
-            attribute_definition = self.model.objects.get(optima_id=self.obj[2])
+            attribute_definition = AttributeDefinitionSerializer.model.objects.get(optima_id=self.obj[2])
         except ObjectDoesNotExist:
             self._valid = False
             return None
@@ -185,7 +191,7 @@ class AttributeSerializer(BaseOptimaSerializer):
 
     def _get_service_order(self):
         try:
-            service_order = self.model.objects.get(optima_id=self.obj[4])
+            service_order = ServiceOrderSerializer.model.objects.get(optima_id=self.obj[4])
         except ObjectDoesNotExist:
             self._valid = False
             return None
@@ -681,6 +687,9 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
     def _serialize_buffer(self):
         return 1 if self.obj.in_buffer else 0
 
+    def _serialize_description(self):
+        return self.obj.description.replace("\n", "\r\n")
+
     def _deserialize(self) -> dict:
         return {
             "optima_id": self.obj[0],
@@ -747,7 +756,7 @@ class ServiceOrderSerializer(BaseOptimaSerializer):
             "SrZ_WartoscNettoDoFAPLN": self.obj.net_value or 0.00,
             "SrZ_WartoscBruttoDoFA": self.obj.gross_value or 0.00,
             "SrZ_WartoscBruttoDoFAPLN": self.obj.gross_value or 0.00,
-            "SrZ_Opis": self.obj.description,
+            "SrZ_Opis": self._serialize_description(),
             "SrZ_SrUId": self._serialize_device(),
             # "SrZ_NumerPelny": self.obj.full_number,
             "SrZ_Email": self.obj.email,

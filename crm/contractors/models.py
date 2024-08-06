@@ -7,6 +7,7 @@ class Contractor(OptimaModel):
     code = models.CharField(max_length=120, null=True, blank=True)
     postal_code = models.CharField(max_length=20)
     tax_number = models.CharField(max_length=30)
+    regon = models.CharField(max_length=20, null=True, blank=True)
     phone_number = models.CharField(max_length=30)
     country = models.CharField(max_length=250)
     city = models.CharField(max_length=120)
@@ -39,16 +40,22 @@ class Contractor(OptimaModel):
     def _export_to_optima(self) -> (bool, str, dict):
         from crm.contractors.optima_api.serializers import ContractorSerializer
         from crm.contractors.optima_api.views import ContractorObject
+        from crm.contractors.tasks import create_attributes
 
         serializer = ContractorSerializer(self)
         if serializer.is_valid():
             connection = ContractorObject()
-            created, optima_id = connection.post(serializer.data)
-            if created and optima_id:
+            optima_id = connection.get_id_by_tax_number(self.tax_number)
+            if optima_id:
+                return False, "Contractor with given tax number already exists in optima.", serializer.data
+            created, response = connection.post(serializer.data)
+            if created and response:
+                optima_id = connection.get_id_by_tax_number(self.tax_number)
                 self.optima_id = optima_id
                 self.exported = True
                 super().save()
-            return created, optima_id, serializer.data
+                create_attributes.apply_async(args=[str(self.pk)], countdown=10)
+            return created, response, serializer.data
         return False, serializer.errors, {}
 
     def save(self, *args, **kwargs):

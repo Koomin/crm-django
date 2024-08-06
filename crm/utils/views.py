@@ -53,12 +53,14 @@ def gus_data_by_tax_id(request, tax_id):
                         "contractor_country_obj": country_obj,
                         "contractor_country": country_obj.get("uuid"),
                         "contractor_country_name": country,
-                        "contractor_street": f"{data.get('Ulica')} {data.get('NrNieruchomosci')}",
+                        "contractor_street": f"{data.get('Ulica')}",
+                        "contractor_street_number": f"{data.get('NrNieruchomosci')}",
                         "contractor_home_number": data.get("NrLokalu"),
                         "contractor_postal_code": data.get("KodPocztowy"),
                         "contractor_name": name,
                         "contractor_state_obj": state_obj,
                         "contractor_state": state,
+                        "contractor_regon": data.get("Regon"),
                     }
                     return Response(serialized, status=status.HTTP_200_OK)
     return Response({}, status=status.HTTP_404_NOT_FOUND)
