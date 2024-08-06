@@ -235,8 +235,11 @@ def create_attributes(service_order_pk):
     attributes_to_create = AttributeDefinition.objects.filter(is_active=True)
     for attribute in attributes_to_create:
         if not service_order.attributes.filter(attribute_definition=attribute).exists():
+            value = ""
+            if attribute.pk in service_order.stage.attributes.all().values_list("pk", flat=True):
+                value = timezone.now().date().strftime("%Y-%m-%d")
             Attribute.objects.create(
-                attribute_definition=attribute, code=attribute.code, value="", service_order=service_order
+                attribute_definition=attribute, code=attribute.code, value=value, service_order=service_order
             )
     return
 
