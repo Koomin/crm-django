@@ -329,6 +329,7 @@ class ServiceOrderSerializer(OptimaSerializer):
             "service_parts",
             "service_activities",
             "service_address",
+            "contractor_ext_id",
         ]
 
 
