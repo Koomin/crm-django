@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import models
 from django.utils import timezone
 
@@ -28,7 +29,8 @@ class Stage(OptimaModel):
     attributes = models.ManyToManyField("service.AttributeDefinition")
 
     def save(self, *args, **kwargs):
-        Stage.objects.filter(is_default=True).update(is_default=False)
+        if self.is_default:
+            Stage.objects.filter(is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
 
 
@@ -215,9 +217,16 @@ class ServiceOrder(OptimaModel):
         #         )
         #     else:
         #         self.stage = default_stage
-        if self.device:
-            if self.device.document_type:
-                self.document_type = self.device.document_type
+        if not self.pk and not self.document_type:
+            try:
+                default_document_type = DocumentType.objects.get(is_default=True)
+            except (DocumentType.DoesNotExist, MultipleObjectsReturned):
+                pass
+            else:
+                self.document_type = default_document_type
+        # if self.device:
+        #     if self.device.document_type:
+        #         self.document_type = self.device.document_type
         if self.order_type and self.order_type.warehouse:
             self.warehouse = self.order_type.warehouse
         if self.document_type and not self.number_scheme:

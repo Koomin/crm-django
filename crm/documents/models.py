@@ -15,6 +15,7 @@ class DocumentType(OptimaModel):
     active = models.BooleanField(default=True)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True)
     to_import = models.BooleanField(default=False)
+    is_default = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.symbol} - {self.name}"
@@ -31,3 +32,8 @@ class DocumentType(OptimaModel):
         for key, value in formatting_dict.items():
             formatted_scheme = formatted_scheme.replace(key, value)
         return formatted_scheme
+
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            DocumentType.objects.filter(is_default=True).update(is_default=False)
+        super().save(*args, **kwargs)
