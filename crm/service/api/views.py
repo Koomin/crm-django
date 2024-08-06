@@ -249,11 +249,6 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
         obj = get_object_or_404(ServiceOrder, uuid=uuid)
         form_files = obj.form_files.all()
         mem_zip = io.BytesIO()
-        # filename = (
-        #     f"{obj.full_number}_{datetime.datetime.now()}.zip"
-        #     if obj.full_number
-        #     else f"_{datetime.datetime.now()}.zip"
-        # )
         import zipfile
 
         with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
@@ -265,7 +260,6 @@ class ServiceOrderViewSet(ListModelMixin, RetrieveModelMixin, OptimaUpdateModelM
                     zf.writestr(f.file.name.split("/")[-1], file_to_zip.read())
         mem_zip = mem_zip.getvalue()
         response = HttpResponse(mem_zip, content_type="application/zip")
-        # response["Content-Disposition"] = f'attachment; filename="{filename}"'
         return response
 
 
